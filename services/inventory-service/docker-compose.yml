@@ -13,6 +13,61 @@ services:
       - "5433:5432"
     volumes:
       - inventory_postgres_data:/var/lib/postgresql/data
+    networks:
+      - default
+      - ecommerce-net
+
+  inventory-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: inventory-api
+    restart: always
+    depends_on:
+      - inventory-postgres
+    ports:
+      - "8082:8082"
+    environment:
+      APP_NAME: inventory-service
+      APP_PORT: 8082
+      APP_ENV: development
+      DB_URL: postgres://postgres:postgres@inventory-postgres:5432/inventory_db?sslmode=disable
+      KAFKA_BROKER: order-kafka:9092
+      KAFKA_GROUP_ID: inventory-service-group
+      KAFKA_TOPIC_ORDER_CREATED: order.created
+      KAFKA_TOPIC_INVENTORY_RESERVED: inventory.reserved
+      KAFKA_TOPIC_INVENTORY_FAILED: inventory.failed
+    command: ["/app/inventory-api"]
+    networks:
+      - default
+      - ecommerce-net
+
+  inventory-consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: inventory-consumer
+    restart: always
+    depends_on:
+      - inventory-postgres
+    environment:
+      APP_NAME: inventory-service
+      APP_PORT: 8082
+      APP_ENV: development
+      DB_URL: postgres://postgres:postgres@inventory-postgres:5432/inventory_db?sslmode=disable
+      KAFKA_BROKER: order-kafka:9092
+      KAFKA_GROUP_ID: inventory-service-group
+      KAFKA_TOPIC_ORDER_CREATED: order.created
+      KAFKA_TOPIC_INVENTORY_RESERVED: inventory.reserved
+      KAFKA_TOPIC_INVENTORY_FAILED: inventory.failed
+    command: ["/app/inventory-consumer"]
+    networks:
+      - default
+      - ecommerce-net
 
 volumes:
   inventory_postgres_data:
+
+networks:
+  ecommerce-net:
+    external: true

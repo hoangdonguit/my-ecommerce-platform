@@ -5,37 +5,45 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	inventoryapp "github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/app/inventory"
 	"github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/config"
-	"github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/db"
-	"github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/handler"
-	"github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/kafka"
-	"github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/repository"
-	"github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/service"
+	"github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/infrastructure/db"
+	"github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/infrastructure/messaging"
+	"github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/infrastructure/persistence"
+	httpapi "github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/interfaces/http"
 )
 
 func main() {
 	cfg := config.Load()
 
-	conn, err := db.NewPostgres(cfg.DBURL)
-	if err != nil {
-		log.Fatalf("cannot connect db: %v", err)
+	if cfg.AppEnv == "production" {
+		gin.SetMode(gin.ReleaseMode)
 	}
-	defer conn.Close()
 
-	repo := repository.NewInventoryRepository(conn)
-	publisher := kafka.NewPublisher(cfg.KafkaBroker, cfg.InventoryReservedTopic, cfg.InventoryFailedTopic)
-	svc := service.NewInventoryService(repo, publisher)
-	h := handler.NewInventoryHandler(svc)
+	pool, err := db.NewPostgres(cfg.DBURL)
+	if err != nil {
+		log.Fatalf("failed to connect postgres: %v", err)
+	}
+	defer pool.Close()
 
-	router := gin.Default()
+	log.Println("postgres connected successfully")
 
-	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok"})
-	})
-	router.GET("/inventory/:productId", h.GetInventory)
+	repo := persistence.NewInventoryRepository(pool)
+	publisher := messaging.NewInventoryPublisher(
+		cfg.KafkaBroker,
+		cfg.InventoryReservedTopic,
+		cfg.InventoryFailedTopic,
+	)
+	defer publisher.Close()
 
-	log.Printf("inventory-service api running on :%s", cfg.AppPort)
+	service := inventoryapp.NewService(repo, publisher)
+	handler := httpapi.NewInventoryHandler(service)
+
+	router := httpapi.SetupRouter(handler)
+
+	log.Printf("%s starting on port %s", cfg.AppName, cfg.AppPort)
+
 	if err := router.Run(":" + cfg.AppPort); err != nil {
-		log.Fatalf("cannot run server: %v", err)
+		log.Fatalf("failed to start server: %v", err)
 	}
 }
