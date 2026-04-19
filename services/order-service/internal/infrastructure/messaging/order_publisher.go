@@ -1,13 +1,12 @@
-package kafka
+package messaging
 
 import (
 	"context"
 	"encoding/json"
 	"time"
 
+	orderapp "github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/app/order"
 	kafkago "github.com/segmentio/kafka-go"
-
-	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/model"
 )
 
 type OrderPublisher struct {
@@ -15,7 +14,7 @@ type OrderPublisher struct {
 	topic  string
 }
 
-func NewOrderPublisher(broker, topic string) *OrderPublisher {
+func NewOrderPublisher(broker string, topic string) *OrderPublisher {
 	return &OrderPublisher{
 		writer: &kafkago.Writer{
 			Addr:         kafkago.TCP(broker),
@@ -28,7 +27,7 @@ func NewOrderPublisher(broker, topic string) *OrderPublisher {
 	}
 }
 
-func (p *OrderPublisher) PublishOrderCreated(ctx context.Context, event model.OrderCreatedEvent) error {
+func (p *OrderPublisher) PublishOrderCreated(ctx context.Context, event orderapp.OrderCreatedEvent) error {
 	payload, err := json.Marshal(event)
 	if err != nil {
 		return err
@@ -41,4 +40,8 @@ func (p *OrderPublisher) PublishOrderCreated(ctx context.Context, event model.Or
 	}
 
 	return p.writer.WriteMessages(ctx, msg)
+}
+
+func (p *OrderPublisher) Close() error {
+	return p.writer.Close()
 }

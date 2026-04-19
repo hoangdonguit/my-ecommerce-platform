@@ -5,36 +5,41 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	orderapp "github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/app/order"
 	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/config"
-	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/db"
-	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/handler"
-	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/kafka"
-	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/repository"
-	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/service"
+	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/infrastructure/db"
+	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/infrastructure/messaging"
+	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/infrastructure/persistence"
+	httpapi "github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/interfaces/http"
 )
 
 func main() {
 	cfg := config.Load()
 
-	conn, err := db.NewPostgres(cfg.DBURL)
-	if err != nil {
-		log.Fatalf("cannot connect db: %v", err)
+	if cfg.AppEnv == "production" {
+		gin.SetMode(gin.ReleaseMode)
 	}
-	defer conn.Close()
 
-	orderRepo := repository.NewOrderRepository(conn)
-	publisher := kafka.NewOrderPublisher(cfg.KafkaBroker, cfg.OrderCreatedTopic)
-	orderSvc := service.NewOrderService(orderRepo, publisher)
-	orderHandler := handler.NewOrderHandler(orderSvc)
+	pool, err := db.NewPostgres(cfg.DBURL)
+	if err != nil {
+		log.Fatalf("failed to connect postgres: %v", err)
+	}
+	defer pool.Close()
 
-	router := gin.Default()
-	router.POST("/orders", orderHandler.CreateOrder)
-	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok"})
-	})
+	log.Println("postgres connected successfully")
 
-	log.Printf("order-service running on :%s", cfg.AppPort)
+	orderRepo := persistence.NewOrderRepository(pool)
+	orderPublisher := messaging.NewOrderPublisher(cfg.KafkaBroker, cfg.OrderCreatedTopic)
+	defer orderPublisher.Close()
+
+	orderService := orderapp.NewService(orderRepo, orderPublisher)
+	orderHandler := httpapi.NewOrderHandler(orderService)
+
+	router := httpapi.SetupRouter(orderHandler)
+
+	log.Printf("%s starting on port %s", cfg.AppName, cfg.AppPort)
+
 	if err := router.Run(":" + cfg.AppPort); err != nil {
-		log.Fatalf("cannot run server: %v", err)
+		log.Fatalf("failed to start server: %v", err)
 	}
 }
