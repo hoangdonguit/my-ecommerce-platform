@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  inventory-postgres:
+    image: postgres:16
+    container_name: inventory-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: inventory_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - inventory_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  inventory_postgres_data:
