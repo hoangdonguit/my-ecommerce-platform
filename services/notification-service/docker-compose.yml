@@ -1,0 +1,71 @@
+version: "3.9"
+
+services:
+  notification-postgres:
+    image: postgres:16
+    container_name: notification-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: notification_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - notification_postgres_data:/var/lib/postgresql/data
+    networks:
+      - default
+      - ecommerce-net
+
+  notification-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: notification-api
+    restart: always
+    depends_on:
+      - notification-postgres
+    ports:
+      - "8084:8084"
+    environment:
+      APP_NAME: notification-service
+      APP_PORT: 8084
+      APP_ENV: development
+      DB_URL: postgres://postgres:postgres@notification-postgres:5432/notification_db?sslmode=disable
+      KAFKA_BROKER: order-kafka:9092
+      KAFKA_GROUP_ID: notification-service-group
+      KAFKA_TOPIC_PAYMENT_COMPLETED: payment.completed
+      KAFKA_TOPIC_PAYMENT_FAILED: payment.failed
+    command: ["/app/notification-api"]
+    networks:
+      - default
+      - ecommerce-net
+
+  notification-consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: notification-consumer
+    restart: always
+    depends_on:
+      - notification-postgres
+    environment:
+      APP_NAME: notification-service
+      APP_PORT: 8084
+      APP_ENV: development
+      DB_URL: postgres://postgres:postgres@notification-postgres:5432/notification_db?sslmode=disable
+      KAFKA_BROKER: order-kafka:9092
+      KAFKA_GROUP_ID: notification-service-group
+      KAFKA_TOPIC_PAYMENT_COMPLETED: payment.completed
+      KAFKA_TOPIC_PAYMENT_FAILED: payment.failed
+    command: ["/app/notification-consumer"]
+    networks:
+      - default
+      - ecommerce-net
+
+volumes:
+  notification_postgres_data:
+
+networks:
+  ecommerce-net:
+    external: true
