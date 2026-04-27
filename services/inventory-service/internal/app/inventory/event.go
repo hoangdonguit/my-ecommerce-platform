@@ -19,13 +19,15 @@ type OrderCreatedEventItem struct {
 }
 
 type InventoryReservedEvent struct {
-	EventType string                       `json:"event_type"`
-	OrderID   string                       `json:"order_id"`
-	UserID    string                       `json:"user_id"`
-	Status    string                       `json:"status"`
-	Items     []InventoryReservedEventItem `json:"items"`
+	EventType     string                       `json:"event_type"`
+	OrderID       string                       `json:"order_id"`
+	UserID        string                       `json:"user_id"`
+	Status        string                       `json:"status"`
+	Currency      string                       `json:"currency"`
+	PaymentMethod string                       `json:"payment_method"`
+	TotalAmount   float64                      `json:"total_amount"`
+	Items         []InventoryReservedEventItem `json:"items"`
 }
-
 type InventoryReservedEventItem struct {
 	ProductID string `json:"product_id"`
 	Quantity  int    `json:"quantity"`

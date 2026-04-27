@@ -1,0 +1,73 @@
+version: "3.9"
+
+services:
+  payment-postgres:
+    image: postgres:16
+    container_name: payment-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: payment_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - payment_postgres_data:/var/lib/postgresql/data
+    networks:
+      - default
+      - ecommerce-net
+
+  payment-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: payment-api
+    restart: always
+    depends_on:
+      - payment-postgres
+    ports:
+      - "8083:8083"
+    environment:
+      APP_NAME: payment-service
+      APP_PORT: 8083
+      APP_ENV: development
+      DB_URL: postgres://postgres:postgres@payment-postgres:5432/payment_db?sslmode=disable
+      KAFKA_BROKER: order-kafka:9092
+      KAFKA_GROUP_ID: payment-service-group
+      KAFKA_TOPIC_INVENTORY_RESERVED: inventory.reserved
+      KAFKA_TOPIC_PAYMENT_COMPLETED: payment.completed
+      KAFKA_TOPIC_PAYMENT_FAILED: payment.failed
+    command: ["/app/payment-api"]
+    networks:
+      - default
+      - ecommerce-net
+
+  payment-consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: payment-consumer
+    restart: always
+    depends_on:
+      - payment-postgres
+    environment:
+      APP_NAME: payment-service
+      APP_PORT: 8083
+      APP_ENV: development
+      DB_URL: postgres://postgres:postgres@payment-postgres:5432/payment_db?sslmode=disable
+      KAFKA_BROKER: order-kafka:9092
+      KAFKA_GROUP_ID: payment-service-group
+      KAFKA_TOPIC_INVENTORY_RESERVED: inventory.reserved
+      KAFKA_TOPIC_PAYMENT_COMPLETED: payment.completed
+      KAFKA_TOPIC_PAYMENT_FAILED: payment.failed
+    command: ["/app/payment-consumer"]
+    networks:
+      - default
+      - ecommerce-net
+
+volumes:
+  payment_postgres_data:
+
+networks:
+  ecommerce-net:
+    external: true

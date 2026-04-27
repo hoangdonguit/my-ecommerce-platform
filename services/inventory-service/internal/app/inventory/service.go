@@ -236,11 +236,14 @@ func (s *Service) HandleOrderCreated(ctx context.Context, event OrderCreatedEven
 		}
 
 		reservedEvent := InventoryReservedEvent{
-			EventType: "inventory.reserved",
-			OrderID:   event.OrderID,
-			UserID:    event.UserID,
-			Status:    domaininventory.ReservationReserved,
-			Items:     successItems,
+			EventType:     "inventory.reserved",
+			OrderID:       event.OrderID,
+			UserID:        event.UserID,
+			Status:        domaininventory.ReservationReserved,
+			Currency:      event.Currency,
+			PaymentMethod: event.PaymentMethod,
+			TotalAmount:   event.TotalAmount,
+			Items:         successItems,
 		}
 
 		if err := s.publisher.PublishReserved(ctx, reservedEvent); err != nil {
