@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-api
+  template:
+    metadata:
+      labels:
+        app: inventory-api
+    spec:
+      nodeSelector:
+        worker: knight3007
+      containers:
+      - name: inventory-api
+        image: hoangdonguit/inventory-service:latest
+        command: ["/app/inventory-api"]
+        ports:
+        - containerPort: 8082
+        env:
+        - name: APP_NAME
+          value: "inventory-service"
+        - name: APP_PORT
+          value: "8082"
+        - name: APP_ENV
+          value: "development"
+        - name: DB_URL
+          value: "postgres://postgres:securepassword@postgresql.db.svc.cluster.local:5432/inventory_db?sslmode=disable"
+        - name: KAFKA_BROKER
+          value: "10.43.238.7:9092"
+        - name: KAFKA_GROUP_ID
+          value: "inventory-service-group"
+        - name: KAFKA_TOPIC_ORDER_CREATED
+          value: "order.created"
+        - name: KAFKA_TOPIC_INVENTORY_RESERVED
+          value: "inventory.reserved"
+        - name: KAFKA_TOPIC_INVENTORY_FAILED
+          value: "inventory.failed"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-api
+  namespace: default
+spec:
+  selector:
+    app: inventory-api
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8082
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-consumer
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-consumer
+  template:
+    metadata:
+      labels:
+        app: inventory-consumer
+    spec:
+      nodeSelector:
+        worker: knight3007
+      containers:
+      - name: inventory-consumer
+        image: hoangdonguit/inventory-service:latest
+        command: ["/app/inventory-consumer"]
+        env:
+        - name: APP_NAME
+          value: "inventory-service"
+        - name: APP_PORT
+          value: "8082"
+        - name: APP_ENV
+          value: "development"
+        - name: DB_URL
+          value: "postgres://postgres:securepassword@postgresql.db.svc.cluster.local:5432/inventory_db?sslmode=disable"
+        - name: KAFKA_BROKER
+          value: "10.43.238.7:9092"
+        - name: KAFKA_GROUP_ID
+          value: "inventory-service-group"
+        - name: KAFKA_TOPIC_ORDER_CREATED
+          value: "order.created"
+        - name: KAFKA_TOPIC_INVENTORY_RESERVED
+          value: "inventory.reserved"
+        - name: KAFKA_TOPIC_INVENTORY_FAILED
+          value: "inventory.failed"

@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment-api
+  template:
+    metadata:
+      labels:
+        app: payment-api
+    spec:
+      nodeSelector:
+        worker: knight3007
+      containers:
+      - name: payment-api
+        image: hoangdonguit/payment-service:latest
+        command: ["/app/payment-api"]
+        ports:
+        - containerPort: 8083
+        env:
+        - name: APP_NAME
+          value: "payment-service"
+        - name: APP_PORT
+          value: "8083"
+        - name: APP_ENV
+          value: "development"
+        - name: DB_URL
+          value: "postgres://postgres:securepassword@postgresql.db.svc.cluster.local:5432/payment_db?sslmode=disable"
+        - name: KAFKA_BROKER
+          value: "10.43.238.7:9092"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-api
+  namespace: default
+spec:
+  selector:
+    app: payment-api
+  ports:
+    - protocol: TCP
+      port: 8083
+      targetPort: 8083
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-consumer
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment-consumer
+  template:
+    metadata:
+      labels:
+        app: payment-consumer
+    spec:
+      nodeSelector:
+        worker: knight3007
+      containers:
+      - name: payment-consumer
+        image: hoangdonguit/payment-service:latest
+        command: ["/app/payment-consumer"]
+        env:
+        - name: APP_NAME
+          value: "payment-service"
+        - name: APP_PORT
+          value: "8083"
+        - name: APP_ENV
+          value: "development"
+        - name: DB_URL
+          value: "postgres://postgres:securepassword@postgresql.db.svc.cluster.local:5432/payment_db?sslmode=disable"
+        - name: KAFKA_BROKER
+          value: "10.43.238.7:9092"

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafdrop
+  namespace: kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafdrop
+  template:
+    metadata:
+      labels:
+        app: kafdrop
+    spec:
+      nodeSelector:
+        worker: xuandong # Chạy luôn trên máy server
+      containers:
+      - name: kafdrop
+        image: obsidiandynamics/kafdrop:latest
+        ports:
+        - containerPort: 9000
+        env:
+        - name: KAFKA_BROKERCONNECT
+          value: "10.43.238.7:9092"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafdrop
+  namespace: kafka
+spec:
+  selector:
+    app: kafdrop
+  ports:
+    - port: 9000
+      targetPort: 9000

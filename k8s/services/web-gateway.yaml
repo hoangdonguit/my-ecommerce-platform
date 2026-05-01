@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-gateway
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-gateway
+  template:
+    metadata:
+      labels:
+        app: web-gateway
+    spec:
+      nodeSelector:
+        worker: knight3007
+      containers:
+      - name: web-gateway
+        image: hoangdonguit/web-gateway:latest
+        ports:
+        - containerPort: 8090
+        env:
+        - name: APP_NAME
+          value: "web-gateway"
+        - name: APP_PORT
+          value: "8090"
+        - name: APP_ENV
+          value: "development"
+        - name: ORDER_SERVICE_URL
+          value: "http://order-service.default.svc.cluster.local:8081/api/v1"
+        - name: INVENTORY_SERVICE_URL
+          value: "http://inventory-api.default.svc.cluster.local:8082/api/v1"
+        - name: PAYMENT_SERVICE_URL
+          value: "http://payment-api.default.svc.cluster.local:8083/api/v1"
+        - name: NOTIFICATION_SERVICE_URL
+          value: "http://notification-api.default.svc.cluster.local:8084/api/v1"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-gateway
+  namespace: default
+spec:
+  selector:
+    app: web-gateway
+  ports:
+    - protocol: TCP
+      port: 8090
+      targetPort: 8090
