@@ -5,7 +5,7 @@ metadata:
   namespace: default
 spec:
   selector:
-    istio: ingressgateway # Chỉ định dùng Ingress Controller mặc định của Istio
+    istio: ingressgateway
   servers:
   - port:
       number: 80
@@ -25,6 +25,16 @@ spec:
   gateways:
   - ecommerce-gateway
   http:
+  - match:
+    - uri:
+        prefix: /kafdrop
+    rewrite:
+      uri: /
+    route:
+    - destination:
+        host: kafdrop.kafka.svc.cluster.local
+        port:
+          number: 9000
   - match:
     - uri:
         prefix: /
