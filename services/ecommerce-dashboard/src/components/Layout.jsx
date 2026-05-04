@@ -22,6 +22,10 @@ export default function Layout() {
           <NavLink to="/orders">
             Danh sách đơn
           </NavLink>
+          {/* Thêm tab Đơn hàng lỗi ở đây */}
+          <NavLink to="/orders/error" style={({ isActive }) => isActive ? { color: "#dc3545", fontWeight: "bold" } : { color: "#dc3545" }}>
+            ⚠ Đơn hàng lỗi
+          </NavLink>
         </nav>
       </aside>
 

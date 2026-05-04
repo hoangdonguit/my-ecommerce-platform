@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import CreateOrder from "./pages/CreateOrder";
 import Orders from "./pages/Orders";
 import OrderSaga from "./pages/OrderSaga";
+import ErrorOrders from "./pages/ErrorOrders"; // <-- Import thêm
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/orders/error" element={<ErrorOrders />} /> {/* <-- Thêm route này */}
           <Route path="/orders/new" element={<CreateOrder />} />
           <Route path="/orders/:id" element={<OrderSaga />} />
         </Route>

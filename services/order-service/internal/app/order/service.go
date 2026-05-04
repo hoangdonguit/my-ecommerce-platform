@@ -2,10 +2,13 @@ package orderapp
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/redis/go-redis/v9"
 	domainorder "github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/domain/order"
 	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/infrastructure/persistence"
 	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/shared/errs"
@@ -18,12 +21,14 @@ type EventPublisher interface {
 type Service struct {
 	repo      domainorder.Repository
 	publisher EventPublisher
+	rdb       *redis.Client // Thêm Redis client
 }
 
-func NewService(repo domainorder.Repository, publisher EventPublisher) *Service {
+func NewService(repo domainorder.Repository, publisher EventPublisher, rdb *redis.Client) *Service {
 	return &Service{
 		repo:      repo,
 		publisher: publisher,
+		rdb:       rdb,
 	}
 }
 
@@ -32,14 +37,33 @@ func (s *Service) CreateOrder(ctx context.Context, req CreateOrderRequest, idemK
 		return nil, false, err
 	}
 
+	// --- 1. CHECK REDIS CACHE TRƯỚC (NẾU REDIS SỐNG) ---
+	redisKey := fmt.Sprintf("idem:order:%s", idemKey)
+	if s.rdb != nil {
+		val, err := s.rdb.Get(ctx, redisKey).Result()
+		if err == nil {
+			var existing domainorder.Order
+			if err := json.Unmarshal([]byte(val), &existing); err == nil {
+				return &existing, true, nil
+			}
+		}
+	}
+
+	// --- 2. CHECK POSTGRES (FALLBACK) ---
 	existing, err := s.repo.FindByIdempotencyKey(ctx, idemKey)
 	if err == nil {
+		// Cache lại vào Redis trước khi trả về (nếu redis sống)
+		if s.rdb != nil {
+			orderData, _ := json.Marshal(existing)
+			s.rdb.Set(ctx, redisKey, orderData, 24*time.Hour)
+		}
 		return existing, true, nil
 	}
 	if err != nil && !persistence.IsNotFound(err) {
 		return nil, false, errs.WrapInternal(err, "failed to check idempotency key")
 	}
 
+	// --- 3. TẠO ORDER MỚI ---
 	now := time.Now()
 	orderID := uuid.NewString()
 
@@ -47,7 +71,7 @@ func (s *Service) CreateOrder(ctx context.Context, req CreateOrderRequest, idemK
 	totalAmount := 0.0
 
 	for _, reqItem := range req.Items {
-		unitPrice := 100000.0
+		unitPrice := 100000.0 // Giá giả lập
 		lineTotal := unitPrice * float64(reqItem.Quantity)
 		totalAmount += lineTotal
 
@@ -85,8 +109,14 @@ func (s *Service) CreateOrder(ctx context.Context, req CreateOrderRequest, idemK
 		return nil, false, errs.WrapInternal(err, "failed to reload created order")
 	}
 
-	event := buildOrderCreatedEvent(created)
+	// --- 4. CACHE KẾT QUẢ MỚI VÀO REDIS ---
+	if s.rdb != nil {
+		newOrderData, _ := json.Marshal(created)
+		s.rdb.Set(ctx, redisKey, newOrderData, 24*time.Hour)
+	}
 
+	// --- 5. BẮN EVENT LÊN KAFKA ---
+	event := buildOrderCreatedEvent(created)
 	if s.publisher != nil {
 		if err := s.publisher.PublishOrderCreated(ctx, event); err != nil {
 			return nil, false, errs.WrapInternal(err, "failed to publish order.created event")
@@ -205,6 +235,7 @@ func validateCreateOrder(req CreateOrderRequest, idemKey string) error {
 
 	return nil
 }
+
 func buildOrderCreatedEvent(ord *domainorder.Order) OrderCreatedEvent {
 	items := make([]OrderCreatedEventItem, 0, len(ord.Items))
 

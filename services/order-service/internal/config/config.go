@@ -14,6 +14,8 @@ type Config struct {
 	DBURL             string
 	KafkaBroker       string
 	OrderCreatedTopic string
+	RedisAddr         string
+	RedisPassword     string
 }
 
 func Load() Config {
@@ -26,6 +28,8 @@ func Load() Config {
 		DBURL:             getEnv("DB_URL", ""),
 		KafkaBroker:       getEnv("KAFKA_BROKER", "localhost:9092"),
 		OrderCreatedTopic: getEnv("KAFKA_TOPIC_ORDER_CREATED", "order.created"),
+		RedisAddr:         getEnv("REDIS_ADDR", "redis-master.cache.svc.cluster.local:6379"),
+		RedisPassword:     getEnv("REDIS_PASSWORD", "redissecret"), // Mật khẩu mặc định của cụm K8s
 	}
 
 	validate(cfg)
