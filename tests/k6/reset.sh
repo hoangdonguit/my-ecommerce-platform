@@ -1,10 +1,3 @@
-#!/bin/bash
-# ==============================================================================
-# SCRIPT: SYSTEM ENVIRONMENT RESET & COOLDOWN
-# MỤC ĐÍCH: Dọn dẹp toàn bộ dữ liệu (DB, Cache, Message Queue) và khởi tạo lại
-# trạng thái hệ thống (Pre-warming) trước khi thực hiện Stress/Load Test.
-# ==============================================================================
-
 echo "[INFO] Bắt đầu tiến trình dọn dẹp và khôi phục hệ thống..."
 
 # ------------------------------------------------------------------------------

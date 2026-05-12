@@ -12,12 +12,12 @@ export const options = {
     { duration: '1m', target: 100 },   // Khởi động
     { duration: '2m', target: 400 },   // Tải nặng
     { duration: '2m', target: 800 },   // Stress Test (Gần ngưỡng chết)
-    { duration: '2m', target: 1000 },  // Đạp ga tối đa (Stress to Death)
+    { duration: '2m', target: 1000 },  // tối đa (Stress to Death)
     { duration: '1m', target: 0 },     // Hạ nhiệt
   ]
 };
 
-const BASE_URL = 'http://100.65.255.2'; // IP Ingress Gateway của ông
+const BASE_URL = 'http://100.65.255.2'; // IP Ingress Gateway
 const HEADERS = { 'Content-Type': 'application/json', 'X-API-Key': 'UIT-DOAN-2026-SECRET' };
 
 export default function () {
@@ -40,5 +40,5 @@ export default function () {
   const success = check(res, { 'status is 2xx': (r) => r.status >= 200 && r.status < 300 });
   errorRate.add(!success);
   if (success) successOrders.add(1); else failedOrders.add(1);
-  sleep(1); // Giảm sleep xuống để dồn tải mạnh hơn
+  sleep(1);
 }

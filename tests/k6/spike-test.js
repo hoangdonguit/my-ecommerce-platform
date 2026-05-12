@@ -4,7 +4,7 @@ import { check } from 'k6';
 export const options = {
   stages: [
     { duration: '10s', target: 50 },
-    { duration: '30s', target: 1000 }, // 🚀 FLASH SALE: 1000 user ập vào trong 30s
+    { duration: '30s', target: 1000 }, // FLASH SALE: 1000 user ập vào trong 30s
     { duration: '1m', target: 1000 },
     { duration: '20s', target: 0 },
   ],

@@ -16,7 +16,7 @@ const HEADERS = { 'Content-Type': 'application/json', 'X-API-Key': 'UIT-DOAN-202
 export default function () {
   const idempotencyKey = `idem-key-${__VU}-${__ITER}`;
   
-  // Đã bổ sung shipping_address để không bị API đá văng
+  // Bổ sung shipping_address để không bị API đá văng
   const payload = JSON.stringify({
     user_id: `user-${__VU}`,
     items: [{ product_id: 'prod-123', quantity: 1 }],

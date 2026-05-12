@@ -27,7 +27,7 @@ export default function () {
   const userId = `user-load-${__VU}-${Math.floor(__ITER / 10)}`;
   const rand = Math.random();
 
-  if (rand < 0.60) { // Giữ nguyên logic 60% của ông
+  if (rand < 0.60) { 
     const start = Date.now();
     const res = http.post(`${BASE_URL}/api/orders`, JSON.stringify({
       user_id: userId,
