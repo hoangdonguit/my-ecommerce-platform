@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -49,11 +50,10 @@ func (h *Handler) Health(c *gin.Context) {
 }
 
 func (h *Handler) ServicesHealth(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
 	defer cancel()
 
 	result := gin.H{}
-
 	result["order_service"] = h.checkService(ctx, h.orders.Health)
 	result["inventory_service"] = h.checkService(ctx, h.inventory.Health)
 	result["payment_service"] = h.checkService(ctx, h.payment.Health)
@@ -68,20 +68,42 @@ func (h *Handler) ServicesHealth(c *gin.Context) {
 
 func (h *Handler) checkService(ctx context.Context, fn func(context.Context) error) gin.H {
 	if err := fn(ctx); err != nil {
-		return gin.H{
-			"ok":    false,
-			"error": err.Error(),
-		}
+		return gin.H{"ok": false, "error": err.Error()}
+	}
+	return gin.H{"ok": true}
+}
+
+// === HÀM PROXY KÉO TOÀN BỘ SẢN PHẨM ===
+func (h *Handler) ListInventories(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
+	defer cancel()
+
+	// Gọi trực tiếp đến inventory-service nội bộ K8s
+	req, err := http.NewRequestWithContext(ctx, "GET", "http://inventory-api.default.svc.cluster.local:8082/api/v1/inventories", nil)
+	if err != nil {
+		handleError(c, err)
+		return
 	}
 
-	return gin.H{
-		"ok": true,
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		handleError(c, err)
+		return
 	}
+	defer resp.Body.Close()
+
+	var result map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		handleError(c, err)
+		return
+	}
+
+	c.JSON(resp.StatusCode, result)
 }
+// ======================================
 
 func (h *Handler) CreateOrder(c *gin.Context) {
 	var req client.CreateOrderRequest
-
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, APIResponse{
 			Success: false,
@@ -99,7 +121,7 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 		idempotencyKey = "web-" + uuid.NewString()
 	}
 
-	ctx, cancel := context.WithTimeout(c.Request.Context(), 8*time.Second)
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
 	defer cancel()
 
 	order, err := h.orders.CreateOrder(ctx, req, idempotencyKey)
@@ -172,7 +194,7 @@ func (h *Handler) GetOrder(c *gin.Context) {
 func (h *Handler) GetOrderSaga(c *gin.Context) {
 	orderID := c.Param("id")
 
-	ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
 	defer cancel()
 
 	detail, err := h.saga.GetSaga(ctx, orderID)

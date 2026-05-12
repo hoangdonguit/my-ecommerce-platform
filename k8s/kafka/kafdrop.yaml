@@ -13,16 +13,23 @@ spec:
       labels:
         app: kafdrop
     spec:
-      nodeSelector:
-        worker: xuandong # Chạy luôn trên máy server
       containers:
       - name: kafdrop
         image: obsidiandynamics/kafdrop:latest
         ports:
         - containerPort: 9000
+        resources:
+          limits:
+            cpu: "250m"
+            memory: "512Mi"
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
         env:
         - name: KAFKA_BROKERCONNECT
-          value: "10.43.238.7:9092"
+          value: "10.43.246.98:9092"
+        - name: SERVER_SERVLET_CONTEXT_PATH # Thêm dòng này để fix giao diện
+          value: "/kafdrop"
 ---
 apiVersion: v1
 kind: Service

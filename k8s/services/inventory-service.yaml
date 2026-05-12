@@ -13,14 +13,19 @@ spec:
       labels:
         app: inventory-api
     spec:
-      nodeSelector:
-        worker: knight3007
       containers:
       - name: inventory-api
         image: hoangdonguit/inventory-service:latest
         command: ["/app/inventory-api"]
         ports:
         - containerPort: 8082
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
         env:
         - name: APP_NAME
           value: "inventory-service"
@@ -29,9 +34,9 @@ spec:
         - name: APP_ENV
           value: "development"
         - name: DB_URL
-          value: "postgres://postgres:securepassword@postgresql.db.svc.cluster.local:5432/inventory_db?sslmode=disable"
+          value: "postgres://postgres:securepassword@10.43.190.247:5432/inventory_db?sslmode=disable"
         - name: KAFKA_BROKER
-          value: "10.43.238.7:9092"
+          value: "10.43.246.98:9092"
         - name: KAFKA_GROUP_ID
           value: "inventory-service-group"
         - name: KAFKA_TOPIC_ORDER_CREATED
@@ -69,12 +74,17 @@ spec:
       labels:
         app: inventory-consumer
     spec:
-      nodeSelector:
-        worker: knight3007
       containers:
       - name: inventory-consumer
         image: hoangdonguit/inventory-service:latest
         command: ["/app/inventory-consumer"]
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
         env:
         - name: APP_NAME
           value: "inventory-service"
@@ -83,14 +93,10 @@ spec:
         - name: APP_ENV
           value: "development"
         - name: DB_URL
-          value: "postgres://postgres:securepassword@postgresql.db.svc.cluster.local:5432/inventory_db?sslmode=disable"
+          value: "postgres://postgres:securepassword@10.43.190.247:5432/inventory_db?sslmode=disable"
         - name: KAFKA_BROKER
-          value: "10.43.238.7:9092"
+          value: "10.43.246.98:9092"
         - name: KAFKA_GROUP_ID
           value: "inventory-service-group"
         - name: KAFKA_TOPIC_ORDER_CREATED
           value: "order.created"
-        - name: KAFKA_TOPIC_INVENTORY_RESERVED
-          value: "inventory.reserved"
-        - name: KAFKA_TOPIC_INVENTORY_FAILED
-          value: "inventory.failed"

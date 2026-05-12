@@ -1,0 +1,14 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: inventory-cpu-stress
+spec:
+  mode: one
+  selector:
+    labelSelectors:
+      app: inventory-api
+  stressors:
+    cpu:
+      workers: 1
+      load: 100
+  duration: '5m'

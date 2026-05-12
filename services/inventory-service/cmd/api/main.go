@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"log"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -20,14 +22,15 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
+	// 1. Kết nối PostgreSQL
 	pool, err := db.NewPostgres(cfg.DBURL)
 	if err != nil {
 		log.Fatalf("failed to connect postgres: %v", err)
 	}
 	defer pool.Close()
+	log.Println("✅ Postgres connected successfully")
 
-	log.Println("postgres connected successfully")
-
+	// 2. Khởi tạo Repository & Publisher
 	repo := persistence.NewInventoryRepository(pool)
 	publisher := messaging.NewInventoryPublisher(
 		cfg.KafkaBroker,
@@ -36,13 +39,24 @@ func main() {
 	)
 	defer publisher.Close()
 
+	// 3. Khởi tạo Service
 	service := inventoryapp.NewService(repo, publisher)
-	handler := httpapi.NewInventoryHandler(service)
 
+	// 4. Setup Kafka Consumer (Chạy ngầm TRƯỚC KHI Server Run)
+	kafkaBrokers := strings.Split(cfg.KafkaBroker, ",")
+	invConsumer := messaging.NewInventoryConsumer(kafkaBrokers, service)
+	go func() {
+		log.Println("🚀 Inventory Consumer is starting...")
+		invConsumer.Start(context.Background())
+	}()
+
+	// 5. Setup Router & Handler
+	handler := httpapi.NewInventoryHandler(service)
 	router := httpapi.SetupRouter(handler)
 
-	log.Printf("%s starting on port %s", cfg.AppName, cfg.AppPort)
+	log.Printf("📡 %s starting on port %s", cfg.AppName, cfg.AppPort)
 
+	// 6. Chạy Server
 	if err := router.Run(":" + cfg.AppPort); err != nil {
 		log.Fatalf("failed to start server: %v", err)
 	}

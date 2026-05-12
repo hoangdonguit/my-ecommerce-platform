@@ -1,6 +1,8 @@
 package http
 
 import (
+	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -29,6 +31,7 @@ func SetupRouter(handler *Handler) *gin.Engine {
 			"Accept",
 			"Authorization",
 			"X-Idempotency-Key",
+			"X-API-Key",
 		},
 		ExposeHeaders: []string{
 			"Content-Length",
@@ -38,6 +41,24 @@ func SetupRouter(handler *Handler) *gin.Engine {
 	}))
 
 	api := router.Group("/api")
+
+	api.Use(func(c *gin.Context) {
+		if strings.Contains(c.Request.URL.Path, "/health") {
+			c.Next()
+			return
+		}
+
+		apiKey := c.GetHeader("X-API-Key")
+		if apiKey != "UIT-DOAN-2026-SECRET" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"success": false,
+				"message": "Access Denied: Missing or Invalid X-API-Key",
+			})
+			return
+		}
+		c.Next()
+	})
+
 	{
 		api.GET("/health", handler.Health)
 		api.GET("/health/services", handler.ServicesHealth)
@@ -46,6 +67,9 @@ func SetupRouter(handler *Handler) *gin.Engine {
 		api.GET("/orders", handler.ListOrders)
 		api.GET("/orders/:id", handler.GetOrder)
 		api.GET("/orders/:id/saga", handler.GetOrderSaga)
+		
+		// ĐƯỜNG DẪN KÉO KHO HÀNG CHO FRONTEND
+		api.GET("/inventories", handler.ListInventories) 
 	}
 
 	return router

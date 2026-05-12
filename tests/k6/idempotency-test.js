@@ -1,97 +1,59 @@
-/**
- * IDEMPOTENCY TEST - Kiểm tra không tạo duplicate order
- * Gửi cùng 1 request nhiều lần với cùng Idempotency Key
- * Kỳ vọng: Chỉ 1 order được tạo, tất cả request trả về cùng order_id
- */
-
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { Rate } from 'k6/metrics';
 
-const firstRequestSuccess = new Rate('first_request_success');
 const idempotencyCorrect = new Rate('idempotency_correct');
 
 export const options = {
-  vus: 10,
-  iterations: 50,
-  thresholds: {
-    first_request_success: ['rate>0.95'],
-    idempotency_correct: ['rate>0.99'],
-  },
+  vus: 20,
+  iterations: 100,
+  thresholds: { idempotency_correct: ['rate>0.99'] },
 };
 
 const BASE_URL = 'http://100.65.255.2';
+const HEADERS = { 'Content-Type': 'application/json', 'X-API-Key': 'UIT-DOAN-2026-SECRET' };
 
 export default function () {
-  const idempotencyKey = `idem-vu${__VU}-group${Math.floor(__ITER / 5)}`;
-  const userId = `user-idem-${__VU}`;
-
+  const idempotencyKey = `idem-key-${__VU}-${__ITER}`;
+  
+  // Đã bổ sung shipping_address để không bị API đá văng
   const payload = JSON.stringify({
-    user_id: userId,
-    items: [{ product_id: 'product-001', quantity: 1 }],
+    user_id: `user-${__VU}`,
+    items: [{ product_id: 'prod-123', quantity: 1 }],
     currency: 'VND',
-    payment_method: 'credit_card',
-    shipping_address: 'Idempotency Test Street, HCMC',
-    note: `idempotency test key:${idempotencyKey}`,
+    payment_method: 'CARD',
+    shipping_address: '123 Idempotency Street'
   });
 
-  const headers = {
-    'Content-Type': 'application/json',
-    'X-Idempotency-Key': idempotencyKey,
-  };
-
-  // Request lần 1
-  const res1 = http.post(`${BASE_URL}/api/orders`, payload, { headers });
-  const success1 = check(res1, {
-    'first request 2xx': (r) => r.status >= 200 && r.status < 300,
+  // Request 1: Gửi lần đầu
+  const res1 = http.post(`${BASE_URL}/api/orders`, payload, { 
+    headers: { ...HEADERS, 'X-Idempotency-Key': idempotencyKey } 
   });
-  firstRequestSuccess.add(success1);
-
+  
   let orderId1 = null;
-  try { orderId1 = JSON.parse(res1.body)?.data?.order?.id; } catch { }
+  if (res1.status === 200 || res1.status === 201) {
+    orderId1 = JSON.parse(res1.body)?.data?.order?.id;
+  } else {
+    console.log(`Lỗi Req 1: ${res1.status} - ${res1.body}`);
+  }
 
-  sleep(0.2);
+  sleep(0.1);
 
-  // Request lần 2 - cùng key
-  const res2 = http.post(`${BASE_URL}/api/orders`, payload, { headers });
+  // Request 2: Cố tình spam lại cùng 1 Idempotency Key
+  const res2 = http.post(`${BASE_URL}/api/orders`, payload, { 
+    headers: { ...HEADERS, 'X-Idempotency-Key': idempotencyKey } 
+  });
+  
   let orderId2 = null;
-  try { orderId2 = JSON.parse(res2.body)?.data?.order?.id; } catch { }
+  if (res2.status === 200 || res2.status === 201) {
+    orderId2 = JSON.parse(res2.body)?.data?.order?.id;
+  }
 
-  const idem2 = check(res2, {
-    'req2 returns same order_id': () => orderId1 !== null && orderId2 !== null && orderId1 === orderId2,
-  });
-  idempotencyCorrect.add(idem2);
-
-  sleep(0.2);
-
-  // Request lần 3 - cùng key
-  const res3 = http.post(`${BASE_URL}/api/orders`, payload, { headers });
-  let orderId3 = null;
-  try { orderId3 = JSON.parse(res3.body)?.data?.order?.id; } catch { }
-
-  const idem3 = check(res3, {
-    'req3 returns same order_id': () => orderId1 !== null && orderId3 !== null && orderId1 === orderId3,
-  });
-  idempotencyCorrect.add(idem3);
-
-  sleep(1);
-}
-
-export function handleSummary(data) {
-  const m = data.metrics;
-  const idemRate = m.idempotency_correct?.values?.rate;
-  return {
-    'stdout': JSON.stringify({
-      test_type: 'IDEMPOTENCY TEST',
-      results: {
-        total_requests: m.http_reqs?.values?.count,
-        first_request_success: (m.first_request_success?.values?.rate * 100)?.toFixed(2) + '%',
-        idempotency_correct_rate: (idemRate * 100)?.toFixed(2) + '%',
-        error_rate: (m.http_req_failed?.values?.rate * 100)?.toFixed(2) + '%',
-      },
-      conclusion: idemRate > 0.99
-        ? '✅ PASS: Idempotency hoạt động đúng - không có duplicate order'
-        : '❌ FAIL: Có duplicate order được tạo',
-    }, null, 2),
-  };
+  // Nếu cả 2 đều trả về cùng 1 mã OrderID (hoặc Redis chặn trả về đúng data cũ) -> Chính xác 100%
+  const isCorrect = (orderId1 !== null) && (orderId2 !== null) && (orderId1 === orderId2);
+  
+  // Ép kiểu boolean tường minh để K6 không bị lỗi Undefined
+  idempotencyCorrect.add(isCorrect ? 1 : 0);
+  
+  check(res2, { 'idem status 2xx': (r) => r.status >= 200 && r.status < 300 });
 }

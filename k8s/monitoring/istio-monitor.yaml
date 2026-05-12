@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: istio-proxies-monitor
+  namespace: monitoring
+  labels:
+    release: monitoring # Đã khớp với kết quả kiểm tra của ông
+spec:
+  selector:
+    matchLabels:
+      security.istio.io/tlsMode: istio # Nhãn này tự động có khi Pod được inject Istio
+  namespaceSelector:
+    any: true
+  podMetricsEndpoints:
+  - path: /stats/prometheus
+    port: http-envoy-prom # Cổng mặc định của Istio proxy (15020)
+    interval: 15s

@@ -1,0 +1,49 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: inventory-consumer-scaler
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: inventory-consumer
+  minReplicaCount: 1
+  maxReplicaCount: 8
+  cooldownPeriod: 60
+  pollingInterval: 15
+  triggers:
+  - type: cpu
+    metricType: Utilization
+    metadata:
+      value: "25"
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: payment-consumer-scaler
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: payment-consumer
+  minReplicaCount: 1
+  maxReplicaCount: 8
+  triggers:
+  - type: cpu
+    metricType: Utilization
+    metadata:
+      value: "25"
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: notification-consumer-scaler
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: notification-consumer
+  minReplicaCount: 1
+  maxReplicaCount: 8
+  triggers:
+  - type: cpu
+    metricType: Utilization
+    metadata:
+      value: "25"

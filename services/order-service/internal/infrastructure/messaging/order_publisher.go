@@ -19,27 +19,39 @@ func NewOrderPublisher(broker string, topic string) *OrderPublisher {
 		writer: &kafkago.Writer{
 			Addr:         kafkago.TCP(broker),
 			Topic:        topic,
-			Balancer:     &kafkago.LeastBytes{},
+			Balancer:     &kafkago.Hash{},   // Hash by key → same order → same partition
 			RequiredAcks: kafkago.RequireOne,
-			Async:        false,
+			Async:        false,             // Giữ sync để đảm bảo delivery
+			BatchSize:    500,               // Gửi tối đa 500 msg/lần
+			BatchTimeout: 10 * time.Millisecond,
 		},
 		topic: topic,
 	}
 }
 
+// Gửi từng message (giữ lại để tương thích)
 func (p *OrderPublisher) PublishOrderCreated(ctx context.Context, event orderapp.OrderCreatedEvent) error {
-	payload, err := json.Marshal(event)
-	if err != nil {
-		return err
-	}
+	return p.PublishOrderCreatedBatch(ctx, []orderapp.OrderCreatedEvent{event})
+}
 
-	msg := kafkago.Message{
-		Key:   []byte(event.OrderID),
-		Value: payload,
-		Time:  time.Now(),
+// Gửi BATCH - dùng WriteMessages 1 lần cho toàn bộ
+func (p *OrderPublisher) PublishOrderCreatedBatch(ctx context.Context, events []orderapp.OrderCreatedEvent) error {
+	msgs := make([]kafkago.Message, 0, len(events))
+	for _, event := range events {
+		payload, err := json.Marshal(event)
+		if err != nil {
+			continue
+		}
+		msgs = append(msgs, kafkago.Message{
+			Key:   []byte(event.OrderID),
+			Value: payload,
+			Time:  time.Now(),
+		})
 	}
-
-	return p.writer.WriteMessages(ctx, msg)
+	if len(msgs) == 0 {
+		return nil
+	}
+	return p.writer.WriteMessages(ctx, msgs...)
 }
 
 func (p *OrderPublisher) Close() error {

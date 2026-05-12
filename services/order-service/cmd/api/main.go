@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
@@ -13,6 +14,7 @@ import (
 	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/infrastructure/messaging"
 	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/infrastructure/persistence"
 	httpapi "github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/interfaces/http"
+	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/worker" // IMPORT WORKER Ở ĐÂY
 )
 
 func main() {
@@ -48,9 +50,20 @@ func main() {
 	orderPublisher := messaging.NewOrderPublisher(cfg.KafkaBroker, cfg.OrderCreatedTopic)
 	defer orderPublisher.Close()
 
+	// --- KÍCH HOẠT KAFKA CONSUMER TỰ ĐỘNG BẮT LỖI SAGA ---
+	kafkaBrokers := strings.Split(cfg.KafkaBroker, ",")
+	orderConsumer := messaging.NewOrderConsumer(kafkaBrokers, orderRepo)
+	go orderConsumer.Start(context.Background())
+	// -----------------------------------------------------
+
+	// --- KÍCH HOẠT OUTBOX WORKER ---
+	outboxWorker := worker.NewOutboxWorker(pool, orderPublisher)
+	go outboxWorker.Start(context.Background())
+	// -------------------------------
+
 	// TRUYỀN REDIS VÀO SERVICE Ở ĐÂY
 	orderService := orderapp.NewService(orderRepo, orderPublisher, rdb)
-	orderHandler := httpapi.NewOrderHandler(orderService)
+	orderHandler := httpapi.NewOrderHandler(orderService, rdb)
 
 	router := httpapi.SetupRouter(orderHandler)
 

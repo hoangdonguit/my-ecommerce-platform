@@ -1,0 +1,17 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: order-service-scaler
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: order-service
+  minReplicaCount: 1
+  maxReplicaCount: 8
+  cooldownPeriod: 60     # Đợi 60s trước khi scale down
+  pollingInterval: 15    # Quét metric mỗi 15s
+  triggers:
+  - type: cpu
+    metadata:
+      type: Utilization
+      value: "25"        # Kích hoạt scale khi CPU chạm 25%

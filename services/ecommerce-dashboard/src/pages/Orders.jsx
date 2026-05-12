@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { listOrders } from "../api/gateway";
 import ErrorBox from "../components/ErrorBox";
@@ -6,93 +6,90 @@ import Loading from "../components/Loading";
 import StatusBadge from "../components/StatusBadge";
 
 export default function Orders() {
-  const [userId, setUserId] = useState("user-success-001");
-  const [orders, setOrders] = useState([]);
-  const [meta, setMeta] = useState(null);
+  const [searchQuery, setSearchQuery] = useState(() => sessionStorage.getItem("search_order_keyword") || "");
+  const [allOrders, setAllOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  async function loadOrders(event) {
-    if (event) event.preventDefault();
-
+  useEffect(() => {
     setLoading(true);
-    setError(null);
+    listOrders("ADMIN_FETCH_ALL", 1, 100)
+      .then(res => setAllOrders(res.data || []))
+      .catch(err => setError(err))
+      .finally(() => setLoading(false));
+  }, []);
 
-    try {
-      const res = await listOrders(userId, 1, 20);
-      setOrders(res.data || []);
-      setMeta(res.meta || null);
-    } catch (err) {
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }
+  useEffect(() => {
+    sessionStorage.setItem("search_order_keyword", searchQuery);
+  }, [searchQuery]);
+
+  const displayedOrders = useMemo(() => {
+    if (!searchQuery.trim()) return allOrders;
+    return allOrders.filter(o => 
+      o.user_id.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      o.id.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [allOrders, searchQuery]);
+
+  const uniqueUserIds = useMemo(() => {
+    return [...new Set(allOrders.map(o => o.user_id))];
+  }, [allOrders]);
 
   return (
     <div className="page">
       <div className="page-header">
         <div>
-          <h2>Danh sách đơn hàng</h2>
-          <p>Tìm order theo user_id rồi mở timeline Saga.</p>
+          <h2>🔍 Tra cứu Đơn hàng Toàn Hệ Thống</h2>
+          <p>Hiển thị tất cả. Gõ User ID hoặc Order ID để lọc nhanh.</p>
         </div>
       </div>
 
-      <form className="toolbar" onSubmit={loadOrders}>
+      <div className="toolbar" style={{ flexWrap: "wrap", flexDirection: "column", alignItems: "flex-start" }}>
         <input
-          value={userId}
-          onChange={(e) => setUserId(e.target.value)}
-          placeholder="Nhập user_id"
-          required
+          list="user-suggestions"
+          style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #ccc", fontSize: "1rem" }}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="🔎 Nhập mã User ID hoặc Order ID để lọc tức thì..."
         />
-        <button className="btn" type="submit">
-          Tìm kiếm
-        </button>
-      </form>
+        <datalist id="user-suggestions">
+          {uniqueUserIds.map(id => <option key={id} value={id} />)}
+        </datalist>
+      </div>
 
       <ErrorBox error={error} />
 
-      {loading ? (
-        <Loading />
-      ) : (
+      {loading ? <Loading /> : (
         <div className="card">
           <div className="table-header">
-            <h3>Orders</h3>
-            {meta ? <span>Total: {meta.total}</span> : null}
+            <h3>Danh sách Giao dịch</h3>
+            <span>Hiển thị: {displayedOrders.length} / {allOrders.length}</span>
           </div>
 
-          {!orders.length ? (
-            <div className="empty-state">
-              Chưa có dữ liệu. Nhập user_id và bấm Tìm kiếm.
-            </div>
+          {!displayedOrders.length ? (
+            <div className="empty-state">Không tìm thấy đơn hàng nào khớp với tìm kiếm.</div>
           ) : (
             <div className="table-wrapper">
               <table>
                 <thead>
                   <tr>
                     <th>Order ID</th>
+                    <th>User ID</th>
                     <th>Status</th>
                     <th>Total</th>
-                    <th>Payment</th>
                     <th>Created</th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.map((order) => (
+                  {displayedOrders.map((order) => (
                     <tr key={order.id}>
-                      <td className="mono">{order.id}</td>
-                      <td>
-                        <StatusBadge status={order.status} />
-                      </td>
+                      <td className="mono" style={{fontSize: "0.85rem"}}>{order.id}</td>
+                      <td style={{fontWeight: "bold", color: "#0056b3"}}>{order.user_id}</td>
+                      <td><StatusBadge status={order.status} /></td>
                       <td>{Number(order.total_amount || 0).toLocaleString()} {order.currency}</td>
-                      <td>{order.payment_method}</td>
-                      <td>{formatDate(order.created_at)}</td>
-                      <td>
-                        <Link className="link-btn" to={`/orders/${order.id}`}>
-                          Xem Saga
-                        </Link>
-                      </td>
+                      <td>{new Date(order.created_at).toLocaleString()}</td>
+                      <td><Link className="link-btn" to={`/orders/${order.id}`}>Trace Saga</Link></td>
                     </tr>
                   ))}
                 </tbody>
@@ -103,13 +100,4 @@ export default function Orders() {
       )}
     </div>
   );
-}
-
-function formatDate(value) {
-  if (!value) return "-";
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-
-  return date.toLocaleString();
 }

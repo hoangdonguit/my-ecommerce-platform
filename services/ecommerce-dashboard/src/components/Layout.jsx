@@ -13,18 +13,25 @@ export default function Layout() {
         </div>
 
         <nav className="nav">
+          <div style={{ marginTop: "10px", marginBottom: "5px", fontSize: "0.75rem", color: "#888", textTransform: "uppercase", paddingLeft: "12px", letterSpacing: "1px" }}>
+            Khu vực Khách hàng
+          </div>
+          <NavLink to="/store" style={({ isActive }) => isActive ? { color: "#28a745", fontWeight: "bold" } : { color: "#28a745" }}>
+            🛒 Cửa hàng Demo
+          </NavLink>
+
+          <div style={{ marginTop: "25px", marginBottom: "5px", fontSize: "0.75rem", color: "#888", textTransform: "uppercase", paddingLeft: "12px", letterSpacing: "1px" }}>
+            Khu vực Quản trị (Admin)
+          </div>
           <NavLink to="/" end>
-            Dashboard
+            📊 Tổng quan Hệ thống
           </NavLink>
-          <NavLink to="/orders/new">
-            Tạo đơn hàng
-          </NavLink>
+          {/* Đã xóa sổ tab Tạo đơn hàng bằng form cũ */}
           <NavLink to="/orders">
-            Danh sách đơn
+            🔍 Tra cứu Đơn hàng
           </NavLink>
-          {/* Thêm tab Đơn hàng lỗi ở đây */}
           <NavLink to="/orders/error" style={({ isActive }) => isActive ? { color: "#dc3545", fontWeight: "bold" } : { color: "#dc3545" }}>
-            ⚠ Đơn hàng lỗi
+            ⚠ Giám sát Đơn Lỗi
           </NavLink>
         </nav>
       </aside>

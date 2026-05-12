@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: order-service-cb
+  namespace: default
+spec:
+  host: order-service.default.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 2000          # Đủ rộng
+      http:
+        http1MaxPendingRequests: 2000 # Tăng hàng đợi để request không bị văng 503 ngay lập tức
+        http2MaxRequests: 2000
+    outlierDetection:
+      consecutive5xxErrors: 20        # Khoan dung hơn trước khi "cách ly" Pod
+      interval: 10s                  
+      baseEjectionTime: 15s          
+      maxEjectionPercent: 50

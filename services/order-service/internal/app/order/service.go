@@ -8,20 +8,21 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/redis/go-redis/v9"
 	domainorder "github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/domain/order"
 	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/infrastructure/persistence"
 	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/shared/errs"
+	"github.com/redis/go-redis/v9"
 )
 
 type EventPublisher interface {
 	PublishOrderCreated(ctx context.Context, event OrderCreatedEvent) error
+	PublishOrderCreatedBatch(ctx context.Context, events []OrderCreatedEvent) error
 }
 
 type Service struct {
 	repo      domainorder.Repository
 	publisher EventPublisher
-	rdb       *redis.Client // Thêm Redis client
+	rdb       *redis.Client
 }
 
 func NewService(repo domainorder.Repository, publisher EventPublisher, rdb *redis.Client) *Service {
@@ -37,7 +38,7 @@ func (s *Service) CreateOrder(ctx context.Context, req CreateOrderRequest, idemK
 		return nil, false, err
 	}
 
-	// --- 1. CHECK REDIS CACHE TRƯỚC (NẾU REDIS SỐNG) ---
+	// --- 1. CHECK REDIS CACHE ---
 	redisKey := fmt.Sprintf("idem:order:%s", idemKey)
 	if s.rdb != nil {
 		val, err := s.rdb.Get(ctx, redisKey).Result()
@@ -49,10 +50,9 @@ func (s *Service) CreateOrder(ctx context.Context, req CreateOrderRequest, idemK
 		}
 	}
 
-	// --- 2. CHECK POSTGRES (FALLBACK) ---
+	// --- 2. CHECK POSTGRES ---
 	existing, err := s.repo.FindByIdempotencyKey(ctx, idemKey)
 	if err == nil {
-		// Cache lại vào Redis trước khi trả về (nếu redis sống)
 		if s.rdb != nil {
 			orderData, _ := json.Marshal(existing)
 			s.rdb.Set(ctx, redisKey, orderData, 24*time.Hour)
@@ -63,7 +63,7 @@ func (s *Service) CreateOrder(ctx context.Context, req CreateOrderRequest, idemK
 		return nil, false, errs.WrapInternal(err, "failed to check idempotency key")
 	}
 
-	// --- 3. TẠO ORDER MỚI ---
+	// --- 3. TẠO ORDER MỚI VÀ TÍNH TIỀN CHUẨN ---
 	now := time.Now()
 	orderID := uuid.NewString()
 
@@ -71,7 +71,20 @@ func (s *Service) CreateOrder(ctx context.Context, req CreateOrderRequest, idemK
 	totalAmount := 0.0
 
 	for _, reqItem := range req.Items {
-		unitPrice := 100000.0 // Giá giả lập
+		var unitPrice float64
+
+		// LOGIC CHUẨN: Tính đúng giá trị thực của sản phẩm
+		switch reqItem.ProductID {
+		case "prod-123":
+			unitPrice = 24000000.0 // Laptop ASUS
+		case "prod-456":
+			unitPrice = 2500000.0  // Bàn phím Keychron
+		case "prod-789":
+			unitPrice = 1200000.0  // Chuột Logitech
+		default:
+			unitPrice = 0.0
+		}
+
 		lineTotal := unitPrice * float64(reqItem.Quantity)
 		totalAmount += lineTotal
 
@@ -100,7 +113,12 @@ func (s *Service) CreateOrder(ctx context.Context, req CreateOrderRequest, idemK
 		UpdatedAt:       now,
 	}
 
-	if err := s.repo.Create(ctx, ord); err != nil {
+	// --- 4. TẠO PAYLOAD OUTBOX TRƯỚC KHI GỌI DB ---
+	event := buildOrderCreatedEvent(ord)
+	outboxPayload, _ := json.Marshal(event)
+
+	// Gọi hàm Create với Payload Outbox (Nó sẽ ghi cục này vào DB chung với đơn hàng)
+	if err := s.repo.Create(ctx, ord, "order.created", outboxPayload); err != nil {
 		return nil, false, errs.WrapInternal(err, "failed to create order")
 	}
 
@@ -109,19 +127,14 @@ func (s *Service) CreateOrder(ctx context.Context, req CreateOrderRequest, idemK
 		return nil, false, errs.WrapInternal(err, "failed to reload created order")
 	}
 
-	// --- 4. CACHE KẾT QUẢ MỚI VÀO REDIS ---
+	// --- 5. CACHE REDIS ---
 	if s.rdb != nil {
 		newOrderData, _ := json.Marshal(created)
 		s.rdb.Set(ctx, redisKey, newOrderData, 24*time.Hour)
 	}
 
-	// --- 5. BẮN EVENT LÊN KAFKA ---
-	event := buildOrderCreatedEvent(created)
-	if s.publisher != nil {
-		if err := s.publisher.PublishOrderCreated(ctx, event); err != nil {
-			return nil, false, errs.WrapInternal(err, "failed to publish order.created event")
-		}
-	}
+	// Đã bỏ s.publisher.PublishOrderCreated() đi để chống Dual-Write
+	// Worker sẽ thay thế làm việc bắn event lên Kafka.
 
 	return created, false, nil
 }
@@ -203,15 +216,12 @@ func validateCreateOrder(req CreateOrderRequest, idemKey string) error {
 	if strings.TrimSpace(idemKey) == "" {
 		return errs.BadRequest("missing X-Idempotency-Key")
 	}
-
 	if strings.TrimSpace(req.UserID) == "" {
 		return errs.BadRequest("user_id is required")
 	}
-
 	if len(req.Items) == 0 {
 		return errs.BadRequest("items must not be empty")
 	}
-
 	for _, item := range req.Items {
 		if strings.TrimSpace(item.ProductID) == "" {
 			return errs.BadRequest("product_id is required")
@@ -220,25 +230,20 @@ func validateCreateOrder(req CreateOrderRequest, idemKey string) error {
 			return errs.BadRequest("quantity must be greater than 0")
 		}
 	}
-
 	if strings.TrimSpace(req.Currency) == "" {
 		return errs.BadRequest("currency is required")
 	}
-
 	if strings.TrimSpace(req.PaymentMethod) == "" {
 		return errs.BadRequest("payment_method is required")
 	}
-
 	if strings.TrimSpace(req.ShippingAddress) == "" {
 		return errs.BadRequest("shipping_address is required")
 	}
-
 	return nil
 }
 
 func buildOrderCreatedEvent(ord *domainorder.Order) OrderCreatedEvent {
 	items := make([]OrderCreatedEventItem, 0, len(ord.Items))
-
 	for _, item := range ord.Items {
 		items = append(items, OrderCreatedEventItem{
 			ProductID: item.ProductID,
@@ -246,7 +251,6 @@ func buildOrderCreatedEvent(ord *domainorder.Order) OrderCreatedEvent {
 			UnitPrice: item.UnitPrice,
 		})
 	}
-
 	return OrderCreatedEvent{
 		EventType:      "order.created",
 		OrderID:        ord.ID,

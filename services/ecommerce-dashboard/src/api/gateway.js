@@ -13,6 +13,7 @@ async function request(path, options = {}) {
 
   const headers = {
     Accept: "application/json",
+    "X-API-Key": "UIT-DOAN-2026-SECRET", // Thêm Header bảo mật ở đây
     ...(options.body ? { "Content-Type": "application/json" } : {}),
     ...(options.headers || {}),
   };
@@ -106,4 +107,8 @@ export async function getOrder(orderId) {
 
 export async function getOrderSaga(orderId) {
   return request(`/api/orders/${encodeURIComponent(orderId)}/saga`);
+}
+
+export async function getInventories() {
+  return request("/api/inventories");
 }

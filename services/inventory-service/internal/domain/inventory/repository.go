@@ -17,4 +17,8 @@ type Repository interface {
 
 	CreateReservation(ctx context.Context, tx pgx.Tx, reservation *InventoryReservation) error
 	CreateReservationItems(ctx context.Context, tx pgx.Tx, items []InventoryReservationItem) error
+
+	ListAllInventories(ctx context.Context) ([]Inventory, error)
+	UpdateReservationStatus(ctx context.Context, tx pgx.Tx, reservationID string, status string) error
+	AtomicReserveInventory(ctx context.Context, tx pgx.Tx, productID string, quantity int) error
 }

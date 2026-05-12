@@ -13,14 +13,19 @@ spec:
       labels:
         app: notification-api
     spec:
-      nodeSelector:
-        worker: knight3007
       containers:
       - name: notification-api
         image: hoangdonguit/notification-service:latest
         command: ["/app/notification-api"]
         ports:
         - containerPort: 8084
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
         env:
         - name: APP_NAME
           value: "notification-service"
@@ -29,22 +34,9 @@ spec:
         - name: APP_ENV
           value: "development"
         - name: DB_URL
-          value: "postgres://postgres:securepassword@postgresql.db.svc.cluster.local:5432/notification_db?sslmode=disable"
+          value: "postgres://postgres:securepassword@10.43.190.247:5432/notification_db?sslmode=disable"
         - name: KAFKA_BROKER
-          value: "10.43.238.7:9092"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: notification-api
-  namespace: default
-spec:
-  selector:
-    app: notification-api
-  ports:
-    - protocol: TCP
-      port: 8084
-      targetPort: 8084
+          value: "10.43.246.98:9092"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -61,12 +53,17 @@ spec:
       labels:
         app: notification-consumer
     spec:
-      nodeSelector:
-        worker: knight3007
       containers:
       - name: notification-consumer
         image: hoangdonguit/notification-service:latest
         command: ["/app/notification-consumer"]
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
         env:
         - name: APP_NAME
           value: "notification-service"
@@ -75,6 +72,6 @@ spec:
         - name: APP_ENV
           value: "development"
         - name: DB_URL
-          value: "postgres://postgres:securepassword@postgresql.db.svc.cluster.local:5432/notification_db?sslmode=disable"
+          value: "postgres://postgres:securepassword@10.43.190.247:5432/notification_db?sslmode=disable"
         - name: KAFKA_BROKER
-          value: "10.43.238.7:9092"
+          value: "10.43.246.98:9092"

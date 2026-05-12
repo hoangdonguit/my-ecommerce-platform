@@ -1,0 +1,65 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: order-service-scaler
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: order-service
+  minReplicaCount: 1
+  maxReplicaCount: 8
+  cooldownPeriod: 60
+  pollingInterval: 15
+  triggers:
+  - type: cpu
+    metricType: Utilization
+    metadata:
+      value: "25"
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: payment-api-scaler
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: payment-api
+  minReplicaCount: 1
+  maxReplicaCount: 8
+  triggers:
+  - type: cpu
+    metricType: Utilization
+    metadata:
+      value: "25"
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: inventory-api-scaler
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: inventory-api
+  minReplicaCount: 1
+  maxReplicaCount: 8
+  triggers:
+  - type: cpu
+    metricType: Utilization
+    metadata:
+      value: "25"
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: notification-api-scaler
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: notification-api
+  minReplicaCount: 1
+  maxReplicaCount: 8
+  triggers:
+  - type: cpu
+    metricType: Utilization
+    metadata:
+      value: "25"
