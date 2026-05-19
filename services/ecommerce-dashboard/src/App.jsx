@@ -5,6 +5,7 @@ import Orders from "./pages/Orders";
 import OrderSaga from "./pages/OrderSaga";
 import ErrorOrders from "./pages/ErrorOrders";
 import Storefront from "./pages/Storefront";
+import ReadModelOrders from "./pages/ReadModelOrders";
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/orders/error" element={<ErrorOrders />} />
+          <Route path="/read-model/orders" element={<ReadModelOrders />} />
           <Route path="/orders/:id" element={<OrderSaga />} />
           {/* Storefront đã được đưa vào trong Layout để có Sidebar */}
           <Route path="/store" element={<Storefront />} /> 

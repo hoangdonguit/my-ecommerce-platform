@@ -33,6 +33,9 @@ export default function Layout() {
           <NavLink to="/orders/error" style={({ isActive }) => isActive ? { color: "#dc3545", fontWeight: "bold" } : { color: "#dc3545" }}>
             ⚠ Giám sát Đơn Lỗi
           </NavLink>
+          <NavLink to="/read-model/orders" style={({ isActive }) => isActive ? { color: "#198754", fontWeight: "bold" } : { color: "#198754" }}>
+            🍃 MongoDB Read Model
+          </NavLink>
         </nav>
       </aside>
 

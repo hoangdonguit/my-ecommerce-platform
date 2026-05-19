@@ -113,3 +113,20 @@ export async function getOrderSaga(orderId) {
 export async function getInventories() {
   return request("/api/inventories");
 }
+
+export async function listReadModelOrders(page = 1, limit = 100, userId = "") {
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+  });
+
+  if (userId) {
+    params.set("user_id", userId);
+  }
+
+  return request(`/api/read-model/orders?${params.toString()}`);
+}
+
+export async function getReadModelOrder(orderId) {
+  return request(`/api/read-model/orders/${encodeURIComponent(orderId)}`);
+}
