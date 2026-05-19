@@ -65,7 +65,27 @@ echo "ORDER_ID=$ORDER_ID"
 
 echo
 echo "===== WAIT SAGA ====="
-sleep 12
+SAGA_WAIT_TIMEOUT="${SAGA_WAIT_TIMEOUT:-180}"
+SAGA_WAIT_INTERVAL="${SAGA_WAIT_INTERVAL:-5}"
+SAGA_DEADLINE=$((SECONDS + SAGA_WAIT_TIMEOUT))
+ORDER_STATUS=""
+
+while [ "$SECONDS" -lt "$SAGA_DEADLINE" ]; do
+  ORDER_STATUS="$(
+    kubectl -n db exec postgresql-0 -- bash -lc "
+      export PGPASSWORD=\"\$(cat /opt/bitnami/postgresql/secrets/postgres-password)\"
+      psql -U postgres -d order_db -t -A -c \"SELECT status FROM orders WHERE id = '$ORDER_ID';\"
+    " | tr -d '[:space:]'
+  )"
+
+  echo "order.status=$ORDER_STATUS elapsed=${SECONDS}s"
+
+  if [ "$ORDER_STATUS" = "COMPLETED" ] || [ "$ORDER_STATUS" = "FAILED" ]; then
+    break
+  fi
+
+  sleep "$SAGA_WAIT_INTERVAL"
+done
 
 echo
 echo "===== CHECK DATABASE RESULT ====="
@@ -109,9 +129,60 @@ WHERE order_id = '$ORDER_ID';
 "
 
 echo
-echo "===== EXPECTED RESULT ====="
-echo "orders.status should be COMPLETED"
-echo "outbox.status should be PUBLISHED"
-echo "inventory_reservations.status should be RESERVED"
-echo "payments.status should be COMPLETED"
-echo "notifications.status should be SENT"
+echo "===== ASSERT EXPECTED RESULT ====="
+
+ORDER_STATUS="$(
+  kubectl -n db exec postgresql-0 -- bash -lc "
+    export PGPASSWORD=\"\$(cat /opt/bitnami/postgresql/secrets/postgres-password)\"
+    psql -U postgres -d order_db -t -A -c \"SELECT status FROM orders WHERE id = '$ORDER_ID';\"
+  " | tr -d '[:space:]'
+)"
+
+OUTBOX_STATUS="$(
+  kubectl -n db exec postgresql-0 -- bash -lc "
+    export PGPASSWORD=\"\$(cat /opt/bitnami/postgresql/secrets/postgres-password)\"
+    psql -U postgres -d order_db -t -A -c \"SELECT status FROM outbox WHERE aggregate_id = '$ORDER_ID' LIMIT 1;\"
+  " | tr -d '[:space:]'
+)"
+
+INVENTORY_STATUS="$(
+  kubectl -n db exec postgresql-0 -- bash -lc "
+    export PGPASSWORD=\"\$(cat /opt/bitnami/postgresql/secrets/postgres-password)\"
+    psql -U postgres -d inventory_db -t -A -c \"SELECT status FROM inventory_reservations WHERE order_id = '$ORDER_ID' LIMIT 1;\"
+  " | tr -d '[:space:]'
+)"
+
+PAYMENT_STATUS="$(
+  kubectl -n db exec postgresql-0 -- bash -lc "
+    export PGPASSWORD=\"\$(cat /opt/bitnami/postgresql/secrets/postgres-password)\"
+    psql -U postgres -d payment_db -t -A -c \"SELECT status FROM payments WHERE order_id = '$ORDER_ID' LIMIT 1;\"
+  " | tr -d '[:space:]'
+)"
+
+NOTIFICATION_STATUS="$(
+  kubectl -n db exec postgresql-0 -- bash -lc "
+    export PGPASSWORD=\"\$(cat /opt/bitnami/postgresql/secrets/postgres-password)\"
+    psql -U postgres -d notification_db -t -A -c \"SELECT status FROM notifications WHERE order_id = '$ORDER_ID' LIMIT 1;\"
+  " | tr -d '[:space:]'
+)"
+
+echo "orders.status=$ORDER_STATUS"
+echo "outbox.status=$OUTBOX_STATUS"
+echo "inventory_reservations.status=$INVENTORY_STATUS"
+echo "payments.status=$PAYMENT_STATUS"
+echo "notifications.status=$NOTIFICATION_STATUS"
+
+FAILED=0
+
+[ "$ORDER_STATUS" = "COMPLETED" ] || FAILED=1
+[ "$OUTBOX_STATUS" = "PUBLISHED" ] || FAILED=1
+[ "$INVENTORY_STATUS" = "RESERVED" ] || FAILED=1
+[ "$PAYMENT_STATUS" = "COMPLETED" ] || FAILED=1
+[ "$NOTIFICATION_STATUS" = "SENT" ] || FAILED=1
+
+if [ "$FAILED" -ne 0 ]; then
+  echo "===== SMOKE TEST FAILED ====="
+  exit 1
+fi
+
+echo "===== SMOKE TEST PASSED ====="

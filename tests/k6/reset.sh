@@ -87,6 +87,9 @@ KAFKA_TOPICS=(
   "inventory.failed"
   "payment.completed"
   "payment.failed"
+  "inventory.reserved.dlq"
+  "payment.completed.dlq"
+  "payment.failed.dlq"
 )
 
 for topic in "${KAFKA_TOPICS[@]}"; do

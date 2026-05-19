@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: notification-api
-        image: hoangdonguit/notification-service:latest
+        image: hoangdonguit/notification-service:dlq-retry-20260520020224
         command: ["/app/notification-api"]
         ports:
         - containerPort: 8084
@@ -61,7 +61,7 @@ spec:
     spec:
       containers:
       - name: notification-consumer
-        image: hoangdonguit/notification-service:latest
+        image: hoangdonguit/notification-service:dlq-retry-20260520020224
         command: ["/app/notification-consumer"]
         resources:
           limits:

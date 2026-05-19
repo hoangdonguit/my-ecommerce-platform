@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: payment-api
-        image: hoangdonguit/payment-service:latest
+        image: hoangdonguit/payment-service:dlq-retry-20260520020224
         command: ["/app/payment-api"]
         ports:
         - containerPort: 8083
@@ -61,7 +61,7 @@ spec:
     spec:
       containers:
       - name: payment-consumer
-        image: hoangdonguit/payment-service:latest
+        image: hoangdonguit/payment-service:dlq-retry-20260520020224
         command: ["/app/payment-consumer"]
         resources:
           limits:
