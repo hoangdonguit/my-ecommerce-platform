@@ -1,0 +1,127 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - "feat/**"
+      - "fix/**"
+      - "chore/**"
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  secret-and-script-check:
+    name: Secret scan and script syntax
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for old secrets and cluster IPs
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if grep -RInE \
+            --exclude-dir=.git \
+            --exclude-dir=node_modules \
+            --exclude-dir=dist \
+            --exclude-dir=backups \
+            --exclude="*.dump" \
+            "UIT-DOAN-2026-SECRET|securepassword|postgres://postgres:securepassword|10\.43\.190\.247|10\.43\.246\.98|http://10\.43" \
+            k8s services tests scripts docs .github; then
+            echo "Found old secret, hard-coded password, or old cluster IP."
+            exit 1
+          fi
+
+          echo "No old secret or old cluster IP found."
+
+      - name: Bash syntax check
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          while IFS= read -r file; do
+            echo "bash -n $file"
+            bash -n "$file"
+          done < <(find tests scripts -type f -name "*.sh" | sort)
+
+      - name: k6 JavaScript syntax check
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if compgen -G "tests/k6/*.js" > /dev/null; then
+            for file in tests/k6/*.js; do
+              echo "node --check $file"
+              node --check "$file"
+            done
+          else
+            echo "No k6 JavaScript files found."
+          fi
+
+  go-services:
+    name: Go services test/build
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - services/order-service
+          - services/inventory-service
+          - services/payment-service
+          - services/notification-service
+          - services/web-gateway
+          - services/read-model-service
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.x"
+          cache-dependency-path: "${{ matrix.service }}/go.sum"
+
+      - name: Go test
+        working-directory: ${{ matrix.service }}
+        run: go test ./...
+
+      - name: Go build commands
+        working-directory: ${{ matrix.service }}
+        run: go build ./cmd/...
+
+  dashboard:
+    name: Dashboard build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: services/ecommerce-dashboard
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: services/ecommerce-dashboard/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Build dashboard
+        run: npm run build
