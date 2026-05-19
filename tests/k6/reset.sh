@@ -18,7 +18,10 @@ if [ "${CONFIRM_RESET:-}" != "YES" ]; then
   exit 1
 fi
 
+KAFKA_PARTITIONS="${KAFKA_PARTITIONS:-16}"
+
 echo "[INFO] Bắt đầu reset môi trường benchmark..."
+echo "[INFO] Kafka topic partitions: ${KAFKA_PARTITIONS}"
 
 echo "[0/7] Đọc PostgreSQL password từ Kubernetes Secret..."
 POSTGRES_PASSWORD="$(kubectl -n db get secret postgresql -o jsonpath='{.data.postgres-password}' | base64 -d)"
@@ -101,7 +104,7 @@ for topic in "${KAFKA_TOPICS[@]}"; do
     kafka-topics.sh --bootstrap-server localhost:9092 \
     --create --if-not-exists \
     --topic "$topic" \
-    --partitions 8 \
+    --partitions "${KAFKA_PARTITIONS}" \
     --replication-factor 1
 done
 
