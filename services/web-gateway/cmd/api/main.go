@@ -21,6 +21,7 @@ func main() {
 	inventoryClient := client.NewInventoryClient(cfg.InventoryServiceURL)
 	paymentClient := client.NewPaymentClient(cfg.PaymentServiceURL)
 	notificationClient := client.NewNotificationClient(cfg.NotificationServiceURL)
+	readModelClient := client.NewReadModelClient(cfg.ReadModelServiceURL)
 
 	sagaService := app.NewSagaService(
 		orderClient,
@@ -34,6 +35,7 @@ func main() {
 		inventoryClient,
 		paymentClient,
 		notificationClient,
+		readModelClient,
 		sagaService,
 	)
 
@@ -44,6 +46,7 @@ func main() {
 	log.Printf("inventory service url: %s", cfg.InventoryServiceURL)
 	log.Printf("payment service url: %s", cfg.PaymentServiceURL)
 	log.Printf("notification service url: %s", cfg.NotificationServiceURL)
+	log.Printf("read model service url: %s", cfg.ReadModelServiceURL)
 
 	if err := router.Run(":" + cfg.AppPort); err != nil {
 		log.Fatalf("failed to start server: %v", err)

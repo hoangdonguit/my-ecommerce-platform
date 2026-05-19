@@ -237,6 +237,22 @@ type NotificationResponse struct {
 	UpdatedAt     string `json:"updated_at"`
 }
 
+type ReadModelOrderResponse struct {
+	OrderID       string  `json:"order_id"`
+	UserID        string  `json:"user_id"`
+	SagaStatus    string  `json:"saga_status"`
+	PaymentStatus string  `json:"payment_status"`
+	PaymentID     string  `json:"payment_id"`
+	Amount        float64 `json:"amount"`
+	Currency      string  `json:"currency"`
+	PaymentMethod string  `json:"payment_method"`
+	TransactionID string  `json:"transaction_id"`
+	SourceEvent   string  `json:"source_event"`
+	PaidAt        string  `json:"paid_at,omitempty"`
+	CreatedAt     string  `json:"created_at"`
+	UpdatedAt     string  `json:"updated_at"`
+}
+
 type OrderClient struct {
 	client *Client
 }
@@ -361,4 +377,44 @@ func (c *NotificationClient) ListByOrderID(ctx context.Context, orderID string) 
 		return nil, err
 	}
 	return notifications, nil
+}
+
+type ReadModelClient struct {
+	client *Client
+}
+
+func NewReadModelClient(baseURL string) *ReadModelClient {
+	return &ReadModelClient{client: NewClient(baseURL)}
+}
+
+func (c *ReadModelClient) Health(ctx context.Context) error {
+	return c.client.do(ctx, http.MethodGet, "/health", nil, nil, nil, nil)
+}
+
+func (c *ReadModelClient) ListOrders(ctx context.Context, userID string, page int, limit int) ([]ReadModelOrderResponse, *ListMeta, error) {
+	path := fmt.Sprintf(
+		"/read-model/orders?user_id=%s&page=%d&limit=%d",
+		url.QueryEscape(userID),
+		page,
+		limit,
+	)
+
+	var orders []ReadModelOrderResponse
+	var meta ListMeta
+
+	err := c.client.do(ctx, http.MethodGet, path, nil, nil, &orders, &meta)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return orders, &meta, nil
+}
+
+func (c *ReadModelClient) GetOrder(ctx context.Context, orderID string) (*ReadModelOrderResponse, error) {
+	var order ReadModelOrderResponse
+	err := c.client.do(ctx, http.MethodGet, "/read-model/orders/"+url.PathEscape(orderID), nil, nil, &order, nil)
+	if err != nil {
+		return nil, err
+	}
+	return &order, nil
 }

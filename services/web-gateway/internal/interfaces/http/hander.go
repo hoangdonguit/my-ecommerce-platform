@@ -20,6 +20,7 @@ type Handler struct {
 	inventory     *client.InventoryClient
 	payment       *client.PaymentClient
 	notifications *client.NotificationClient
+	readModels    *client.ReadModelClient
 	saga          *app.SagaService
 }
 
@@ -28,6 +29,7 @@ func NewHandler(
 	inventory *client.InventoryClient,
 	payment *client.PaymentClient,
 	notifications *client.NotificationClient,
+	readModels *client.ReadModelClient,
 	saga *app.SagaService,
 ) *Handler {
 	return &Handler{
@@ -35,6 +37,7 @@ func NewHandler(
 		inventory:     inventory,
 		payment:       payment,
 		notifications: notifications,
+		readModels:    readModels,
 		saga:          saga,
 	}
 }
@@ -58,6 +61,7 @@ func (h *Handler) ServicesHealth(c *gin.Context) {
 	result["inventory_service"] = h.checkService(ctx, h.inventory.Health)
 	result["payment_service"] = h.checkService(ctx, h.payment.Health)
 	result["notification_service"] = h.checkService(ctx, h.notifications.Health)
+	result["read_model_service"] = h.checkService(ctx, h.readModels.Health)
 
 	c.JSON(http.StatusOK, APIResponse{
 		Success: true,
@@ -100,6 +104,7 @@ func (h *Handler) ListInventories(c *gin.Context) {
 
 	c.JSON(resp.StatusCode, result)
 }
+
 // ======================================
 
 func (h *Handler) CreateOrder(c *gin.Context) {
@@ -207,6 +212,47 @@ func (h *Handler) GetOrderSaga(c *gin.Context) {
 		Success: true,
 		Message: "Order saga fetched successfully",
 		Data:    detail,
+	})
+}
+
+func (h *Handler) ListReadModelOrders(c *gin.Context) {
+	userID := c.Query("user_id")
+	page := parseIntQuery(c, "page", 1)
+	limit := parseIntQuery(c, "limit", 20)
+
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
+	defer cancel()
+
+	orders, meta, err := h.readModels.ListOrders(ctx, userID, page, limit)
+	if err != nil {
+		handleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, APIResponse{
+		Success: true,
+		Message: "Read model orders fetched successfully",
+		Data:    orders,
+		Meta:    meta,
+	})
+}
+
+func (h *Handler) GetReadModelOrder(c *gin.Context) {
+	orderID := c.Param("id")
+
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
+	defer cancel()
+
+	order, err := h.readModels.GetOrder(ctx, orderID)
+	if err != nil {
+		handleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, APIResponse{
+		Success: true,
+		Message: "Read model order fetched successfully",
+		Data:    order,
 	})
 }
 

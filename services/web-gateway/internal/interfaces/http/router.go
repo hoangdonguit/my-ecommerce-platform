@@ -78,6 +78,9 @@ func SetupRouter(handler *Handler) *gin.Engine {
 		api.GET("/orders/:id", handler.GetOrder)
 		api.GET("/orders/:id/saga", handler.GetOrderSaga)
 
+		api.GET("/read-model/orders", handler.ListReadModelOrders)
+		api.GET("/read-model/orders/:id", handler.GetReadModelOrder)
+
 		// ĐƯỜNG DẪN KÉO KHO HÀNG CHO FRONTEND
 		api.GET("/inventories", handler.ListInventories)
 	}

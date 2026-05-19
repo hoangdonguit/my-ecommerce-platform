@@ -14,6 +14,7 @@ type Config struct {
 	InventoryServiceURL    string
 	PaymentServiceURL      string
 	NotificationServiceURL string
+	ReadModelServiceURL    string
 }
 
 func Load() Config {
@@ -26,6 +27,7 @@ func Load() Config {
 		InventoryServiceURL:    getEnv("INVENTORY_SERVICE_URL", "http://localhost:8082/api/v1"),
 		PaymentServiceURL:      getEnv("PAYMENT_SERVICE_URL", "http://localhost:8083/api/v1"),
 		NotificationServiceURL: getEnv("NOTIFICATION_SERVICE_URL", "http://localhost:8084/api/v1"),
+		ReadModelServiceURL:    getEnv("READ_MODEL_SERVICE_URL", "http://localhost:8085/api/v1"),
 	}
 
 	validate(cfg)
@@ -47,6 +49,9 @@ func validate(cfg Config) {
 	}
 	if cfg.NotificationServiceURL == "" {
 		log.Fatal("NOTIFICATION_SERVICE_URL is required")
+	}
+	if cfg.ReadModelServiceURL == "" {
+		log.Fatal("READ_MODEL_SERVICE_URL is required")
 	}
 }
 
