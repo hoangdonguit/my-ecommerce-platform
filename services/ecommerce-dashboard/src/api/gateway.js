@@ -1,4 +1,5 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8090";
+const WEB_GATEWAY_API_KEY = import.meta.env.VITE_WEB_GATEWAY_API_KEY || "";
 
 function createFallbackIdempotencyKey() {
   if (window.crypto && window.crypto.randomUUID) {
@@ -13,7 +14,7 @@ async function request(path, options = {}) {
 
   const headers = {
     Accept: "application/json",
-    "X-API-Key": "UIT-DOAN-2026-SECRET", // Thêm Header bảo mật ở đây
+    ...(WEB_GATEWAY_API_KEY ? { "X-API-Key": WEB_GATEWAY_API_KEY } : {}),
     ...(options.body ? { "Content-Type": "application/json" } : {}),
     ...(options.headers || {}),
   };
