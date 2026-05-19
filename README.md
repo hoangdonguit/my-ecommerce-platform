@@ -344,7 +344,8 @@ Máy chạy cần có:
 ### 12.2. Nạp API key từ Kubernetes Secret
 
     export API_KEY="$(
-      kubectl -n default get secret ecommerce-runtime-secrets         -o jsonpath='{.data.WEB_GATEWAY_API_KEY}' | base64 -d
+      kubectl -n default get secret ecommerce-runtime-secrets        
+       -o jsonpath='{.data.WEB_GATEWAY_API_KEY}' | base64 -d
     )"
 
 ### 12.3. Smoke test Saga end-to-end
@@ -411,13 +412,19 @@ Lệnh này xóa dữ liệu test, reset Redis, reset Kafka topics và restart s
 
 ### 12.9. Kiểm tra MongoDB Read Model qua Gateway
 
-    curl -sS --max-time 10       -H "X-API-Key: $API_KEY"       "http://100.65.255.2:32193/api/read-model/orders?limit=3" | jq .
+    curl -sS --max-time 10       
+      -H "X-API-Key: $API_KEY"       
+      "http://100.65.255.2:32193/api/read-model/orders?limit=3" | jq .
 
 ### 12.10. Kiểm tra Redis cache
 
-    curl -sS -D - -o /dev/null       -H "X-API-Key: $API_KEY"       "http://100.65.255.2:32193/api/read-model/orders?limit=100" | grep -i "x-cache\|http"
+    curl -sS -D - -o /dev/null       
+      -H "X-API-Key: $API_KEY"       
+      "http://100.65.255.2:32193/api/read-model/orders?limit=100" | grep -i "x-cache\|http"
 
-    curl -sS -D - -o /dev/null       -H "X-API-Key: $API_KEY"       "http://100.65.255.2:32193/api/read-model/orders?limit=100" | grep -i "x-cache\|http"
+    curl -sS -D - -o /dev/null       
+      -H "X-API-Key: $API_KEY"       
+      "http://100.65.255.2:32193/api/read-model/orders?limit=100" | grep -i "x-cache\|http"
 
 Kỳ vọng:
 
@@ -428,7 +435,12 @@ Kỳ vọng:
 
     for topic in inventory.reserved.dlq payment.completed.dlq payment.failed.dlq; do
       echo "----- DLQ topic: $topic -----"
-      kubectl -n kafka exec kafka-0 -- kafka-console-consumer.sh         --bootstrap-server localhost:9092         --topic "$topic"         --from-beginning         --timeout-ms 3000         --max-messages 3 || true
+      kubectl -n kafka exec kafka-0 -- kafka-console-consumer.sh         
+        --bootstrap-server localhost:9092         
+        --topic "$topic"         
+        --from-beginning         
+        --timeout-ms 3000         
+        --max-messages 3 || true
     done
 
 Nếu hiện `Processed a total of 0 messages` thì nghĩa là DLQ đang rỗng, đúng kỳ vọng trong kịch bản thành công.
