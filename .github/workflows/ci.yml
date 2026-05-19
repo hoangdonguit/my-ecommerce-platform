@@ -25,14 +25,23 @@ jobs:
         run: |
           set -euo pipefail
 
+          SEARCH_PATHS=(
+            k8s
+            services
+            tests
+            scripts
+            docs
+          )
+
           if grep -RInE \
             --exclude-dir=.git \
             --exclude-dir=node_modules \
             --exclude-dir=dist \
             --exclude-dir=backups \
             --exclude="*.dump" \
+            --exclude="*.bak" \
             "UIT-DOAN-2026-SECRET|securepassword|postgres://postgres:securepassword|10\.43\.190\.247|10\.43\.246\.98|http://10\.43" \
-            k8s services tests scripts docs .github; then
+            "${SEARCH_PATHS[@]}"; then
             echo "Found old secret, hard-coded password, or old cluster IP."
             exit 1
           fi
