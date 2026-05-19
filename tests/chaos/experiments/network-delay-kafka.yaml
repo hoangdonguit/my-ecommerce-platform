@@ -10,7 +10,7 @@ spec:
     labelSelectors:
       app: order-service
   externalTargets:
-    - 10.43.246.98 # IP Kafka của ông
+    - kafka-svc.kafka.svc.cluster.local # Kafka service DNS, tránh phụ thuộc ClusterIP tĩnh
   delay:
     latency: '1000ms'
     jitter: '200ms'
