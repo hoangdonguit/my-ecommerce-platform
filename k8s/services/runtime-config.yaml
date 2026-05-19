@@ -10,3 +10,5 @@ data:
   PAYMENT_SERVICE_URL: "http://payment-api.default.svc.cluster.local:8083/api/v1"
   NOTIFICATION_SERVICE_URL: "http://notification-api.default.svc.cluster.local:8084/api/v1"
   READ_MODEL_SERVICE_URL: "http://read-model-service.default.svc.cluster.local:8085/api/v1"
+
+  REDIS_ADDR: "redis.default.svc.cluster.local:6379"

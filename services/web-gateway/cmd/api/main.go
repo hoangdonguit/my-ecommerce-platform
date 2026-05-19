@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -8,6 +9,7 @@ import (
 	"github.com/hoangdonguit/my-ecommerce-platform/web-gateway/internal/client"
 	"github.com/hoangdonguit/my-ecommerce-platform/web-gateway/internal/config"
 	httpapi "github.com/hoangdonguit/my-ecommerce-platform/web-gateway/internal/interfaces/http"
+	"github.com/redis/go-redis/v9"
 )
 
 func main() {
@@ -23,6 +25,18 @@ func main() {
 	notificationClient := client.NewNotificationClient(cfg.NotificationServiceURL)
 	readModelClient := client.NewReadModelClient(cfg.ReadModelServiceURL)
 
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     cfg.RedisAddr,
+		Password: cfg.RedisPassword,
+	})
+	defer redisClient.Close()
+
+	if err := redisClient.Ping(context.Background()).Err(); err != nil {
+		log.Printf("WARNING: failed to connect redis cache: %v", err)
+	} else {
+		log.Println("redis cache connected successfully")
+	}
+
 	sagaService := app.NewSagaService(
 		orderClient,
 		inventoryClient,
@@ -36,6 +50,7 @@ func main() {
 		paymentClient,
 		notificationClient,
 		readModelClient,
+		redisClient,
 		sagaService,
 	)
 

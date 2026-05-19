@@ -15,6 +15,8 @@ type Config struct {
 	PaymentServiceURL      string
 	NotificationServiceURL string
 	ReadModelServiceURL    string
+	RedisAddr              string
+	RedisPassword          string
 }
 
 func Load() Config {
@@ -28,6 +30,8 @@ func Load() Config {
 		PaymentServiceURL:      getEnv("PAYMENT_SERVICE_URL", "http://localhost:8083/api/v1"),
 		NotificationServiceURL: getEnv("NOTIFICATION_SERVICE_URL", "http://localhost:8084/api/v1"),
 		ReadModelServiceURL:    getEnv("READ_MODEL_SERVICE_URL", "http://localhost:8085/api/v1"),
+		RedisAddr:              getEnv("REDIS_ADDR", "redis.default.svc.cluster.local:6379"),
+		RedisPassword:          getEnv("REDIS_PASSWORD", ""),
 	}
 
 	validate(cfg)

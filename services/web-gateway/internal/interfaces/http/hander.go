@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hoangdonguit/my-ecommerce-platform/web-gateway/internal/app"
 	"github.com/hoangdonguit/my-ecommerce-platform/web-gateway/internal/client"
+	"github.com/redis/go-redis/v9"
 )
 
 type Handler struct {
@@ -21,6 +22,7 @@ type Handler struct {
 	payment       *client.PaymentClient
 	notifications *client.NotificationClient
 	readModels    *client.ReadModelClient
+	cache         *redis.Client
 	saga          *app.SagaService
 }
 
@@ -30,6 +32,7 @@ func NewHandler(
 	payment *client.PaymentClient,
 	notifications *client.NotificationClient,
 	readModels *client.ReadModelClient,
+	cache *redis.Client,
 	saga *app.SagaService,
 ) *Handler {
 	return &Handler{
@@ -38,6 +41,7 @@ func NewHandler(
 		payment:       payment,
 		notifications: notifications,
 		readModels:    readModels,
+		cache:         cache,
 		saga:          saga,
 	}
 }
@@ -82,6 +86,13 @@ func (h *Handler) ListInventories(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
 	defer cancel()
 
+	cacheKey := "gateway:cache:inventories:all"
+	if cachedData, ok := h.getCache(ctx, cacheKey); ok {
+		c.Header("X-Cache", "HIT")
+		c.Data(http.StatusOK, "application/json; charset=utf-8", cachedData)
+		return
+	}
+
 	// Gọi trực tiếp đến inventory-service nội bộ K8s
 	req, err := http.NewRequestWithContext(ctx, "GET", "http://inventory-api.default.svc.cluster.local:8082/api/v1/inventories", nil)
 	if err != nil {
@@ -102,6 +113,13 @@ func (h *Handler) ListInventories(c *gin.Context) {
 		return
 	}
 
+	if resp.StatusCode == http.StatusOK {
+		if raw, err := json.Marshal(result); err == nil {
+			h.setCache(ctx, cacheKey, raw, 5*time.Second)
+		}
+	}
+
+	c.Header("X-Cache", "MISS")
 	c.JSON(resp.StatusCode, result)
 }
 
@@ -223,18 +241,32 @@ func (h *Handler) ListReadModelOrders(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
 	defer cancel()
 
+	cacheKey := fmt.Sprintf("gateway:cache:read-model:orders:user:%s:page:%d:limit:%d", userID, page, limit)
+	if cachedData, ok := h.getCache(ctx, cacheKey); ok {
+		c.Header("X-Cache", "HIT")
+		c.Data(http.StatusOK, "application/json; charset=utf-8", cachedData)
+		return
+	}
+
 	orders, meta, err := h.readModels.ListOrders(ctx, userID, page, limit)
 	if err != nil {
 		handleError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, APIResponse{
+	response := APIResponse{
 		Success: true,
 		Message: "Read model orders fetched successfully",
 		Data:    orders,
 		Meta:    meta,
-	})
+	}
+
+	if raw, err := json.Marshal(response); err == nil {
+		h.setCache(ctx, cacheKey, raw, 5*time.Second)
+	}
+
+	c.Header("X-Cache", "MISS")
+	c.JSON(http.StatusOK, response)
 }
 
 func (h *Handler) GetReadModelOrder(c *gin.Context) {
@@ -243,17 +275,54 @@ func (h *Handler) GetReadModelOrder(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
 	defer cancel()
 
+	cacheKey := fmt.Sprintf("gateway:cache:read-model:order:%s", orderID)
+	if cachedData, ok := h.getCache(ctx, cacheKey); ok {
+		c.Header("X-Cache", "HIT")
+		c.Data(http.StatusOK, "application/json; charset=utf-8", cachedData)
+		return
+	}
+
 	order, err := h.readModels.GetOrder(ctx, orderID)
 	if err != nil {
 		handleError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, APIResponse{
+	response := APIResponse{
 		Success: true,
 		Message: "Read model order fetched successfully",
 		Data:    order,
-	})
+	}
+
+	if raw, err := json.Marshal(response); err == nil {
+		h.setCache(ctx, cacheKey, raw, 5*time.Second)
+	}
+
+	c.Header("X-Cache", "MISS")
+	c.JSON(http.StatusOK, response)
+}
+
+func (h *Handler) getCache(ctx context.Context, key string) ([]byte, bool) {
+	if h.cache == nil {
+		return nil, false
+	}
+
+	data, err := h.cache.Get(ctx, key).Bytes()
+	if err != nil {
+		return nil, false
+	}
+
+	return data, true
+}
+
+func (h *Handler) setCache(ctx context.Context, key string, value []byte, ttl time.Duration) {
+	if h.cache == nil {
+		return
+	}
+
+	if err := h.cache.Set(ctx, key, value, ttl).Err(); err != nil {
+		fmt.Printf("failed to set gateway cache key=%s err=%v\n", key, err)
+	}
 }
 
 func parseIntQuery(c *gin.Context, key string, fallback int) int {
