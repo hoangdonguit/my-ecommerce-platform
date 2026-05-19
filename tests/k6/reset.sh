@@ -106,6 +106,13 @@ for topic in "${KAFKA_TOPICS[@]}"; do
     --topic "$topic" \
     --partitions "${KAFKA_PARTITIONS}" \
     --replication-factor 1
+
+  echo "      -> Ensure partitions: $topic = ${KAFKA_PARTITIONS}"
+  kubectl -n kafka exec -i kafka-0 -- \
+    kafka-topics.sh --bootstrap-server localhost:9092 \
+    --alter \
+    --topic "$topic" \
+    --partitions "${KAFKA_PARTITIONS}" || true
 done
 
 echo "[5/7] Restart services để consumer group join lại sạch..."
