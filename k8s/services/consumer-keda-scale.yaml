@@ -6,15 +6,25 @@ metadata:
 spec:
   scaleTargetRef:
     name: inventory-consumer
+  pollingInterval: 15
+  cooldownPeriod: 60
   minReplicaCount: 1
   maxReplicaCount: 8
-  cooldownPeriod: 60
-  pollingInterval: 15
   triggers:
-  - type: cpu
-    metricType: Utilization
+  - type: kafka
     metadata:
-      value: "25"
+      bootstrapServers: kafka-svc.kafka.svc.cluster.local:9092
+      consumerGroup: inventory-service-group
+      topic: order.created
+      lagThreshold: "20"
+      activationLagThreshold: "1"
+      offsetResetPolicy: latest
+      allowIdleConsumers: "false"
+      scaleToZeroOnInvalidOffset: "false"
+      excludePersistentLag: "false"
+      limitToPartitionsWithLag: "false"
+      ensureEvenDistributionOfPartitions: "true"
+
 ---
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
@@ -24,13 +34,25 @@ metadata:
 spec:
   scaleTargetRef:
     name: payment-consumer
+  pollingInterval: 15
+  cooldownPeriod: 60
   minReplicaCount: 1
   maxReplicaCount: 8
   triggers:
-  - type: cpu
-    metricType: Utilization
+  - type: kafka
     metadata:
-      value: "25"
+      bootstrapServers: kafka-svc.kafka.svc.cluster.local:9092
+      consumerGroup: payment-service-group
+      topic: inventory.reserved
+      lagThreshold: "20"
+      activationLagThreshold: "1"
+      offsetResetPolicy: latest
+      allowIdleConsumers: "false"
+      scaleToZeroOnInvalidOffset: "false"
+      excludePersistentLag: "false"
+      limitToPartitionsWithLag: "false"
+      ensureEvenDistributionOfPartitions: "true"
+
 ---
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
@@ -40,10 +62,34 @@ metadata:
 spec:
   scaleTargetRef:
     name: notification-consumer
+  pollingInterval: 15
+  cooldownPeriod: 60
   minReplicaCount: 1
   maxReplicaCount: 8
   triggers:
-  - type: cpu
-    metricType: Utilization
+  - type: kafka
     metadata:
-      value: "25"
+      bootstrapServers: kafka-svc.kafka.svc.cluster.local:9092
+      consumerGroup: notification-service-group
+      topic: payment.completed
+      lagThreshold: "20"
+      activationLagThreshold: "1"
+      offsetResetPolicy: latest
+      allowIdleConsumers: "false"
+      scaleToZeroOnInvalidOffset: "false"
+      excludePersistentLag: "false"
+      limitToPartitionsWithLag: "false"
+      ensureEvenDistributionOfPartitions: "true"
+  - type: kafka
+    metadata:
+      bootstrapServers: kafka-svc.kafka.svc.cluster.local:9092
+      consumerGroup: notification-service-group
+      topic: payment.failed
+      lagThreshold: "20"
+      activationLagThreshold: "1"
+      offsetResetPolicy: latest
+      allowIdleConsumers: "false"
+      scaleToZeroOnInvalidOffset: "false"
+      excludePersistentLag: "false"
+      limitToPartitionsWithLag: "false"
+      ensureEvenDistributionOfPartitions: "true"
