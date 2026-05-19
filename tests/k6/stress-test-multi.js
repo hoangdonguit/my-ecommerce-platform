@@ -24,7 +24,7 @@ export const options = {
 const BASE_URL = 'http://100.65.255.2';
 const HEADERS = {
   'Content-Type': 'application/json',
-  'X-API-Key': 'UIT-DOAN-2026-SECRET'
+  'X-API-Key': (__ENV.API_KEY || '')
 };
 
 const PRODUCT_CATALOG = ['prod-123', 'prod-456', 'prod-789'];

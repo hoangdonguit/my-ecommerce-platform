@@ -18,7 +18,7 @@ export const options = {
 };
 
 const BASE_URL = 'http://100.65.255.2'; // IP Ingress Gateway
-const HEADERS = { 'Content-Type': 'application/json', 'X-API-Key': 'UIT-DOAN-2026-SECRET' };
+const HEADERS = { 'Content-Type': 'application/json', 'X-API-Key': (__ENV.API_KEY || '') };
 
 export default function () {
   const userId = `user-stress-${__VU}`;

@@ -12,7 +12,7 @@ export const options = {
 };
 
 const BASE_URL = 'http://100.65.255.2'; 
-const HEADERS = { 'Content-Type': 'application/json', 'X-API-Key': 'UIT-DOAN-2026-SECRET' };
+const HEADERS = { 'Content-Type': 'application/json', 'X-API-Key': (__ENV.API_KEY || '') };
 
 function generateIdempotencyKey() {
   return `smoke-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
