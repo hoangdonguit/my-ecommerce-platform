@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: read-model-service
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: read-model-service
+  template:
+    metadata:
+      labels:
+        app: read-model-service
+    spec:
+      containers:
+      - name: read-model-service
+        image: hoangdonguit/read-model-service:mongo-cqrs-20260519232213
+        ports:
+        - containerPort: 8085
+        env:
+        - name: APP_PORT
+          value: "8085"
+        - name: KAFKA_BROKER
+          value: "kafka-svc.kafka.svc.cluster.local:9092"
+        - name: KAFKA_GROUP_ID
+          value: "read-model-service-group"
+        - name: KAFKA_TOPIC_PAYMENT_COMPLETED
+          value: "payment.completed"
+        - name: MONGODB_HOST
+          value: "mongodb.default.svc.cluster.local:27017"
+        - name: MONGODB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: MONGO_INITDB_ROOT_USERNAME
+        - name: MONGODB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: MONGO_INITDB_ROOT_PASSWORD
+        - name: MONGODB_AUTH_SOURCE
+          value: "admin"
+        - name: MONGODB_DATABASE
+          value: "ecommerce_read"
+        - name: MONGODB_COLLECTION
+          value: "order_read_models"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: read-model-service
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: read-model-service
+  ports:
+  - name: http
+    port: 8085
+    targetPort: 8085
