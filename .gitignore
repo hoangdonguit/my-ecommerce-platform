@@ -29,3 +29,6 @@ diagnostics/
 
 # Go local build binaries
 services/*/api
+
+# Local backup files
+backups/
