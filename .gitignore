@@ -18,3 +18,11 @@ bin/
 .DS_Store
 tests/k6/results/
 kubectl
+
+# Node / frontend
+node_modules/
+services/*/node_modules/
+
+# Local diagnostics / backups
+diagnostics/
+*.bak

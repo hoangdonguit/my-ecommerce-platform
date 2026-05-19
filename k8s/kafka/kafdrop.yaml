@@ -27,7 +27,7 @@ spec:
             memory: "256Mi"
         env:
         - name: KAFKA_BROKERCONNECT
-          value: "10.43.246.98:9092"
+          value: "kafka-svc.kafka.svc.cluster.local:9092"
         - name: SERVER_SERVLET_CONTEXT_PATH # Thêm dòng này để fix giao diện
           value: "/kafdrop"
 ---

@@ -34,9 +34,15 @@ spec:
         - name: APP_ENV
           value: "development"
         - name: DB_URL
-          value: "postgres://postgres:securepassword@10.43.190.247:5432/notification_db?sslmode=disable"
+          valueFrom:
+            secretKeyRef:
+              name: ecommerce-runtime-secrets
+              key: NOTIFICATION_DB_URL
         - name: KAFKA_BROKER
-          value: "10.43.246.98:9092"
+          valueFrom:
+            configMapKeyRef:
+              name: ecommerce-runtime-config
+              key: KAFKA_BROKER
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -72,6 +78,26 @@ spec:
         - name: APP_ENV
           value: "development"
         - name: DB_URL
-          value: "postgres://postgres:securepassword@10.43.190.247:5432/notification_db?sslmode=disable"
+          valueFrom:
+            secretKeyRef:
+              name: ecommerce-runtime-secrets
+              key: NOTIFICATION_DB_URL
         - name: KAFKA_BROKER
-          value: "10.43.246.98:9092"
+          valueFrom:
+            configMapKeyRef:
+              name: ecommerce-runtime-config
+              key: KAFKA_BROKER
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-api
+  namespace: default
+spec:
+  selector:
+    app: notification-api
+  ports:
+    - protocol: TCP
+      port: 8084
+      targetPort: 8084

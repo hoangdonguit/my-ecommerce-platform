@@ -47,7 +47,7 @@ spec:
         - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
           value: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
         - name: KAFKA_CFG_ADVERTISED_LISTENERS
-          value: "PLAINTEXT://10.43.246.98:9092"
+          value: "PLAINTEXT://kafka-svc.kafka.svc.cluster.local:9092"
         - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
           value: "0@127.0.0.1:9093"
         - name: KAFKA_KRAFT_CLUSTER_ID

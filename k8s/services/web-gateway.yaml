@@ -33,10 +33,36 @@ spec:
         - name: APP_ENV
           value: "development"
         - name: ORDER_SERVICE_URL
-          value: "http://10.43.8.221:8081/api/v1"
+          valueFrom:
+            configMapKeyRef:
+              name: ecommerce-runtime-config
+              key: ORDER_SERVICE_URL
         - name: INVENTORY_SERVICE_URL
-          value: "http://10.43.39.73:8082/api/v1"
+          valueFrom:
+            configMapKeyRef:
+              name: ecommerce-runtime-config
+              key: INVENTORY_SERVICE_URL
         - name: PAYMENT_SERVICE_URL
-          value: "http://10.43.217.104:8083/api/v1"
+          valueFrom:
+            configMapKeyRef:
+              name: ecommerce-runtime-config
+              key: PAYMENT_SERVICE_URL
         - name: NOTIFICATION_SERVICE_URL
-          value: "http://10.43.56.172:8084/api/v1"
+          valueFrom:
+            configMapKeyRef:
+              name: ecommerce-runtime-config
+              key: NOTIFICATION_SERVICE_URL
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-gateway
+  namespace: default
+spec:
+  selector:
+    app: web-gateway
+  ports:
+    - protocol: TCP
+      port: 8090
+      targetPort: 8090

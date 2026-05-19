@@ -34,9 +34,15 @@ spec:
         - name: APP_ENV
           value: "development"
         - name: DB_URL
-          value: "postgres://postgres:securepassword@10.43.190.247:5432/inventory_db?sslmode=disable"
+          valueFrom:
+            secretKeyRef:
+              name: ecommerce-runtime-secrets
+              key: INVENTORY_DB_URL
         - name: KAFKA_BROKER
-          value: "10.43.246.98:9092"
+          valueFrom:
+            configMapKeyRef:
+              name: ecommerce-runtime-config
+              key: KAFKA_BROKER
         - name: KAFKA_GROUP_ID
           value: "inventory-service-group"
         - name: KAFKA_TOPIC_ORDER_CREATED
@@ -93,9 +99,15 @@ spec:
         - name: APP_ENV
           value: "development"
         - name: DB_URL
-          value: "postgres://postgres:securepassword@10.43.190.247:5432/inventory_db?sslmode=disable"
+          valueFrom:
+            secretKeyRef:
+              name: ecommerce-runtime-secrets
+              key: INVENTORY_DB_URL
         - name: KAFKA_BROKER
-          value: "10.43.246.98:9092"
+          valueFrom:
+            configMapKeyRef:
+              name: ecommerce-runtime-config
+              key: KAFKA_BROKER
         - name: KAFKA_GROUP_ID
           value: "inventory-service-group"
         - name: KAFKA_TOPIC_ORDER_CREATED

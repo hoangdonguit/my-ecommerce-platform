@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ecommerce-runtime-config
+  namespace: default
+data:
+  KAFKA_BROKER: "kafka-svc.kafka.svc.cluster.local:9092"
+  ORDER_SERVICE_URL: "http://order-service.default.svc.cluster.local:8081/api/v1"
+  INVENTORY_SERVICE_URL: "http://inventory-api.default.svc.cluster.local:8082/api/v1"
+  PAYMENT_SERVICE_URL: "http://payment-api.default.svc.cluster.local:8083/api/v1"
+  NOTIFICATION_SERVICE_URL: "http://notification-api.default.svc.cluster.local:8084/api/v1"
