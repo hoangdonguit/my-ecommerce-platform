@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: web-gateway
-        image: hoangdonguit/web-gateway:latest
+        image: hoangdonguit/web-gateway:apikey-env-20260519160817
         ports:
         - containerPort: 8090
         resources:
@@ -52,6 +52,11 @@ spec:
             configMapKeyRef:
               name: ecommerce-runtime-config
               key: NOTIFICATION_SERVICE_URL
+        - name: WEB_GATEWAY_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ecommerce-runtime-secrets
+              key: WEB_GATEWAY_API_KEY
 
 ---
 apiVersion: v1

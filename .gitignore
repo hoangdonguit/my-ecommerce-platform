@@ -26,3 +26,6 @@ services/*/node_modules/
 # Local diagnostics / backups
 diagnostics/
 *.bak
+
+# Go local build binaries
+services/*/api
