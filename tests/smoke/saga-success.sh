@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-GATEWAY_URL="${GATEWAY_URL:-http://100.65.255.2:32193}"
+GATEWAY_URL="${GATEWAY_URL:-http://localhost:8090}"
 PRODUCT_ID="${PRODUCT_ID:-prod-123}"
 USER_ID="${USER_ID:-smoke-user-002}"
 
