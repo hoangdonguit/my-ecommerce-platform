@@ -55,6 +55,7 @@ export default function ReadModelOrders() {
           <h2>🍃 MongoDB Read Model Orders</h2>
           <p>
             Dữ liệu đọc nhanh được dựng từ Kafka event <b>payment.completed</b> và lưu trong MongoDB.
+            Trace Saga sẽ đối chiếu lại với PostgreSQL source of truth.
           </p>
         </div>
 
@@ -74,6 +75,10 @@ export default function ReadModelOrders() {
         <datalist id="read-model-user-suggestions">
           {uniqueUserIds.map((id) => <option key={id} value={id} />)}
         </datalist>
+      </div>
+
+      <div className="small-muted read-model-note" style={{ marginBottom: "12px" }}>
+        Lưu ý: MongoDB Read Model là dữ liệu đọc bất đồng bộ. Nếu vừa reset benchmark, cần dọn cả MongoDB để tránh còn đơn cũ không tồn tại trong PostgreSQL.
       </div>
 
       <ErrorBox error={error} />

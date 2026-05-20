@@ -70,6 +70,18 @@ export default function OrderSaga() {
     loadSaga();
   }
 
+  function getErrorMessage(err) {
+    if (!err) return "";
+    return String(
+      err?.response?.data?.message ||
+      err?.message ||
+      err
+    );
+  }
+
+  const errorMessage = getErrorMessage(error);
+  const isOrderNotFound = /order not found|not found/i.test(errorMessage);
+
   return (
     <div className="page">
       <div className="page-header">
@@ -88,7 +100,21 @@ export default function OrderSaga() {
         </div>
       </div>
 
-      <ErrorBox error={error} />
+      {isOrderNotFound ? (
+        <div className="warning-box">
+          <b>Không tìm thấy đơn hàng trong PostgreSQL</b>
+          <p>
+            Trang Trace Saga đọc dữ liệu từ PostgreSQL source of truth. Nếu bạn vừa chạy reset benchmark,
+            đơn hàng cũ trong MongoDB Read Model có thể không còn tồn tại ở PostgreSQL nữa.
+          </p>
+          <p>
+            Cách xử lý: chạy reset đã dọn MongoDB read model hoặc tạo lại đơn mới bằng smoke/load test.
+          </p>
+          <p className="small-muted">Chi tiết lỗi: {errorMessage}</p>
+        </div>
+      ) : (
+        <ErrorBox error={error} />
+      )}
 
       {loading && !saga ? (
         <Loading />
