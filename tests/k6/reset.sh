@@ -80,6 +80,23 @@ fi
 
 kubectl -n default exec -i "$REDIS_POD" -- redis-cli FLUSHALL
 
+echo "[3.5/7] Dọn MongoDB read model..."
+if kubectl -n default get deploy mongodb >/dev/null 2>&1; then
+  kubectl -n default exec deploy/mongodb -- bash -lc '
+    mongosh \
+      -u "$MONGO_INITDB_ROOT_USERNAME" \
+      -p "$MONGO_INITDB_ROOT_PASSWORD" \
+      --authenticationDatabase admin \
+      ecommerce_read \
+      --eval "
+        db.order_read_models.deleteMany({});
+        print(\"order_read_models count = \" + db.order_read_models.countDocuments());
+      "
+  '
+else
+  echo "      -> MongoDB deployment not found, skip."
+fi
+
 echo "[4/7] Reset Kafka topics của Saga..."
 KAFKA_TOPICS=(
   "order.created"
