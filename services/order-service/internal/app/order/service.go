@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -20,16 +21,153 @@ type EventPublisher interface {
 }
 
 type Service struct {
-	repo      domainorder.Repository
-	publisher EventPublisher
-	rdb       *redis.Client
+	repo              domainorder.Repository
+	publisher         EventPublisher
+	rdb               *redis.Client
+	flashSaleEnabled  bool
+	flashSaleProducts map[string]bool
 }
 
 func NewService(repo domainorder.Repository, publisher EventPublisher, rdb *redis.Client) *Service {
 	return &Service{
-		repo:      repo,
-		publisher: publisher,
-		rdb:       rdb,
+		repo:              repo,
+		publisher:         publisher,
+		rdb:               rdb,
+		flashSaleEnabled:  parseBoolEnv(os.Getenv("ENABLE_FLASH_SALE_GATE")),
+		flashSaleProducts: parseFlashSaleProducts(os.Getenv("FLASH_SALE_PRODUCTS")),
+	}
+}
+
+const flashSaleMissingStock = int64(-999999999)
+
+const flashSaleReserveScript = `
+local stock = redis.call("GET", KEYS[1])
+if not stock then
+  return -999999999
+end
+
+stock = tonumber(stock)
+local qty = tonumber(ARGV[1])
+
+if stock < qty then
+  return -1
+end
+
+return redis.call("DECRBY", KEYS[1], qty)
+`
+
+type flashSaleReservation struct {
+	ProductID string
+	Quantity  int
+	Key       string
+}
+
+func parseBoolEnv(value string) bool {
+	value = strings.TrimSpace(strings.ToLower(value))
+	return value == "1" || value == "true" || value == "yes" || value == "on"
+}
+
+func parseFlashSaleProducts(value string) map[string]bool {
+	result := make(map[string]bool)
+
+	for _, item := range strings.Split(value, ",") {
+		item = strings.TrimSpace(item)
+		if item != "" {
+			result[item] = true
+		}
+	}
+
+	return result
+}
+
+func (s *Service) isFlashSaleProduct(productID string) bool {
+	if !s.flashSaleEnabled {
+		return false
+	}
+
+	if s.flashSaleProducts["*"] {
+		return true
+	}
+
+	return s.flashSaleProducts[productID]
+}
+
+func redisResultToInt64(value interface{}) (int64, bool) {
+	switch v := value.(type) {
+	case int64:
+		return v, true
+	case int:
+		return int64(v), true
+	case string:
+		var parsed int64
+		_, err := fmt.Sscan(v, &parsed)
+		return parsed, err == nil
+	default:
+		return 0, false
+	}
+}
+
+func (s *Service) reserveFlashSaleStock(ctx context.Context, req CreateOrderRequest) ([]flashSaleReservation, error) {
+	if !s.flashSaleEnabled || s.rdb == nil {
+		return nil, nil
+	}
+
+	quantityByProduct := make(map[string]int)
+
+	for _, item := range req.Items {
+		if s.isFlashSaleProduct(item.ProductID) {
+			quantityByProduct[item.ProductID] += item.Quantity
+		}
+	}
+
+	if len(quantityByProduct) == 0 {
+		return nil, nil
+	}
+
+	reservations := make([]flashSaleReservation, 0, len(quantityByProduct))
+
+	for productID, quantity := range quantityByProduct {
+		key := fmt.Sprintf("flashsale:stock:%s", productID)
+
+		value, err := s.rdb.Eval(ctx, flashSaleReserveScript, []string{key}, quantity).Result()
+		if err != nil {
+			s.releaseFlashSaleStock(ctx, reservations)
+			return nil, errs.WrapInternal(err, "failed to reserve flash sale stock")
+		}
+
+		remaining, ok := redisResultToInt64(value)
+		if !ok {
+			s.releaseFlashSaleStock(ctx, reservations)
+			return nil, errs.Internal("invalid flash sale stock result")
+		}
+
+		if remaining == flashSaleMissingStock {
+			s.releaseFlashSaleStock(ctx, reservations)
+			return nil, errs.Conflict(fmt.Sprintf("flash sale stock is not initialized for product %s", productID))
+		}
+
+		if remaining < 0 {
+			s.releaseFlashSaleStock(ctx, reservations)
+			return nil, errs.Conflict(fmt.Sprintf("flash sale product %s is sold out", productID))
+		}
+
+		reservations = append(reservations, flashSaleReservation{
+			ProductID: productID,
+			Quantity:  quantity,
+			Key:       key,
+		})
+	}
+
+	return reservations, nil
+}
+
+func (s *Service) releaseFlashSaleStock(ctx context.Context, reservations []flashSaleReservation) {
+	if s.rdb == nil || len(reservations) == 0 {
+		return
+	}
+
+	for _, reservation := range reservations {
+		_ = s.rdb.IncrBy(ctx, reservation.Key, int64(reservation.Quantity)).Err()
 	}
 }
 
@@ -63,7 +201,13 @@ func (s *Service) CreateOrder(ctx context.Context, req CreateOrderRequest, idemK
 		return nil, false, errs.WrapInternal(err, "failed to check idempotency key")
 	}
 
-	// --- 3. TẠO ORDER MỚI VÀ TÍNH TIỀN CHUẨN ---
+	// --- 3. FLASH SALE ATOMIC STOCK GATE ---
+	flashSaleReservations, err := s.reserveFlashSaleStock(ctx, req)
+	if err != nil {
+		return nil, false, err
+	}
+
+	// --- 4. TẠO ORDER MỚI VÀ TÍNH TIỀN CHUẨN ---
 	now := time.Now()
 	orderID := uuid.NewString()
 
@@ -78,9 +222,9 @@ func (s *Service) CreateOrder(ctx context.Context, req CreateOrderRequest, idemK
 		case "prod-123":
 			unitPrice = 24000000.0 // Laptop ASUS
 		case "prod-456":
-			unitPrice = 2500000.0  // Bàn phím Keychron
+			unitPrice = 2500000.0 // Bàn phím Keychron
 		case "prod-789":
-			unitPrice = 1200000.0  // Chuột Logitech
+			unitPrice = 1200000.0 // Chuột Logitech
 		default:
 			unitPrice = 0.0
 		}
@@ -119,6 +263,7 @@ func (s *Service) CreateOrder(ctx context.Context, req CreateOrderRequest, idemK
 
 	// Gọi hàm Create với Payload Outbox (Nó sẽ ghi cục này vào DB chung với đơn hàng)
 	if err := s.repo.Create(ctx, ord, "order.created", outboxPayload); err != nil {
+		s.releaseFlashSaleStock(ctx, flashSaleReservations)
 		return nil, false, errs.WrapInternal(err, "failed to create order")
 	}
 
