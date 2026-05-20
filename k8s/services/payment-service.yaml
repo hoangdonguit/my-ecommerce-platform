@@ -13,6 +13,7 @@ spec:
       labels:
         app: payment-api
     spec:
+      serviceAccountName: payment-api-sa
       containers:
       - name: payment-api
         image: hoangdonguit/payment-service:dlq-retry-20260520020224
@@ -59,6 +60,7 @@ spec:
       labels:
         app: payment-consumer
     spec:
+      serviceAccountName: payment-consumer-sa
       containers:
       - name: payment-consumer
         image: hoangdonguit/payment-service:dlq-retry-20260520020224

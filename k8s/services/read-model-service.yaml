@@ -13,6 +13,7 @@ spec:
       labels:
         app: read-model-service
     spec:
+      serviceAccountName: read-model-service-sa
       containers:
       - name: read-model-service
         image: hoangdonguit/read-model-service:mongo-cqrs-20260519232213

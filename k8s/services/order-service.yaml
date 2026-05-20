@@ -13,6 +13,7 @@ spec:
       labels:
         app: order-service
     spec:
+      serviceAccountName: order-service-sa
       containers:
       - name: order-service
         image: hoangdonguit/order-service:latest

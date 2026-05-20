@@ -13,6 +13,7 @@ spec:
       labels:
         app: inventory-api
     spec:
+      serviceAccountName: inventory-api-sa
       containers:
       - name: inventory-api
         image: hoangdonguit/inventory-service:latest
@@ -80,6 +81,7 @@ spec:
       labels:
         app: inventory-consumer
     spec:
+      serviceAccountName: inventory-consumer-sa
       containers:
       - name: inventory-consumer
         image: hoangdonguit/inventory-service:latest

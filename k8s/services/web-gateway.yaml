@@ -13,6 +13,7 @@ spec:
       labels:
         app: web-gateway
     spec:
+      serviceAccountName: web-gateway-sa
       containers:
       - name: web-gateway
         image: hoangdonguit/web-gateway:read-cache-20260520004648
