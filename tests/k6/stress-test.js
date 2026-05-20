@@ -17,7 +17,7 @@ export const options = {
   ]
 };
 
-const BASE_URL = 'http://100.65.255.2'; // IP Ingress Gateway
+const BASE_URL = __ENV.GATEWAY_URL || "http://localhost:8090"; // IP Ingress Gateway
 const HEADERS = { 'Content-Type': 'application/json', 'X-API-Key': (__ENV.API_KEY || '') };
 
 export default function () {

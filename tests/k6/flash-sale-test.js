@@ -27,7 +27,7 @@ export const options = {
   },
 };
 
-const BASE_URL = __ENV.GATEWAY_URL || "http://100.65.255.2:32193";
+const BASE_URL = __ENV.GATEWAY_URL || "http://localhost:8090";
 const API_KEY = __ENV.API_KEY || "";
 const PRODUCT_ID = __ENV.PRODUCT_ID || "prod-123";
 
