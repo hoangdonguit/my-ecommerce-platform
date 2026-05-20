@@ -164,11 +164,9 @@ func (r *OrderRepository) ListByUserID(ctx context.Context, userID string, limit
 			return nil, 0, err
 		}
 
-		items, err := r.findItemsByOrderID(ctx, ord.ID)
-		if err != nil {
-			return nil, 0, err
-		}
-		ord.Items = items
+		// Dashboard list view does not need order items.
+		// Avoid N+1 queries here: list orders should only return order summaries.
+		// Full order items are still loaded by FindByID / detail APIs.
 		orders = append(orders, ord)
 	}
 	if rows.Err() != nil {

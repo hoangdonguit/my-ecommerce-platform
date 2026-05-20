@@ -16,7 +16,7 @@ spec:
       serviceAccountName: order-service-sa
       containers:
       - name: order-service
-        image: hoangdonguit/order-service:flash-sale-20260520233358
+        image: hoangdonguit/order-service:flash-sale-listfix-20260521021743
         ports:
         - containerPort: 8081
         resources:
