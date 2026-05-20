@@ -32,3 +32,5 @@ services/*/api
 
 # Local backup files
 backups/
+services/ecommerce-dashboard/.env
+docs/security/*.log

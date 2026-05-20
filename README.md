@@ -1,209 +1,281 @@
 # E-commerce Microservices Order Processing Platform
 
-Đồ án chuyên ngành NT114: Thiết kế và triển khai nền tảng xử lý đơn hàng thương mại điện tử theo kiến trúc Microservices Cloud-Native sử dụng Kubernetes và GitOps.
+A cloud-native e-commerce order processing platform designed and implemented as a course project for **NT114 - Specialized Project**.
 
-## 1. Thông tin đồ án
+The system focuses on distributed order processing, event-driven communication, data consistency, autoscaling, observability, and GitOps-based deployment on Kubernetes.
 
-- Môn học: NT114 - Đồ án chuyên ngành
-- Đề tài: Thiết kế và triển khai nền tảng xử lý đơn hàng thương mại điện tử theo kiến trúc Microservices Cloud-Native sử dụng Kubernetes và GitOps
-- Tên tiếng Anh: Design and Implementation of a Cloud-Native Microservices E-commerce Order Processing Platform using Kubernetes and GitOps
-- GVHD: ThS. Lê Anh Tuấn
+> This project is not just a CRUD API demo. It demonstrates how an e-commerce order goes through multiple distributed steps such as order creation, inventory reservation, payment processing, notification delivery, read-model projection, and operational monitoring.
 
-## 2. Thành viên thực hiện
+---
 
-| STT | Họ và tên | MSSV |
+## 1. Project Information
+
+| Item | Description |
+|---|---|
+| Course | NT114 - Specialized Project |
+| Vietnamese title | Thiết kế và triển khai nền tảng xử lý đơn hàng thương mại điện tử theo kiến trúc Microservices Cloud-Native sử dụng Kubernetes và GitOps |
+| English title | Design and Implementation of a Cloud-Native Microservices E-commerce Order Processing Platform using Kubernetes and GitOps |
+| Supervisor | MSc. Lê Anh Tuấn |
+
+## 2. Team Members
+
+| No. | Full name | Student ID |
 |---:|---|---|
 | 1 | Hoàng Xuân Đồng | 23520297 |
 | 2 | Đỗ Thái Hậu | 23520450 |
 
-## 3. Mục tiêu hệ thống
+---
 
-Hệ thống tập trung vào bài toán xử lý đơn hàng thương mại điện tử trong môi trường phân tán. Trọng tâm không chỉ là xây dựng API CRUD, mà còn là thiết kế một nền tảng có khả năng chịu tải, xử lý bất đồng bộ, đảm bảo tính nhất quán dữ liệu và có khả năng quan sát khi vận hành.
+## 3. Project Goals
 
-Các mục tiêu chính:
+The project simulates a distributed e-commerce order processing platform. Instead of simply storing orders in a database, each order is processed through multiple services and asynchronous events.
 
-- Xử lý giao dịch phân tán bằng Saga Choreography.
-- Tách tải xử lý bằng Apache Kafka.
-- Đảm bảo idempotency khi client retry request.
-- Tự động mở rộng consumer theo Kafka lag bằng KEDA.
-- Tối ưu kết nối PostgreSQL bằng PgBouncer.
-- Tách tải đọc bằng MongoDB CQRS Read Model.
-- Giảm tải đọc lặp lại bằng Redis Cache-Aside.
-- Bổ sung retry và Dead Letter Queue để tránh consumer bị kẹt bởi message lỗi.
-- Kiểm thử hiệu năng bằng k6.
-- Quan sát hệ thống bằng Grafana, Prometheus và Istio dashboard.
-- Đồng bộ triển khai theo GitOps bằng ArgoCD.
-- Kiểm tra chất lượng cơ bản bằng GitHub Actions CI.
+Main goals:
 
-## 4. Kiến trúc tổng quan
+- Implement distributed transaction handling with **Saga Choreography**.
+- Use **Apache Kafka** for asynchronous event-driven communication.
+- Prevent event loss with the **Transactional Outbox** pattern.
+- Prevent duplicate orders with **Redis-based Idempotency**.
+- Support high-concurrency flash sale scenarios with a **Redis Atomic Stock Gate**.
+- Autoscale consumers based on **Kafka lag using KEDA**.
+- Optimize PostgreSQL connections with **PgBouncer**.
+- Improve read performance with **MongoDB CQRS Read Model**.
+- Reduce repeated read load with **Redis Cache-Aside**.
+- Add lightweight **Retry and Dead Letter Queue** handling for Kafka consumers.
+- Validate the system using **k6 smoke, load, stress, spike, soak, idempotency, and flash sale tests**.
+- Observe the system using **Prometheus, Grafana, and Istio dashboards**.
+- Manage Kubernetes deployment using **GitOps with ArgoCD**.
+- Add basic CI validation using **GitHub Actions**.
 
-Luồng xử lý chính của hệ thống:
+---
 
-    Client / Dashboard / k6
-            |
-            v
-    Web Gateway
-            |
-            v
-    Order Service
-            |
-            v
-    PostgreSQL order_db
-            |
-            v
-    Transactional Outbox
-            |
-            v
-    Kafka topic: order.created
-            |
-            v
-    Inventory Consumer
-            |
-            v
-    Kafka topic: inventory.reserved / inventory.failed
-            |
-            v
-    Payment Consumer
-            |
-            v
-    Kafka topic: payment.completed / payment.failed
-            |
-            +-----------------------------+
-            |                             |
-            v                             v
-    Order Saga Monitor              Notification Consumer
-            |                             |
-            v                             v
-    Update order status             notification_db
+## 4. High-Level Architecture
 
-Luồng CQRS Read Model:
+### 4.1. Main Order Processing Flow
 
-    Kafka payment.completed
-            |
-            v
-    read-model-service
-            |
-            v
-    MongoDB order_read_models
-            |
-            v
-    Web Gateway
-            |
-            v
-    Dashboard MongoDB Read Model
+```text
+Client / Dashboard / k6
+        |
+        v
+Web Gateway
+        |
+        v
+Order Service
+        |
+        v
+PostgreSQL order_db
+        |
+        v
+Transactional Outbox
+        |
+        v
+Kafka topic: order.created
+        |
+        v
+Inventory Consumer
+        |
+        v
+Kafka topic: inventory.reserved / inventory.failed
+        |
+        v
+Payment Consumer
+        |
+        v
+Kafka topic: payment.completed / payment.failed
+        |
+        +-----------------------------+
+        |                             |
+        v                             v
+Order Saga Monitor              Notification Consumer
+        |                             |
+        v                             v
+Update order status             notification_db
+```
 
-## 5. Thành phần chính
+### 4.2. CQRS Read Model Flow
 
-| Nhóm | Thành phần | Vai trò |
+```text
+Kafka topic: payment.completed
+        |
+        v
+read-model-service
+        |
+        v
+MongoDB order_read_models
+        |
+        v
+Web Gateway
+        |
+        v
+Dashboard MongoDB Read Model Page
+```
+
+### 4.3. Flash Sale Flow
+
+```text
+Client / k6 Flash Sale Test
+        |
+        v
+Web Gateway
+        |
+        v
+Order Service
+        |
+        v
+Redis Atomic Stock Gate
+        |
+        +-----------------------------+
+        |                             |
+        v                             v
+Accept order                  Reject when sold out
+        |
+        v
+Saga flow through Kafka
+```
+
+The Flash Sale mode uses Redis as a fast stock gate before creating an order. This prevents excessive requests from overloading PostgreSQL and Kafka when the product stock has already been exhausted.
+
+---
+
+## 5. Main Components
+
+| Category | Component | Responsibility |
 |---|---|---|
-| API Gateway | Web Gateway | Điểm vào API, xác thực X-API-Key, cache read API |
-| Microservice | Order Service | Tạo đơn, lưu order, ghi outbox, theo dõi Saga |
-| Microservice | Inventory Service | Quản lý tồn kho, giữ hàng, release stock |
-| Microservice | Payment Service | Xử lý thanh toán giả lập/COD |
-| Microservice | Notification Service | Tạo thông báo sau thanh toán |
-| Read Model | read-model-service | Consume event và ghi dữ liệu đọc vào MongoDB |
-| Dashboard | ecommerce-dashboard | UI quan sát đơn hàng, lỗi và MongoDB read model |
-| Database | PostgreSQL | Source of truth cho dữ liệu giao dịch |
-| Pooling | PgBouncer | Giảm connection trực tiếp tới PostgreSQL |
-| Messaging | Apache Kafka | Event streaming cho Saga |
-| Cache | Redis | Idempotency và read cache |
-| Document DB | MongoDB | CQRS read model cho dashboard |
-| Autoscaling | KEDA | Scale API/consumer, đặc biệt theo Kafka lag |
-| GitOps | ArgoCD | Đồng bộ manifest từ GitHub về Kubernetes |
-| Observability | Prometheus/Grafana/Istio | Theo dõi pod, service, latency, success rate |
-| Testing | k6 | Smoke/load/stress/spike/soak/idempotency tests |
-| CI | GitHub Actions | Test/build/check cơ bản khi push code |
+| API Gateway | Web Gateway | API entry point, X-API-Key validation, read API caching |
+| Microservice | Order Service | Order creation, outbox writing, Saga status tracking |
+| Microservice | Inventory Service | Product stock management, reservation, stock release |
+| Microservice | Payment Service | Simulated COD/payment processing |
+| Microservice | Notification Service | Notification creation after payment events |
+| Read Model | read-model-service | Consumes Kafka events and writes MongoDB read models |
+| Dashboard | ecommerce-dashboard | UI for order lookup, failed order monitoring, and read model viewing |
+| Database | PostgreSQL | Source of truth for transactional data |
+| Connection Pooling | PgBouncer | Reduces direct PostgreSQL connection pressure |
+| Messaging | Apache Kafka | Event streaming backbone for Saga communication |
+| Cache | Redis | Idempotency, read cache, and flash sale stock gate |
+| Document Database | MongoDB | CQRS read model storage |
+| Autoscaling | KEDA | Scales API and consumers, especially based on Kafka lag |
+| Service Mesh | Istio | Gateway, traffic management, and request observability |
+| GitOps | ArgoCD | Synchronizes Kubernetes manifests from GitHub |
+| Observability | Prometheus / Grafana / Istio | Monitors pods, services, latency, success rate, and traffic |
+| Testing | k6 | Smoke, load, stress, spike, soak, idempotency, and flash sale tests |
+| CI | GitHub Actions | Basic secret scan, syntax check, build, and test workflow |
 
-## 6. Các cơ chế đảm bảo độ tin cậy
+---
+
+## 6. Reliability Mechanisms
 
 ### 6.1. Database per Service
 
-Mỗi service có database riêng:
+Each service owns its own database:
 
-- order_db
-- inventory_db
-- payment_db
-- notification_db
+- `order_db`
+- `inventory_db`
+- `payment_db`
+- `notification_db`
 
-Cách này giúp giảm coupling giữa các service và phù hợp với kiến trúc microservices.
+This reduces coupling between services and follows the microservices database ownership principle.
 
 ### 6.2. Transactional Outbox
 
-Order Service không publish event trực tiếp ngay sau khi tạo đơn. Thay vào đó, thao tác tạo đơn và ghi event outbox được thực hiện trong cùng transaction.
+Order Service does not directly publish Kafka events immediately after creating an order. Instead, it stores the order and outbox event in the same database transaction.
 
-Luồng xử lý:
+```text
+Create order + insert outbox event
+        |
+        v
+Outbox worker scans PENDING events
+        |
+        v
+Publish event to Kafka
+        |
+        v
+Mark outbox event as PUBLISHED
+```
 
-    Create order + insert outbox event
-            |
-            v
-    Outbox Worker quét event PENDING
-            |
-            v
-    Publish Kafka
-            |
-            v
-    Mark event PUBLISHED
-
-Mục tiêu là giảm rủi ro đơn hàng đã ghi vào PostgreSQL nhưng event không được gửi sang Kafka.
+This reduces the risk of saving an order without publishing its corresponding event.
 
 ### 6.3. Saga Choreography
 
-Luồng thành công:
+Successful flow:
 
-    order.created
-        -> inventory.reserved
-        -> payment.completed
-        -> notification sent
-        -> order COMPLETED
+```text
+order.created
+    -> inventory.reserved
+    -> payment.completed
+    -> notification sent
+    -> order COMPLETED
+```
 
-Luồng lỗi hoặc bù trừ:
+Failure or compensation flow:
 
-    inventory.failed / payment.failed
-        -> order FAILED hoặc CANCELLED
-        -> release stock nếu cần
+```text
+inventory.failed / payment.failed
+    -> order FAILED or CANCELLED
+    -> release stock when needed
+```
 
 ### 6.4. Redis Idempotency
 
-Redis được dùng để hỗ trợ idempotency key. Khi client retry request tạo đơn, hệ thống có thể tránh tạo trùng đơn hàng.
+Redis is used to support idempotency keys. If the client retries the same order request, the system can avoid creating duplicate orders.
 
-### 6.5. PgBouncer
+### 6.5. Flash Sale Stock Gate
 
-Các service kết nối PostgreSQL thông qua PgBouncer thay vì mở quá nhiều connection trực tiếp tới PostgreSQL. Cơ chế này giúp ổn định hơn khi scale nhiều pod hoặc chạy benchmark.
+The Flash Sale mode uses Redis to protect the system during high-concurrency product ordering.
 
-### 6.6. KEDA Kafka Lag Autoscaling
+Characteristics:
 
-Consumer không chỉ scale theo CPU mà scale theo Kafka consumer lag. Khi backlog tăng, KEDA tăng số lượng replica consumer để xử lý song song tốt hơn.
+- Stock is initialized before the test.
+- Each order request checks the Redis atomic stock gate.
+- Only requests within available stock are accepted.
+- Sold-out requests are rejected early.
+- PostgreSQL and Kafka only receive accepted orders.
 
-### 6.7. MongoDB CQRS Read Model
+Related scripts:
 
-PostgreSQL vẫn là source of truth. MongoDB chỉ đóng vai trò read model phục vụ dashboard và truy vấn đọc nhanh.
+```bash
+./scripts/flash-sale/init-stock.sh
+k6 run tests/k6/flash-sale-test.js
+k6 run tests/k6/flash-sale-spike-test.js
+```
 
-Luồng đã triển khai:
+### 6.6. PgBouncer
 
-    Kafka payment.completed
-        -> read-model-service
-        -> MongoDB order_read_models
-        -> Web Gateway
-        -> Dashboard MongoDB Read Model
+Services connect to PostgreSQL through PgBouncer instead of opening too many direct database connections. This improves stability when many pods are running or when benchmark tests are executed.
 
-### 6.8. Redis Cache-Aside
+### 6.7. KEDA Kafka Lag Autoscaling
 
-Web Gateway cache một số API đọc:
+Kafka consumers can scale based on consumer lag instead of only CPU usage. When backlog increases, KEDA increases the number of consumer replicas to process messages in parallel.
 
-- GET /api/read-model/orders
-- GET /api/read-model/orders/:id
-- GET /api/inventories
+### 6.8. MongoDB CQRS Read Model
 
-TTL hiện tại: 5 giây.
+PostgreSQL remains the source of truth. MongoDB is used as a read model for faster dashboard queries.
 
-Kết quả kiểm tra kỳ vọng:
+```text
+Kafka payment.completed
+    -> read-model-service
+    -> MongoDB order_read_models
+    -> Web Gateway
+    -> Dashboard MongoDB Read Model
+```
 
-- Request đầu: X-Cache: MISS
-- Request sau: X-Cache: HIT
+### 6.9. Redis Cache-Aside
 
-### 6.9. Kafka Retry / DLQ
+Web Gateway caches selected read APIs:
 
-Đã bổ sung retry và Dead Letter Queue mức nhẹ cho các consumer quan trọng.
+- `GET /api/read-model/orders`
+- `GET /api/read-model/orders/:id`
+- `GET /api/inventories`
+
+Current TTL: 5 seconds.
+
+Expected behavior:
+
+- First request: `X-Cache: MISS`
+- Repeated request: `X-Cache: HIT`
+
+### 6.10. Kafka Retry and DLQ
+
+Lightweight retry and Dead Letter Queue handling has been added to important Kafka consumers.
 
 | Consumer | Input topic | DLQ topic |
 |---|---|---|
@@ -211,285 +283,464 @@ Kết quả kiểm tra kỳ vọng:
 | notification-consumer | payment.completed | payment.completed.dlq |
 | notification-consumer | payment.failed | payment.failed.dlq |
 
-Cơ chế:
+Processing logic:
 
-    FetchMessage
-        -> xử lý nghiệp vụ
-        -> lỗi thì retry tối đa 3 lần
-        -> vẫn lỗi thì publish sang .dlq
-        -> commit offset để consumer không bị kẹt
+```text
+FetchMessage
+    -> process business logic
+    -> retry up to 3 times on error
+    -> publish to .dlq if it still fails
+    -> commit offset to avoid blocking the consumer group
+```
 
-Trong kịch bản thành công, DLQ rỗng là đúng kỳ vọng.
+In a successful scenario, DLQ topics are expected to be empty.
 
-### 6.10. PostgreSQL Backup / Restore
+### 6.11. PostgreSQL Backup and Restore Check
 
-Đã bổ sung script backup và restore-check:
+The repository includes backup and restore-check scripts:
 
-    ./scripts/backup/postgres-backup.sh
-    ./scripts/backup/postgres-restore-check.sh backups/postgres/<timestamp>/order_db.dump
+```bash
+./scripts/backup/postgres-backup.sh
+./scripts/backup/postgres-restore-check.sh backups/postgres/<timestamp>/order_db.dump
+```
 
-Restore check tạo database tạm, restore file dump, kiểm tra bảng và số dòng, sau đó xóa database tạm. Script không ghi đè database thật.
+The restore check creates a temporary database, restores a dump file, verifies tables and row counts, and then removes the temporary database. It does not overwrite production data.
 
-## 7. Kubernetes / GitOps
+---
 
-Hệ thống được triển khai trên Kubernetes với các nhóm manifest chính:
+## 7. Kubernetes and GitOps
 
-    k8s/
-      kafka/
-      mongodb/
-      services/
-      ...
+The system is deployed on Kubernetes.
 
-ArgoCD quản lý các application chính:
+Main manifest groups:
 
-- ecommerce-infrastructure
-- ecommerce-platform
-- infrastructure-layer
+```text
+k8s/
+  db/
+  istio/
+  kafka/
+  mongodb/
+  monitoring/
+  redis/
+  services/
+```
 
-Trạng thái kiểm tra gần nhất:
+ArgoCD manages the following applications:
 
-- ArgoCD: Synced / Healthy
-- default namespace pods: Running
-- db namespace pods: Running
-- kafka namespace pods: Running
+- `ecommerce-infrastructure`
+- `ecommerce-platform`
+- `infrastructure-layer`
+
+Expected state:
+
+- ArgoCD: `Synced / Healthy`
+- default namespace pods: `Running`
+- db namespace pods: `Running`
+- kafka namespace pods: `Running`
+
+---
 
 ## 8. Dashboard
 
-Dashboard hiện có các vùng chính:
+The dashboard includes:
 
-- Cửa hàng Demo
-- Tổng quan hệ thống
-- Tra cứu đơn hàng
-- Giám sát đơn lỗi
+- Demo Store
+- System Overview
+- Order Lookup
+- Failed Order Monitoring
 - MongoDB Read Model
 
-Tab MongoDB Read Model dùng để chứng minh luồng:
+The MongoDB Read Model page demonstrates the flow:
 
-    Kafka event
-        -> read-model-service
-        -> MongoDB
-        -> Web Gateway
-        -> Dashboard
+```text
+Kafka event
+    -> read-model-service
+    -> MongoDB
+    -> Web Gateway
+    -> Dashboard
+```
+
+---
 
 ## 9. GitHub Actions CI
 
-Đã bổ sung workflow CI cơ bản.
+The CI workflow currently checks:
 
-CI hiện kiểm tra:
-
-- Secret/IP cũ ở mức cơ bản.
+- Basic old secret and cluster IP scan.
 - Bash syntax.
 - k6 JavaScript syntax.
-- Go test/build cho các service.
+- Go test/build for services.
 - Dashboard npm build.
 
-Workflow đã chạy thành công trên GitHub Actions.
+The workflow is expected to run on push and pull request events.
 
-## 10. Cấu trúc thư mục chính
+---
 
-    .
-    ├── docs/
-    │   ├── benchmark/
-    │   ├── evidence/
-    │   ├── report/
-    │   └── runbook/
-    ├── k8s/
-    │   ├── kafka/
-    │   ├── mongodb/
-    │   ├── services/
-    │   └── ...
-    ├── scripts/
-    │   └── backup/
-    ├── services/
-    │   ├── ecommerce-dashboard/
-    │   ├── inventory-service/
-    │   ├── notification-service/
-    │   ├── order-service/
-    │   ├── payment-service/
-    │   ├── read-model-service/
-    │   └── web-gateway/
-    └── tests/
-        ├── chaos/
-        ├── k6/
-        └── smoke/
+## 10. Main Directory Structure
 
-## 11. Yêu cầu môi trường
+```text
+.
+├── docs/
+│   ├── benchmark/
+│   ├── evidence/
+│   ├── report/
+│   ├── runbook/
+│   └── security/
+├── k8s/
+│   ├── db/
+│   ├── istio/
+│   ├── kafka/
+│   ├── mongodb/
+│   ├── monitoring/
+│   ├── redis/
+│   └── services/
+├── scripts/
+│   ├── backup/
+│   └── flash-sale/
+├── services/
+│   ├── ecommerce-dashboard/
+│   ├── inventory-service/
+│   ├── notification-service/
+│   ├── order-service/
+│   ├── payment-service/
+│   ├── read-model-service/
+│   └── web-gateway/
+└── tests/
+    ├── chaos/
+    ├── k6/
+    └── smoke/
+```
 
-Máy chạy cần có:
+---
+
+## 11. Environment Requirements
+
+The machine running this project should have:
 
 - Docker
 - kubectl
 - k6
 - jq
-- Node.js/npm
+- Node.js and npm
 - Go
-- Quyền truy cập Kubernetes cluster
-- Quyền push GitHub/Docker Hub nếu build image
+- Access to a Kubernetes cluster
+- GitHub and container registry access when building or pushing images
 
-## 12. Lệnh kiểm tra nhanh
+---
 
-### 12.1. Kiểm tra Git / ArgoCD / Pods
+## 12. Environment Variables
 
-    cd /home/xuandong/Doanchuyennganh/my-ecommerce-platform
+### 12.1. Gateway URL
 
-    git status --short
-    git log --oneline --decorate -5
+Do not hardcode real cluster IPs in source code. Use an environment variable when running tests or API checks.
 
-    kubectl -n argocd get applications -o wide
+```bash
+export GATEWAY_URL="http://<GATEWAY_HOST>:<NODE_PORT>"
+```
 
-    kubectl get pods -n default
-    kubectl get pods -n db
-    kubectl get pods -n kafka
+For local development:
 
-### 12.2. Nạp API key từ Kubernetes Secret
+```bash
+export GATEWAY_URL="http://localhost:8090"
+```
 
-    export API_KEY="$(
-      kubectl -n default get secret ecommerce-runtime-secrets        
-       -o jsonpath='{.data.WEB_GATEWAY_API_KEY}' | base64 -d
-    )"
+### 12.2. API Key
 
-### 12.3. Smoke test Saga end-to-end
+The API key is stored in a Kubernetes Secret.
 
-    ./tests/smoke/saga-success.sh
+```bash
+export API_KEY="$(
+  kubectl -n default get secret ecommerce-runtime-secrets \
+    -o jsonpath='{.data.WEB_GATEWAY_API_KEY}' | base64 -d
+)"
+```
 
-Kỳ vọng:
+### 12.3. Dashboard Environment File
 
-- orders.status = COMPLETED
-- outbox.status = PUBLISHED
-- inventory_reservations.status = RESERVED
-- payments.status = COMPLETED
-- notifications.status = SENT
-- SMOKE TEST PASSED
+Create a local `.env` file from the example:
 
-### 12.4. Reset môi trường benchmark
+```bash
+cd services/ecommerce-dashboard
+cp .env.example .env
+```
 
-Lệnh này xóa dữ liệu test, reset Redis, reset Kafka topics và restart service. Chỉ chạy khi muốn benchmark sạch.
+The `.env` file is for local development only and must not be committed.
 
-    CONFIRM_RESET=YES ./tests/k6/reset.sh
+---
 
-### 12.5. Chạy load test
+## 13. Quick Commands
 
-    k6 run tests/k6/load-test.js
+### 13.1. Check Git, ArgoCD, and Pods
 
-### 12.6. Theo dõi HPA/pods khi test
+```bash
+cd /home/xuandong/Doanchuyennganh/my-ecommerce-platform
 
-    watch -n 2 'kubectl get hpa,pods -n default'
+git status --short
+git log --oneline --decorate -5
 
-### 12.7. Theo dõi Kafka lag
+kubectl -n argocd get applications -o wide
 
-    watch -n 5 'kubectl -n kafka exec kafka-0 -- kafka-consumer-groups.sh --bootstrap-server kafka.kafka.svc.cluster.local:9092 --describe --group payment-service-group | head -30'
+kubectl get pods -n default
+kubectl get pods -n db
+kubectl get pods -n kafka
+```
 
-### 12.8. Tổng hợp trạng thái DB sau benchmark
+### 13.2. Run Saga Smoke Test
 
-    kubectl -n db exec postgresql-0 -- bash -lc "
-    export PGPASSWORD="\$(cat /opt/bitnami/postgresql/secrets/postgres-password)"
+```bash
+export GATEWAY_URL="http://<GATEWAY_HOST>:<NODE_PORT>"
+export API_KEY="$(
+  kubectl -n default get secret ecommerce-runtime-secrets \
+    -o jsonpath='{.data.WEB_GATEWAY_API_KEY}' | base64 -d
+)"
 
-    echo '--- orders by status ---'
-    psql -U postgres -d order_db -c "
-    SELECT status, COUNT(*) FROM orders GROUP BY status ORDER BY status;
-    "
+./tests/smoke/saga-success.sh
+```
 
-    echo '--- outbox by status ---'
-    psql -U postgres -d order_db -c "
-    SELECT status, COUNT(*) FROM outbox GROUP BY status ORDER BY status;
-    "
+Expected result:
 
-    echo '--- payments by status ---'
-    psql -U postgres -d payment_db -c "
-    SELECT status, COUNT(*) FROM payments GROUP BY status ORDER BY status;
-    "
+- `orders.status = COMPLETED`
+- `outbox.status = PUBLISHED`
+- `inventory_reservations.status = RESERVED`
+- `payments.status = COMPLETED`
+- `notifications.status = SENT`
+- `SMOKE TEST PASSED`
 
-    echo '--- notifications by status ---'
-    psql -U postgres -d notification_db -c "
-    SELECT status, COUNT(*) FROM notifications GROUP BY status ORDER BY status;
-    "
+### 13.3. Reset Benchmark Environment
 
-    echo '--- inventory reservations by status ---'
-    psql -U postgres -d inventory_db -c "
-    SELECT status, COUNT(*) FROM inventory_reservations GROUP BY status ORDER BY status;
-    "
-    "
+This command clears benchmark data, resets Redis, resets Kafka topics, clears MongoDB read model data, and restarts services. Use it only when a clean benchmark environment is needed.
 
-### 12.9. Kiểm tra MongoDB Read Model qua Gateway
+```bash
+CONFIRM_RESET=YES ./tests/k6/reset.sh
+```
 
-    curl -sS --max-time 10       
-      -H "X-API-Key: $API_KEY"       
-      "http://100.65.255.2:32193/api/read-model/orders?limit=3" | jq .
+### 13.4. Run Load Test
 
-### 12.10. Kiểm tra Redis cache
+```bash
+export GATEWAY_URL="http://<GATEWAY_HOST>:<NODE_PORT>"
+export API_KEY="$(
+  kubectl -n default get secret ecommerce-runtime-secrets \
+    -o jsonpath='{.data.WEB_GATEWAY_API_KEY}' | base64 -d
+)"
 
-    curl -sS -D - -o /dev/null       
-      -H "X-API-Key: $API_KEY"       
-      "http://100.65.255.2:32193/api/read-model/orders?limit=100" | grep -i "x-cache\|http"
+RUN_ID="$(date +%Y%m%d%H%M%S)"
+mkdir -p docs/benchmark/runs
 
-    curl -sS -D - -o /dev/null       
-      -H "X-API-Key: $API_KEY"       
-      "http://100.65.255.2:32193/api/read-model/orders?limit=100" | grep -i "x-cache\|http"
+K6_NO_COLOR=1 k6 run --quiet tests/k6/load-test.js \
+  | tee "docs/benchmark/runs/load-after-upgrade-${RUN_ID}.log"
+```
 
-Kỳ vọng:
+### 13.5. Run Flash Sale Test
 
-- Lần 1: X-Cache: MISS
-- Lần 2: X-Cache: HIT
+```bash
+export GATEWAY_URL="http://<GATEWAY_HOST>:<NODE_PORT>"
+export API_KEY="$(
+  kubectl -n default get secret ecommerce-runtime-secrets \
+    -o jsonpath='{.data.WEB_GATEWAY_API_KEY}' | base64 -d
+)"
 
-### 12.11. Kiểm tra DLQ
+./scripts/flash-sale/init-stock.sh
 
-    for topic in inventory.reserved.dlq payment.completed.dlq payment.failed.dlq; do
-      echo "----- DLQ topic: $topic -----"
-      kubectl -n kafka exec kafka-0 -- kafka-console-consumer.sh         
-        --bootstrap-server localhost:9092         
-        --topic "$topic"         
-        --from-beginning         
-        --timeout-ms 3000         
-        --max-messages 3 || true
-    done
+RUN_ID="$(date +%Y%m%d%H%M%S)"
+mkdir -p docs/benchmark/runs
 
-Nếu hiện `Processed a total of 0 messages` thì nghĩa là DLQ đang rỗng, đúng kỳ vọng trong kịch bản thành công.
+K6_NO_COLOR=1 k6 run --quiet tests/k6/flash-sale-test.js \
+  | tee "docs/benchmark/runs/flash-sale-${RUN_ID}.log"
+```
 
-## 13. Benchmark
+### 13.6. Run Flash Sale Spike Test
 
-Các kịch bản hiện có:
+```bash
+export GATEWAY_URL="http://<GATEWAY_HOST>:<NODE_PORT>"
+export API_KEY="$(
+  kubectl -n default get secret ecommerce-runtime-secrets \
+    -o jsonpath='{.data.WEB_GATEWAY_API_KEY}' | base64 -d
+)"
 
-- tests/k6/smoke-test.js
-- tests/k6/load-test.js
-- tests/k6/stress-test.js
-- tests/k6/stress-test-multi.js
-- tests/k6/spike-test.js
-- tests/k6/soak-test.js
-- tests/k6/idempotency-test.js
+./scripts/flash-sale/init-stock.sh
 
-Quy trình benchmark khuyến nghị:
+RUN_ID="$(date +%Y%m%d%H%M%S)"
+mkdir -p docs/benchmark/runs
 
-1. Kiểm tra pod, ArgoCD và Git.
-2. Chạy smoke test.
-3. Nếu cần dữ liệu sạch, chạy: CONFIRM_RESET=YES ./tests/k6/reset.sh
-4. Mở Grafana và watch HPA/Kafka lag.
-5. Chạy load test.
-6. Tổng hợp DB status.
-7. Kiểm tra MongoDB read model, Redis cache và DLQ.
-8. Chụp ảnh minh chứng.
+K6_NO_COLOR=1 k6 run --quiet tests/k6/flash-sale-spike-test.js \
+  | tee "docs/benchmark/runs/flash-sale-spike-${RUN_ID}.log"
+```
 
-## 14. Tài liệu bổ sung
+### 13.7. Monitor HPA and Pods
 
-Một số tài liệu trong repo:
+```bash
+watch -n 2 'kubectl get hpa,pods -n default'
+```
 
-- docs/benchmark/payment-throughput-tuning.md
-- docs/benchmark/redis-read-cache.md
-- docs/evidence/final-validation-after-upgrades.md
-- docs/evidence/dlq-retry-validation.md
-- docs/report/progress-after-12-05-upgrades.md
-- docs/runbook/kafka-dlq-retry.md
-- docs/runbook/postgres-backup-restore.md
+### 13.8. Monitor Kafka Consumer Lag
 
-## 15. Trạng thái hiện tại
+```bash
+watch -n 5 'kubectl -n kafka exec kafka-0 -- kafka-consumer-groups.sh --bootstrap-server kafka.kafka.svc.cluster.local:9092 --describe --group payment-service-group | head -30'
+```
 
-- GitHub Actions CI: Passed.
-- ArgoCD: Synced / Healthy.
-- Smoke test: Passed trước khi reset benchmark.
-- Benchmark environment: đã reset sạch, sẵn sàng chạy k6 load/stress test tiếp theo.
+### 13.9. Summarize Database Status After Benchmark
 
-Việc còn lại gần nhất:
+```bash
+kubectl -n db exec postgresql-0 -- bash -lc '
+export PGPASSWORD="$(cat /opt/bitnami/postgresql/secrets/postgres-password)"
 
-- Chạy load test sau reset.
-- Tổng hợp bảng benchmark.
-- Chờ máy Hậu online nếu muốn join cluster và tách App/Data node.
-- Hoàn thiện báo cáo chính thức.
+echo "--- orders by status ---"
+psql -U postgres -d order_db -c "
+SELECT status, COUNT(*) FROM orders GROUP BY status ORDER BY status;
+"
+
+echo "--- outbox by status ---"
+psql -U postgres -d order_db -c "
+SELECT status, COUNT(*) FROM outbox GROUP BY status ORDER BY status;
+"
+
+echo "--- payments by status ---"
+psql -U postgres -d payment_db -c "
+SELECT status, COUNT(*) FROM payments GROUP BY status ORDER BY status;
+"
+
+echo "--- notifications by status ---"
+psql -U postgres -d notification_db -c "
+SELECT status, COUNT(*) FROM notifications GROUP BY status ORDER BY status;
+"
+
+echo "--- inventory reservations by status ---"
+psql -U postgres -d inventory_db -c "
+SELECT status, COUNT(*) FROM inventory_reservations GROUP BY status ORDER BY status;
+"
+'
+```
+
+### 13.10. Check MongoDB Read Model Through Gateway
+
+```bash
+curl -sS --max-time 10 \
+  -H "X-API-Key: $API_KEY" \
+  "${GATEWAY_URL}/api/read-model/orders?limit=3" | jq .
+```
+
+### 13.11. Check Redis Read Cache
+
+```bash
+curl -sS -D - -o /dev/null \
+  -H "X-API-Key: $API_KEY" \
+  "${GATEWAY_URL}/api/read-model/orders?limit=100" | grep -i "x-cache\|http"
+
+curl -sS -D - -o /dev/null \
+  -H "X-API-Key: $API_KEY" \
+  "${GATEWAY_URL}/api/read-model/orders?limit=100" | grep -i "x-cache\|http"
+```
+
+Expected result:
+
+- First request: `X-Cache: MISS`
+- Second request: `X-Cache: HIT`
+
+### 13.12. Check DLQ Topics
+
+```bash
+for topic in inventory.reserved.dlq payment.completed.dlq payment.failed.dlq; do
+  echo "----- DLQ topic: $topic -----"
+  kubectl -n kafka exec kafka-0 -- kafka-console-consumer.sh \
+    --bootstrap-server localhost:9092 \
+    --topic "$topic" \
+    --from-beginning \
+    --timeout-ms 3000 \
+    --max-messages 3 || true
+done
+```
+
+If the output contains `Processed a total of 0 messages`, the DLQ topic is empty, which is expected in a successful test scenario.
+
+---
+
+## 14. Benchmark Scenarios
+
+| Script | Purpose |
+|---|---|
+| `tests/k6/smoke-test.js` | Basic API validation |
+| `tests/k6/load-test.js` | Stable medium load |
+| `tests/k6/stress-test.js` | Find system bottlenecks |
+| `tests/k6/stress-test-multi.js` | Stress multiple endpoints |
+| `tests/k6/spike-test.js` | Sudden traffic increase |
+| `tests/k6/soak-test.js` | Long-running stability test |
+| `tests/k6/idempotency-test.js` | Duplicate order prevention test |
+| `tests/k6/flash-sale-test.js` | Flash sale stock gate validation |
+| `tests/k6/flash-sale-spike-test.js` | High-concurrency flash sale test |
+
+Recommended benchmark flow:
+
+1. Check Git, ArgoCD, and pods.
+2. Run smoke test.
+3. Reset the environment using `CONFIRM_RESET=YES ./tests/k6/reset.sh`.
+4. Open Grafana and monitor HPA/Kafka lag.
+5. Run load, stress, spike, or flash sale test.
+6. Summarize database status.
+7. Check MongoDB read model, Redis cache, and DLQ.
+8. Capture screenshots as evidence.
+9. Record results in the before/after benchmark comparison table.
+
+---
+
+## 15. Security and Configuration Practices
+
+Current practices:
+
+- Do not commit `.env` files.
+- Do not commit raw k6 result dumps in `tests/k6/results/`.
+- Do not hardcode real cluster IPs in README or k6 scripts.
+- Runtime secrets are injected through Kubernetes Secrets.
+- Example manifest files only use placeholders.
+- GitHub Actions includes a basic scan for old secrets and cluster IPs.
+
+Planned improvements:
+
+- Add detailed NetworkPolicy per namespace/service.
+- Review and improve RBAC and ServiceAccounts.
+- Add policy-as-code scanning using Checkov or Terrascan.
+- Standardize environment management with Kustomize and/or Helm.
+- Add canary or blue-green deployment workflow with Istio or Argo Rollouts.
+- Evaluate OpenTelemetry, Vault, and Debezium as future enhancements.
+
+---
+
+## 16. Additional Documentation
+
+Useful documents in this repository:
+
+- `docs/benchmark/payment-throughput-tuning.md`
+- `docs/benchmark/redis-read-cache.md`
+- `docs/evidence/final-validation-after-upgrades.md`
+- `docs/evidence/dlq-retry-validation.md`
+- `docs/report/progress-after-12-05-upgrades.md`
+- `docs/runbook/kafka-dlq-retry.md`
+- `docs/runbook/postgres-backup-restore.md`
+
+---
+
+## 17. Current Status
+
+Completed:
+
+- Saga Choreography for distributed order processing.
+- Transactional Outbox.
+- Redis Idempotency.
+- PgBouncer connection pooling.
+- KEDA autoscaling for API and Kafka consumers.
+- MongoDB CQRS Read Model.
+- Redis Cache-Aside for read APIs.
+- Kafka Retry and DLQ.
+- PostgreSQL backup and restore-check scripts.
+- Flash Sale Stock Gate.
+- Dashboard for order lookup, failed order monitoring, and MongoDB read model.
+- GitOps deployment with ArgoCD.
+- Basic GitHub Actions CI.
+
+Next tasks:
+
+- Re-run benchmark after README/config cleanup.
+- Build a before/after benchmark comparison table.
+- Add detailed NetworkPolicy and RBAC manifests.
+- Install and run Checkov or Terrascan for manifest scanning.
+- Consider Istio Canary, OpenTelemetry, Vault, and Debezium as optional advanced extensions.
+- Complete the final project report.
