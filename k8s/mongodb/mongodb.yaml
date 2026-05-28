@@ -27,6 +27,8 @@ spec:
       labels:
         app: mongodb
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: vm3-gitops
       containers:
       - name: mongodb
         image: mongo:7

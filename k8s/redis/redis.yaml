@@ -13,6 +13,8 @@ spec:
       labels:
         app: redis
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: vm3-gitops
       containers:
       - name: redis
         image: redis:6.2-alpine

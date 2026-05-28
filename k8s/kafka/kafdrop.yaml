@@ -13,6 +13,8 @@ spec:
       labels:
         app: kafdrop
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: vm1-gateway
       containers:
       - name: kafdrop
         image: obsidiandynamics/kafdrop:latest

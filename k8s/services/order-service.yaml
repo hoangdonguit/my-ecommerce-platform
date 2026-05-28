@@ -13,6 +13,8 @@ spec:
       labels:
         app: order-service
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: vm2-mesh
       serviceAccountName: order-service-sa
       containers:
       - name: order-service

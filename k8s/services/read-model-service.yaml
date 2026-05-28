@@ -13,6 +13,8 @@ spec:
       labels:
         app: read-model-service
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: vm2-mesh
       serviceAccountName: read-model-service-sa
       containers:
       - name: read-model-service

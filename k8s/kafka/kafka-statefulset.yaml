@@ -26,6 +26,8 @@ spec:
       labels:
         app: kafka
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: vm1-gateway
       containers:
       - name: kafka
         image: public.ecr.aws/bitnami/kafka:3.7

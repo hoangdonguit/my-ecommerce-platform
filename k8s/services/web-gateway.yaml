@@ -13,6 +13,8 @@ spec:
       labels:
         app: web-gateway
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: vm1-gateway
       serviceAccountName: web-gateway-sa
       containers:
       - name: web-gateway

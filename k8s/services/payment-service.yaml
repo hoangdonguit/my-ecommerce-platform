@@ -13,6 +13,8 @@ spec:
       labels:
         app: payment-api
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: vm2-mesh
       serviceAccountName: payment-api-sa
       containers:
       - name: payment-api
@@ -60,6 +62,8 @@ spec:
       labels:
         app: payment-consumer
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: vm2-mesh
       serviceAccountName: payment-consumer-sa
       containers:
       - name: payment-consumer

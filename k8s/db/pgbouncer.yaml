@@ -33,6 +33,8 @@ spec:
       labels:
         app: pgbouncer
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: vm3-gitops
       containers:
       - name: pgbouncer
         image: edoburu/pgbouncer:latest
