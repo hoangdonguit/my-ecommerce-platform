@@ -19,6 +19,12 @@ spec:
       containers:
       - name: order-service
         image: hoangdonguit/order-service:flash-sale-listfix-20260521021743
+        env:
+        - name: REDIS_ADDR
+          valueFrom:
+            configMapKeyRef:
+              name: ecommerce-runtime-config
+              key: REDIS_ADDR
         ports:
         - containerPort: 8081
         resources:
