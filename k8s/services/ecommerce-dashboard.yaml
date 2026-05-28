@@ -17,7 +17,7 @@ spec:
         kubernetes.io/hostname: vm1-gateway
       containers:
         - name: ecommerce-dashboard
-          image: hoangdonguit/ecommerce-dashboard:dashboard-runtime-secret-20260529010222
+          image: hoangdonguit/ecommerce-dashboard:dashboard-originfix-20260529015449
           imagePullPolicy: IfNotPresent
           env:
             - name: WEB_GATEWAY_API_KEY
