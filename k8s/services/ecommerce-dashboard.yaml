@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecommerce-dashboard
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ecommerce-dashboard
+  template:
+    metadata:
+      labels:
+        app: ecommerce-dashboard
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: vm1-gateway
+      containers:
+        - name: ecommerce-dashboard
+          image: hoangdonguit/ecommerce-dashboard:dashboard-20260529002801
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 300m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ecommerce-dashboard
+  namespace: default
+spec:
+  type: NodePort
+  selector:
+    app: ecommerce-dashboard
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30517
