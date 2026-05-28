@@ -17,7 +17,7 @@ spec:
         kubernetes.io/hostname: vm1-gateway
       containers:
         - name: ecommerce-dashboard
-          image: hoangdonguit/ecommerce-dashboard:dashboard-20260529002801
+          image: hoangdonguit/ecommerce-dashboard:dashboard-keyfix-20260529004140
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
