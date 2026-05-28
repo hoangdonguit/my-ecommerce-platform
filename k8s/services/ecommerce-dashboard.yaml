@@ -17,8 +17,14 @@ spec:
         kubernetes.io/hostname: vm1-gateway
       containers:
         - name: ecommerce-dashboard
-          image: hoangdonguit/ecommerce-dashboard:dashboard-proxy-20260529005139
+          image: hoangdonguit/ecommerce-dashboard:dashboard-runtime-secret-20260529010222
           imagePullPolicy: IfNotPresent
+          env:
+            - name: WEB_GATEWAY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ecommerce-runtime-secrets
+                  key: WEB_GATEWAY_API_KEY
           ports:
             - containerPort: 80
           resources:
