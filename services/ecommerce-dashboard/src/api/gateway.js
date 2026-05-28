@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8090";
+const RAW_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8090";
+const API_BASE_URL = RAW_API_BASE_URL === "SAME_ORIGIN" ? "" : RAW_API_BASE_URL;
 const WEB_GATEWAY_API_KEY = import.meta.env.VITE_WEB_GATEWAY_API_KEY || "";
 
 function createFallbackIdempotencyKey() {
