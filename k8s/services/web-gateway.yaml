@@ -70,7 +70,6 @@ spec:
             configMapKeyRef:
               name: ecommerce-runtime-config
               key: REDIS_ADDR
-
 ---
 apiVersion: v1
 kind: Service
@@ -85,5 +84,4 @@ spec:
     - protocol: TCP
       port: 8090
       targetPort: 8090
-
-    nodePort: 32193
+      nodePort: 32193
