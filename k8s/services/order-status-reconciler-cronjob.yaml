@@ -1,0 +1,124 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: order-status-reconciler
+  namespace: db
+spec:
+  schedule: "*/1 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          nodeSelector:
+            kubernetes.io/hostname: vm3-gitops
+          containers:
+            - name: order-status-reconciler
+              image: postgres:16-alpine
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: PGHOST
+                  value: postgresql.db.svc.cluster.local
+                - name: PGPORT
+                  value: "5432"
+                - name: PGUSER
+                  value: postgres
+                - name: ORDER_DB
+                  value: order_db
+                - name: PAYMENT_DB
+                  value: payment_db
+                - name: PENDING_AGE_SECONDS
+                  value: "30"
+                - name: BATCH_LIMIT
+                  value: "300"
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgresql
+                      key: postgres-password
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  echo "===== order-status-reconciler started at $(date -Iseconds) ====="
+
+                  PENDING_IDS="$(
+                    psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -At -c "
+                      SELECT id
+                      FROM orders
+                      WHERE status = 'PENDING'
+                        AND created_at < NOW() - (${PENDING_AGE_SECONDS} || ' seconds')::interval
+                      ORDER BY created_at
+                      LIMIT ${BATCH_LIMIT};
+                    "
+                  )"
+
+                  if [ -z "$PENDING_IDS" ]; then
+                    echo "No stale PENDING orders found."
+                    exit 0
+                  fi
+
+                  echo "Found stale PENDING orders:"
+                  echo "$PENDING_IDS"
+
+                  completed_count=0
+                  failed_count=0
+                  skipped_count=0
+
+                  for order_id in $PENDING_IDS; do
+                    payment_status="$(
+                      psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PAYMENT_DB" -At -c "
+                        SELECT status
+                        FROM payments
+                        WHERE order_id = '${order_id}'
+                        ORDER BY updated_at DESC
+                        LIMIT 1;
+                      "
+                    )"
+
+                    case "$payment_status" in
+                      COMPLETED)
+                        psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+                          UPDATE orders
+                          SET status = 'COMPLETED',
+                              updated_at = NOW()
+                          WHERE id = '${order_id}'
+                            AND status = 'PENDING';
+                        "
+                        completed_count=$((completed_count + 1))
+                        echo "Reconciled order ${order_id}: PENDING -> COMPLETED"
+                        ;;
+                      FAILED)
+                        psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+                          UPDATE orders
+                          SET status = 'FAILED',
+                              updated_at = NOW()
+                          WHERE id = '${order_id}'
+                            AND status = 'PENDING';
+                        "
+                        failed_count=$((failed_count + 1))
+                        echo "Reconciled order ${order_id}: PENDING -> FAILED"
+                        ;;
+                      *)
+                        skipped_count=$((skipped_count + 1))
+                        echo "Skipped order ${order_id}: payment_status='${payment_status}'"
+                        ;;
+                    esac
+                  done
+
+                  echo "===== reconciliation summary ====="
+                  echo "completed_count=${completed_count}"
+                  echo "failed_count=${failed_count}"
+                  echo "skipped_count=${skipped_count}"
+                  echo "===== order-status-reconciler finished at $(date -Iseconds) ====="
+              resources:
+                requests:
+                  cpu: 20m
+                  memory: 64Mi
+                limits:
+                  cpu: 200m
+                  memory: 128Mi
