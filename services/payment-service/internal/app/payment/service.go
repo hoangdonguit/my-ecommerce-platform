@@ -69,8 +69,6 @@ func (s *Service) HandleInventoryReserved(ctx context.Context, event InventoryRe
 		return err
 	}
 
-	idemKey := "payment:" + event.OrderID
-
 	existing, err := s.repo.FindByOrderID(ctx, event.OrderID)
 	if err == nil && existing != nil {
 		return s.handleExistingPayment(ctx, existing)
@@ -91,7 +89,7 @@ func (s *Service) HandleInventoryReserved(ctx context.Context, event InventoryRe
 		FailureCode:    "",
 		FailureReason:  "",
 		TransactionID:  "",
-		IdempotencyKey: idemKey,
+		IdempotencyKey: "payment:" + event.OrderID,
 		PaidAt:         nil,
 		CreatedAt:      now,
 		UpdatedAt:      now,
@@ -101,12 +99,29 @@ func (s *Service) HandleInventoryReserved(ctx context.Context, event InventoryRe
 		return errs.WrapInternal(err, "failed to create payment")
 	}
 
+	return s.finalizePayment(ctx, payment)
+}
+
+func (s *Service) handleExistingPayment(ctx context.Context, payment *domainpayment.Payment) error {
+	switch payment.Status {
+	case domainpayment.StatusCompleted:
+		return nil
+	case domainpayment.StatusFailed:
+		return nil
+	case domainpayment.StatusProcessing:
+		return s.finalizePayment(ctx, payment)
+	default:
+		return nil
+	}
+}
+
+func (s *Service) finalizePayment(ctx context.Context, payment *domainpayment.Payment) error {
 	result := s.gateway.Charge(
-		event.OrderID,
-		event.UserID,
-		event.TotalAmount,
-		event.Currency,
-		event.PaymentMethod,
+		payment.OrderID,
+		payment.UserID,
+		payment.Amount,
+		payment.Currency,
+		payment.PaymentMethod,
 	)
 
 	attemptStatus := domainpayment.StatusFailed
@@ -117,7 +132,7 @@ func (s *Service) HandleInventoryReserved(ctx context.Context, event InventoryRe
 	attempt := &domainpayment.PaymentAttempt{
 		ID:                   uuid.NewString(),
 		PaymentID:            payment.ID,
-		OrderID:              event.OrderID,
+		OrderID:              payment.OrderID,
 		Status:               attemptStatus,
 		GatewayTransactionID: result.TransactionID,
 		FailureCode:          result.FailureCode,
@@ -140,12 +155,12 @@ func (s *Service) HandleInventoryReserved(ctx context.Context, event InventoryRe
 		if s.publisher != nil {
 			completedEvent := PaymentCompletedEvent{
 				EventType:     "payment.completed",
-				OrderID:       event.OrderID,
-				UserID:        event.UserID,
+				OrderID:       payment.OrderID,
+				UserID:        payment.UserID,
 				PaymentID:     payment.ID,
-				Amount:        event.TotalAmount,
-				Currency:      strings.ToUpper(event.Currency),
-				PaymentMethod: strings.ToUpper(event.PaymentMethod),
+				Amount:        payment.Amount,
+				Currency:      strings.ToUpper(payment.Currency),
+				PaymentMethod: strings.ToUpper(payment.PaymentMethod),
 				Status:        domainpayment.StatusCompleted,
 				TransactionID: result.TransactionID,
 				PaidAt:        paidAt,
@@ -166,12 +181,12 @@ func (s *Service) HandleInventoryReserved(ctx context.Context, event InventoryRe
 	if s.publisher != nil {
 		failedEvent := PaymentFailedEvent{
 			EventType:     "payment.failed",
-			OrderID:       event.OrderID,
-			UserID:        event.UserID,
+			OrderID:       payment.OrderID,
+			UserID:        payment.UserID,
 			PaymentID:     payment.ID,
-			Amount:        event.TotalAmount,
-			Currency:      strings.ToUpper(event.Currency),
-			PaymentMethod: strings.ToUpper(event.PaymentMethod),
+			Amount:        payment.Amount,
+			Currency:      strings.ToUpper(payment.Currency),
+			PaymentMethod: strings.ToUpper(payment.PaymentMethod),
 			Status:        domainpayment.StatusFailed,
 			FailureCode:   result.FailureCode,
 			Reason:        result.FailureReason,
@@ -180,22 +195,6 @@ func (s *Service) HandleInventoryReserved(ctx context.Context, event InventoryRe
 		if err := s.publisher.PublishFailed(ctx, failedEvent); err != nil {
 			return errs.WrapInternal(err, "failed to publish payment.failed")
 		}
-	}
-
-	return nil
-}
-
-func (s *Service) handleExistingPayment(ctx context.Context, payment *domainpayment.Payment) error {
-	if payment.Status == domainpayment.StatusCompleted {
-		return nil
-	}
-
-	if payment.Status == domainpayment.StatusFailed {
-		return nil
-	}
-
-	if payment.Status == domainpayment.StatusProcessing {
-		return nil
 	}
 
 	return nil

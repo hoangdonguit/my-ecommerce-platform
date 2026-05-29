@@ -18,7 +18,7 @@ spec:
       serviceAccountName: payment-api-sa
       containers:
       - name: payment-api
-        image: hoangdonguit/payment-service:payment-saga-redeploy-20260529022747
+        image: hoangdonguit/payment-service:payment-resume-processing-20260529194944
         command: ["/app/payment-api"]
         ports:
         - containerPort: 8083
@@ -67,7 +67,7 @@ spec:
       serviceAccountName: payment-consumer-sa
       containers:
       - name: payment-consumer
-        image: hoangdonguit/payment-service:payment-saga-redeploy-20260529022747
+        image: hoangdonguit/payment-service:payment-resume-processing-20260529194944
         command: ["/app/payment-consumer"]
         resources:
           limits:
