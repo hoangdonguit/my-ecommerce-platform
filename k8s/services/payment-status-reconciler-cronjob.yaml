@@ -1,0 +1,107 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: payment-status-reconciler
+  namespace: db
+spec:
+  schedule: "*/1 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          nodeSelector:
+            kubernetes.io/hostname: vm3-gitops
+          containers:
+            - name: payment-status-reconciler
+              image: postgres:16-alpine
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: PGHOST
+                  value: postgresql.db.svc.cluster.local
+                - name: PGPORT
+                  value: "5432"
+                - name: PGUSER
+                  value: postgres
+                - name: ORDER_DB
+                  value: order_db
+                - name: PAYMENT_DB
+                  value: payment_db
+                - name: PROCESSING_AGE_SECONDS
+                  value: "60"
+                - name: BATCH_LIMIT
+                  value: "300"
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgresql
+                      key: postgres-password
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  echo "===== payment-status-reconciler started at $(date -Iseconds) ====="
+
+                  PROCESSING_ROWS="$(
+                    psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PAYMENT_DB" -At -F '|' -c "
+                      SELECT id, order_id
+                      FROM payments
+                      WHERE status = 'PROCESSING'
+                        AND payment_method = 'COD'
+                        AND created_at < NOW() - (${PROCESSING_AGE_SECONDS} || ' seconds')::interval
+                      ORDER BY created_at
+                      LIMIT ${BATCH_LIMIT};
+                    "
+                  )"
+
+                  if [ -z "$PROCESSING_ROWS" ]; then
+                    echo "No stale COD PROCESSING payments found."
+                    exit 0
+                  fi
+
+                  echo "Found stale COD PROCESSING payments:"
+                  echo "$PROCESSING_ROWS"
+
+                  completed_count=0
+
+                  echo "$PROCESSING_ROWS" | while IFS='|' read -r payment_id order_id; do
+                    if [ -z "$payment_id" ] || [ -z "$order_id" ]; then
+                      continue
+                    fi
+
+                    tx_id="cod_reconciled_${payment_id}"
+
+                    psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PAYMENT_DB" -c "
+                      UPDATE payments
+                      SET status = 'COMPLETED',
+                          transaction_id = COALESCE(NULLIF(transaction_id, ''), '${tx_id}'),
+                          updated_at = NOW()
+                      WHERE id = '${payment_id}'
+                        AND status = 'PROCESSING'
+                        AND payment_method = 'COD';
+                    "
+
+                    psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+                      UPDATE orders
+                      SET status = 'COMPLETED',
+                          updated_at = NOW()
+                      WHERE id = '${order_id}'
+                        AND status = 'PENDING';
+                    "
+
+                    completed_count=$((completed_count + 1))
+                    echo "Reconciled payment ${payment_id}, order ${order_id}: PROCESSING/PENDING -> COMPLETED"
+                  done
+
+                  echo "===== payment-status-reconciler finished at $(date -Iseconds) ====="
+              resources:
+                requests:
+                  cpu: 20m
+                  memory: 64Mi
+                limits:
+                  cpu: 200m
+                  memory: 128Mi
