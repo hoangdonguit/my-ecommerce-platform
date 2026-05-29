@@ -1,0 +1,20 @@
+NAME                                    READY   STATUS              RESTARTS   AGE     IP           NODE          NOMINATED NODE   READINESS GATES
+ecommerce-dashboard-764bf9c6fd-dpgm6    1/1     Running             0          7h32m   10.42.0.29   vm1-gateway   <none>           <none>
+inventory-api-56cbdd8885-58cgs          1/1     Running             0          6h49m   10.42.1.37   vm2-mesh      <none>           <none>
+inventory-consumer-7c75658658-gccrn     1/1     Running             0          6h49m   10.42.1.36   vm2-mesh      <none>           <none>
+inventory-consumer-7c75658658-krkzz     0/1     ContainerCreating   0          3s      <none>       vm2-mesh      <none>           <none>
+inventory-consumer-7c75658658-lfqpf     0/1     ContainerCreating   0          3s      <none>       vm2-mesh      <none>           <none>
+inventory-consumer-7c75658658-rm7h6     0/1     ContainerCreating   0          3s      <none>       vm2-mesh      <none>           <none>
+mongodb-5f575d5775-7jzjg                1/1     Running             0          11h     10.42.2.19   vm3-gitops    <none>           <none>
+notification-api-55f4988465-v5qr5       1/1     Running             0          11h     10.42.1.20   vm2-mesh      <none>           <none>
+notification-consumer-78c464bd8-j4dt6   1/1     Running             0          16m     10.42.1.38   vm2-mesh      <none>           <none>
+order-service-7566888466-84kh9          1/1     Running             0          7h48m   10.42.1.30   vm2-mesh      <none>           <none>
+order-service-7566888466-fjjr8          1/1     Running             0          2s      10.42.1.63   vm2-mesh      <none>           <none>
+payment-api-567444f565-lwfxc            1/1     Running             0          6h58m   10.42.1.33   vm2-mesh      <none>           <none>
+payment-consumer-7d59b6d6cf-5t7zt       1/1     Running             0          2s      10.42.1.62   vm2-mesh      <none>           <none>
+payment-consumer-7d59b6d6cf-btmh7       1/1     Running             0          2s      10.42.1.60   vm2-mesh      <none>           <none>
+payment-consumer-7d59b6d6cf-gxtr2       1/1     Running             0          6h57m   10.42.1.35   vm2-mesh      <none>           <none>
+payment-consumer-7d59b6d6cf-km24b       1/1     Running             0          2s      10.42.1.61   vm2-mesh      <none>           <none>
+read-model-service-7f4c8697db-nk8gb     1/1     Running             0          11h     10.42.1.25   vm2-mesh      <none>           <none>
+redis-5fcfc85d5d-79lfw                  1/1     Running             0          11h     10.42.2.16   vm3-gitops    <none>           <none>
+web-gateway-b9cbccbfd-l65s8             1/1     Running             0          8h      10.42.0.24   vm1-gateway   <none>           <none>

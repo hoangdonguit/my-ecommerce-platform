@@ -1,0 +1,242 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: tests/k6/baseline-light.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 10 max VUs, 1m30s max duration (incl. graceful stop):
+              * baseline_light: 10 looping VUs for 1m0s (gracefulStop: 30s)
+
+
+running (0m01.0s), 10/10 VUs, 0 complete and 0 interrupted iterations
+baseline_light   [   2% ] 10 VUs  0m01.0s/1m0s
+
+running (0m02.0s), 10/10 VUs, 24 complete and 0 interrupted iterations
+baseline_light   [   3% ] 10 VUs  0m02.0s/1m0s
+
+running (0m03.0s), 10/10 VUs, 54 complete and 0 interrupted iterations
+baseline_light   [   5% ] 10 VUs  0m03.0s/1m0s
+
+running (0m04.0s), 10/10 VUs, 73 complete and 0 interrupted iterations
+baseline_light   [   7% ] 10 VUs  0m04.0s/1m0s
+
+running (0m05.0s), 10/10 VUs, 94 complete and 0 interrupted iterations
+baseline_light   [   8% ] 10 VUs  0m05.0s/1m0s
+
+running (0m06.0s), 10/10 VUs, 123 complete and 0 interrupted iterations
+baseline_light   [  10% ] 10 VUs  0m06.0s/1m0s
+
+running (0m07.0s), 10/10 VUs, 145 complete and 0 interrupted iterations
+baseline_light   [  12% ] 10 VUs  0m07.0s/1m0s
+
+running (0m08.0s), 10/10 VUs, 176 complete and 0 interrupted iterations
+baseline_light   [  13% ] 10 VUs  0m08.0s/1m0s
+
+running (0m09.0s), 10/10 VUs, 207 complete and 0 interrupted iterations
+baseline_light   [  15% ] 10 VUs  0m09.0s/1m0s
+
+running (0m10.0s), 10/10 VUs, 237 complete and 0 interrupted iterations
+baseline_light   [  17% ] 10 VUs  0m10.0s/1m0s
+
+running (0m11.0s), 10/10 VUs, 267 complete and 0 interrupted iterations
+baseline_light   [  18% ] 10 VUs  0m11.0s/1m0s
+
+running (0m12.0s), 10/10 VUs, 289 complete and 0 interrupted iterations
+baseline_light   [  20% ] 10 VUs  0m12.0s/1m0s
+
+running (0m13.0s), 10/10 VUs, 309 complete and 0 interrupted iterations
+baseline_light   [  22% ] 10 VUs  0m13.0s/1m0s
+
+running (0m14.0s), 10/10 VUs, 321 complete and 0 interrupted iterations
+baseline_light   [  23% ] 10 VUs  0m14.0s/1m0s
+
+running (0m15.0s), 10/10 VUs, 340 complete and 0 interrupted iterations
+baseline_light   [  25% ] 10 VUs  0m15.0s/1m0s
+
+running (0m16.0s), 10/10 VUs, 360 complete and 0 interrupted iterations
+baseline_light   [  27% ] 10 VUs  0m16.0s/1m0s
+
+running (0m17.0s), 10/10 VUs, 383 complete and 0 interrupted iterations
+baseline_light   [  28% ] 10 VUs  0m17.0s/1m0s
+
+running (0m18.0s), 10/10 VUs, 413 complete and 0 interrupted iterations
+baseline_light   [  30% ] 10 VUs  0m18.0s/1m0s
+
+running (0m19.0s), 10/10 VUs, 443 complete and 0 interrupted iterations
+baseline_light   [  32% ] 10 VUs  0m19.0s/1m0s
+
+running (0m20.0s), 10/10 VUs, 473 complete and 0 interrupted iterations
+baseline_light   [  33% ] 10 VUs  0m20.0s/1m0s
+
+running (0m21.0s), 10/10 VUs, 503 complete and 0 interrupted iterations
+baseline_light   [  35% ] 10 VUs  0m21.0s/1m0s
+
+running (0m22.0s), 10/10 VUs, 533 complete and 0 interrupted iterations
+baseline_light   [  37% ] 10 VUs  0m22.0s/1m0s
+
+running (0m23.0s), 10/10 VUs, 563 complete and 0 interrupted iterations
+baseline_light   [  38% ] 10 VUs  0m23.0s/1m0s
+
+running (0m24.0s), 10/10 VUs, 586 complete and 0 interrupted iterations
+baseline_light   [  40% ] 10 VUs  0m24.0s/1m0s
+
+running (0m25.0s), 10/10 VUs, 611 complete and 0 interrupted iterations
+baseline_light   [  42% ] 10 VUs  0m25.0s/1m0s
+
+running (0m26.0s), 10/10 VUs, 638 complete and 0 interrupted iterations
+baseline_light   [  43% ] 10 VUs  0m26.0s/1m0s
+
+running (0m27.0s), 10/10 VUs, 658 complete and 0 interrupted iterations
+baseline_light   [  45% ] 10 VUs  0m27.0s/1m0s
+
+running (0m28.0s), 10/10 VUs, 678 complete and 0 interrupted iterations
+baseline_light   [  47% ] 10 VUs  0m28.0s/1m0s
+
+running (0m29.0s), 10/10 VUs, 698 complete and 0 interrupted iterations
+baseline_light   [  48% ] 10 VUs  0m29.0s/1m0s
+
+running (0m30.0s), 10/10 VUs, 718 complete and 0 interrupted iterations
+baseline_light   [  50% ] 10 VUs  0m30.0s/1m0s
+
+running (0m31.0s), 10/10 VUs, 738 complete and 0 interrupted iterations
+baseline_light   [  52% ] 10 VUs  0m31.0s/1m0s
+
+running (0m32.0s), 10/10 VUs, 768 complete and 0 interrupted iterations
+baseline_light   [  53% ] 10 VUs  0m32.0s/1m0s
+
+running (0m33.0s), 10/10 VUs, 798 complete and 0 interrupted iterations
+baseline_light   [  55% ] 10 VUs  0m33.0s/1m0s
+
+running (0m34.0s), 10/10 VUs, 818 complete and 0 interrupted iterations
+baseline_light   [  57% ] 10 VUs  0m34.0s/1m0s
+
+running (0m35.0s), 10/10 VUs, 838 complete and 0 interrupted iterations
+baseline_light   [  58% ] 10 VUs  0m35.0s/1m0s
+
+running (0m36.0s), 10/10 VUs, 865 complete and 0 interrupted iterations
+baseline_light   [  60% ] 10 VUs  0m36.0s/1m0s
+
+running (0m37.0s), 10/10 VUs, 887 complete and 0 interrupted iterations
+baseline_light   [  62% ] 10 VUs  0m37.0s/1m0s
+
+running (0m38.0s), 10/10 VUs, 915 complete and 0 interrupted iterations
+baseline_light   [  63% ] 10 VUs  0m38.0s/1m0s
+
+running (0m39.0s), 10/10 VUs, 942 complete and 0 interrupted iterations
+baseline_light   [  65% ] 10 VUs  0m39.0s/1m0s
+
+running (0m40.0s), 10/10 VUs, 971 complete and 0 interrupted iterations
+baseline_light   [  67% ] 10 VUs  0m40.0s/1m0s
+
+running (0m41.0s), 10/10 VUs, 998 complete and 0 interrupted iterations
+baseline_light   [  68% ] 10 VUs  0m41.0s/1m0s
+
+running (0m42.0s), 10/10 VUs, 1018 complete and 0 interrupted iterations
+baseline_light   [  70% ] 10 VUs  0m42.0s/1m0s
+
+running (0m43.0s), 10/10 VUs, 1038 complete and 0 interrupted iterations
+baseline_light   [  72% ] 10 VUs  0m43.0s/1m0s
+
+running (0m44.0s), 10/10 VUs, 1058 complete and 0 interrupted iterations
+baseline_light   [  73% ] 10 VUs  0m44.0s/1m0s
+
+running (0m45.0s), 10/10 VUs, 1078 complete and 0 interrupted iterations
+baseline_light   [  75% ] 10 VUs  0m45.0s/1m0s
+
+running (0m46.0s), 10/10 VUs, 1098 complete and 0 interrupted iterations
+baseline_light   [  77% ] 10 VUs  0m46.0s/1m0s
+
+running (0m47.0s), 10/10 VUs, 1118 complete and 0 interrupted iterations
+baseline_light   [  78% ] 10 VUs  0m47.0s/1m0s
+
+running (0m48.0s), 10/10 VUs, 1148 complete and 0 interrupted iterations
+baseline_light   [  80% ] 10 VUs  0m48.0s/1m0s
+
+running (0m49.0s), 10/10 VUs, 1178 complete and 0 interrupted iterations
+baseline_light   [  82% ] 10 VUs  0m49.0s/1m0s
+
+running (0m50.0s), 10/10 VUs, 1209 complete and 0 interrupted iterations
+baseline_light   [  83% ] 10 VUs  0m50.0s/1m0s
+
+running (0m51.0s), 10/10 VUs, 1238 complete and 0 interrupted iterations
+baseline_light   [  85% ] 10 VUs  0m51.0s/1m0s
+
+running (0m52.0s), 10/10 VUs, 1269 complete and 0 interrupted iterations
+baseline_light   [  87% ] 10 VUs  0m52.0s/1m0s
+
+running (0m53.0s), 10/10 VUs, 1293 complete and 0 interrupted iterations
+baseline_light   [  88% ] 10 VUs  0m53.0s/1m0s
+
+running (0m54.0s), 10/10 VUs, 1319 complete and 0 interrupted iterations
+baseline_light   [  90% ] 10 VUs  0m54.0s/1m0s
+
+running (0m55.0s), 10/10 VUs, 1333 complete and 0 interrupted iterations
+baseline_light   [  92% ] 10 VUs  0m55.0s/1m0s
+
+running (0m56.0s), 10/10 VUs, 1355 complete and 0 interrupted iterations
+baseline_light   [  93% ] 10 VUs  0m56.0s/1m0s
+
+running (0m57.0s), 10/10 VUs, 1374 complete and 0 interrupted iterations
+baseline_light   [  95% ] 10 VUs  0m57.0s/1m0s
+
+running (0m58.0s), 10/10 VUs, 1394 complete and 0 interrupted iterations
+baseline_light   [  97% ] 10 VUs  0m58.0s/1m0s
+
+running (0m59.0s), 10/10 VUs, 1414 complete and 0 interrupted iterations
+baseline_light   [  98% ] 10 VUs  0m59.0s/1m0s
+
+running (1m00.0s), 10/10 VUs, 1434 complete and 0 interrupted iterations
+baseline_light   [ 100% ] 10 VUs  1m00.0s/1m0s
+
+
+  █ THRESHOLDS 
+
+    http_req_duration
+    ✓ 'p(95)<3000' p(95)=409.47ms
+
+    http_req_failed
+    ✓ 'rate<0.01' rate=0.00%
+
+    unexpected_error_rate
+    ✓ 'rate<0.01' rate=0.00%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 1444    23.955617/s
+    checks_succeeded...: 100.00% 1444 out of 1444
+    checks_failed......: 0.00%   0 out of 1444
+
+    ✓ accepted or rejected
+
+    CUSTOM
+    accepted_orders................: 1444   23.955617/s
+    unexpected_error_rate..........: 0.00%  0 out of 1444
+
+    HTTP
+    http_req_duration..............: avg=213.7ms  min=101.25ms med=172.4ms  max=753.26ms p(90)=327.6ms  p(95)=409.47ms
+      { expected_response:true }...: avg=213.7ms  min=101.25ms med=172.4ms  max=753.26ms p(90)=327.6ms  p(95)=409.47ms
+    http_req_failed................: 0.00%  0 out of 1444
+    http_reqs......................: 1444   23.955617/s
+
+    EXECUTION
+    iteration_duration.............: avg=417.02ms min=301.6ms  med=373.24ms max=1.29s    p(90)=528.49ms p(95)=610.19ms
+    iterations.....................: 1444   23.955617/s
+    vus............................: 10     min=10        max=10
+    vus_max........................: 10     min=10        max=10
+
+    NETWORK
+    data_received..................: 1.1 MB 18 kB/s
+    data_sent......................: 564 kB 9.4 kB/s
+
+
+
+
+running (1m00.3s), 00/10 VUs, 1444 complete and 0 interrupted iterations
+baseline_light ✓ [ 100% ] 10 VUs  1m0s

@@ -1,0 +1,34 @@
+
+----- inventory-service-group -----
+
+inventory-service-group order.created   5          128             178             50              inventory-consumer@inventory-consumer-7c75658658-fqrd4 (github.com/segmentio/kafka-go)-09099132-b8e1-459c-80bc-81cef00b892a /10.42.1.52     inventory-consumer@inventory-consumer-7c75658658-fqrd4 (github.com/segmentio/kafka-go)
+inventory-service-group order.created   4          138             185             47              inventory-consumer@inventory-consumer-7c75658658-g4w62 (github.com/segmentio/kafka-go)-aa24ab21-ab0e-4e13-9b8f-1d2ea9738d26 /10.42.1.53     inventory-consumer@inventory-consumer-7c75658658-g4w62 (github.com/segmentio/kafka-go)
+inventory-service-group order.created   6          125             161             36              inventory-consumer@inventory-consumer-7c75658658-7pzk8 (github.com/segmentio/kafka-go)-6f6c4a70-6fd9-4bf7-90cb-818f926b1782 /10.42.1.51     inventory-consumer@inventory-consumer-7c75658658-7pzk8 (github.com/segmentio/kafka-go)
+
+----- payment-service-group -----
+
+payment-service-group inventory.reserved 7          3               164             161             payment-consumer@payment-consumer-7d59b6d6cf-ws8h4 (github.com/segmentio/kafka-go)-31bd281f-cacb-405a-959f-52fa51f24245 /10.42.1.56     payment-consumer@payment-consumer-7d59b6d6cf-ws8h4 (github.com/segmentio/kafka-go)
+payment-service-group inventory.reserved 0          6               167             161             payment-consumer@payment-consumer-7d59b6d6cf-m4c9h (github.com/segmentio/kafka-go)-6cccdfb7-2008-47f5-9b79-e43240dab845 /10.42.1.49     payment-consumer@payment-consumer-7d59b6d6cf-m4c9h (github.com/segmentio/kafka-go)
+payment-service-group inventory.reserved 4          27              165             138             payment-consumer@payment-consumer-7d59b6d6cf-5t7zt (github.com/segmentio/kafka-go)-b6e8bd31-b786-4c53-a1db-30b66653f9c9 /10.42.1.62     payment-consumer@payment-consumer-7d59b6d6cf-5t7zt (github.com/segmentio/kafka-go)
+payment-service-group inventory.reserved 2          4               167             163             payment-consumer@payment-consumer-7d59b6d6cf-gzs2x (github.com/segmentio/kafka-go)-510f8334-f30f-42f9-b99f-c01259597958 /10.42.1.55     payment-consumer@payment-consumer-7d59b6d6cf-gzs2x (github.com/segmentio/kafka-go)
+payment-service-group inventory.reserved 5          13              165             152             payment-consumer@payment-consumer-7d59b6d6cf-54jfq (github.com/segmentio/kafka-go)-b6a8f71d-9cbd-4d61-87d5-1f86cbaac9d3 /10.42.1.46     payment-consumer@payment-consumer-7d59b6d6cf-54jfq (github.com/segmentio/kafka-go)
+payment-service-group inventory.reserved 1          31              168             137             payment-consumer@payment-consumer-7d59b6d6cf-km24b (github.com/segmentio/kafka-go)-060c345c-8bbf-4f07-abca-cb8507796a9e /10.42.1.61     payment-consumer@payment-consumer-7d59b6d6cf-km24b (github.com/segmentio/kafka-go)
+payment-service-group inventory.reserved 3          29              168             139             payment-consumer@payment-consumer-7d59b6d6cf-btmh7 (github.com/segmentio/kafka-go)-b4dbac98-254d-4298-8be2-7ee31b17e076 /10.42.1.60     payment-consumer@payment-consumer-7d59b6d6cf-btmh7 (github.com/segmentio/kafka-go)
+payment-service-group inventory.reserved 6          16              164             148             payment-consumer@payment-consumer-7d59b6d6cf-2vscx (github.com/segmentio/kafka-go)-b8938743-c833-4ff6-a889-b7978151a095 /10.42.1.50     payment-consumer@payment-consumer-7d59b6d6cf-2vscx (github.com/segmentio/kafka-go)
+
+----- notification-service-group -----
+
+
+----- order-service-saga-monitor -----
+
+order-service-saga-monitor payment.completed 0          7               23              16              -               -               -
+order-service-saga-monitor payment.completed 5          10              16              6               -               -               -
+order-service-saga-monitor payment.completed 1          8               23              15              -               -               -
+order-service-saga-monitor payment.completed 6          10              16              6               -               -               -
+order-service-saga-monitor payment.completed 2          8               23              15              -               -               -
+order-service-saga-monitor payment.completed 7          4               15              11              -               -               -
+order-service-saga-monitor payment.completed 3          10              18              8               -               -               -
+order-service-saga-monitor payment.completed 4          9               15              6               -               -               -
+
+----- read-model-service-group -----
+
