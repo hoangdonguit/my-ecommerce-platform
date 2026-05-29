@@ -1,69 +1,131 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { listOrders } from "../api/gateway";
 import ErrorBox from "../components/ErrorBox";
 import Loading from "../components/Loading";
 import StatusBadge from "../components/StatusBadge";
 
+const LIMIT_OPTIONS = [100, 500, 1000];
+
+function getInitialLimit() {
+  const value = Number(sessionStorage.getItem("orders_limit") || 1000);
+  return LIMIT_OPTIONS.includes(value) ? value : 1000;
+}
+
 export default function Orders() {
-  const [searchQuery, setSearchQuery] = useState(() => sessionStorage.getItem("search_order_keyword") || "");
+  const [searchQuery, setSearchQuery] = useState(
+    () => sessionStorage.getItem("search_order_keyword") || ""
+  );
+  const [limit, setLimit] = useState(getInitialLimit);
   const [allOrders, setAllOrders] = useState([]);
+  const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
+
+  async function loadOrders(nextLimit = limit) {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await listOrders("ADMIN_FETCH_ALL", 1, nextLimit);
+      setAllOrders(res.data || []);
+      setMeta(res.meta || null);
+      setLastUpdatedAt(new Date());
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    setLoading(true);
-    listOrders("ADMIN_FETCH_ALL", 1, 1000)
-      .then(res => setAllOrders(res.data || []))
-      .catch(err => setError(err))
-      .finally(() => setLoading(false));
-  }, []);
+    sessionStorage.setItem("orders_limit", String(limit));
+    loadOrders(limit);
+  }, [limit]);
 
   useEffect(() => {
     sessionStorage.setItem("search_order_keyword", searchQuery);
   }, [searchQuery]);
 
   const displayedOrders = useMemo(() => {
-    if (!searchQuery.trim()) return allOrders;
-    return allOrders.filter(o => 
-      o.user_id.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      o.id.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const keyword = searchQuery.trim().toLowerCase();
+    if (!keyword) return allOrders;
+
+    return allOrders.filter((order) => {
+      const userId = String(order?.user_id || "").toLowerCase();
+      const orderId = String(order?.id || "").toLowerCase();
+      return userId.includes(keyword) || orderId.includes(keyword);
+    });
   }, [allOrders, searchQuery]);
 
   const uniqueUserIds = useMemo(() => {
-    return [...new Set(allOrders.map(o => o.user_id))];
+    return [...new Set(allOrders.map((order) => order?.user_id).filter(Boolean))];
   }, [allOrders]);
+
+  const totalDb = Number(meta?.total || 0);
 
   return (
     <div className="page">
       <div className="page-header">
         <div>
           <h2>🔍 Tra cứu Đơn hàng Toàn Hệ Thống</h2>
-          <p>Hiển thị tất cả. Gõ User ID hoặc Order ID để lọc nhanh.</p>
+          <p>Hiển thị tất cả đơn hàng. Gõ User ID hoặc Order ID để lọc nhanh.</p>
+          <div className="refresh-meta">
+            {lastUpdatedAt
+              ? `Cập nhật lần cuối: ${lastUpdatedAt.toLocaleTimeString()}`
+              : "Chưa tải dữ liệu."}
+          </div>
+        </div>
+
+        <div className="header-actions">
+          <label className="limit-control">
+            Hiển thị
+            <select
+              value={limit}
+              onChange={(event) => setLimit(Number(event.target.value))}
+              disabled={loading}
+            >
+              {LIMIT_OPTIONS.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <button className="btn" onClick={() => loadOrders()} disabled={loading}>
+            {loading ? "Đang làm mới..." : "↻ Làm mới danh sách"}
+          </button>
         </div>
       </div>
 
-      <div className="toolbar" style={{ flexWrap: "wrap", flexDirection: "column", alignItems: "flex-start" }}>
+      <div className="toolbar-row">
         <input
           list="user-suggestions"
-          style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #ccc", fontSize: "1rem" }}
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(event) => setSearchQuery(event.target.value)}
           placeholder="🔎 Nhập mã User ID hoặc Order ID để lọc tức thì..."
         />
         <datalist id="user-suggestions">
-          {uniqueUserIds.map(id => <option key={id} value={id} />)}
+          {uniqueUserIds.map((id) => (
+            <option key={id} value={id} />
+          ))}
         </datalist>
       </div>
 
       <ErrorBox error={error} />
 
-      {loading ? <Loading /> : (
+      {loading ? (
+        <Loading />
+      ) : (
         <div className="card">
           <div className="table-header">
             <h3>Danh sách Giao dịch</h3>
-            <span>Hiển thị: {displayedOrders.length} / {allOrders.length}</span>
+            <span>
+              Hiển thị: {displayedOrders.length} / {allOrders.length} đã tải
+              {totalDb > 0 ? ` | Tổng DB: ${totalDb}` : ""}
+            </span>
           </div>
 
           {!displayedOrders.length ? (
@@ -78,18 +140,26 @@ export default function Orders() {
                     <th>Status</th>
                     <th>Total</th>
                     <th>Created</th>
-                    <th></th>
+                    <th>Hành động</th>
                   </tr>
                 </thead>
                 <tbody>
                   {displayedOrders.map((order) => (
                     <tr key={order.id}>
-                      <td className="mono" style={{fontSize: "0.85rem"}}>{order.id}</td>
-                      <td style={{fontWeight: "bold", color: "#0056b3"}}>{order.user_id}</td>
-                      <td><StatusBadge status={order.status} /></td>
-                      <td>{Number(order.total_amount || 0).toLocaleString()} {order.currency}</td>
-                      <td>{new Date(order.created_at).toLocaleString()}</td>
-                      <td><Link className="link-btn" to={`/orders/${order.id}`}>Trace Saga</Link></td>
+                      <td className="mono">{order.id}</td>
+                      <td className="strong-blue">{order.user_id}</td>
+                      <td>
+                        <StatusBadge status={order.status} />
+                      </td>
+                      <td>
+                        {Number(order.total_amount || 0).toLocaleString()} {order.currency}
+                      </td>
+                      <td>{order.created_at ? new Date(order.created_at).toLocaleString() : "-"}</td>
+                      <td>
+                        <Link className="link-btn" to={`/orders/${order.id}`}>
+                          Trace Saga
+                        </Link>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
