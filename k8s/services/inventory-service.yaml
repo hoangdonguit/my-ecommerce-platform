@@ -18,7 +18,7 @@ spec:
       serviceAccountName: inventory-api-sa
       containers:
       - name: inventory-api
-        image: hoangdonguit/inventory-service:inventory-outbox-20260530001333
+        image: hoangdonguit/inventory-service:inventory-outbox-stale-retry-20260530010256
         command: ["/app/inventory-api"]
         ports:
         - containerPort: 8082
@@ -88,8 +88,13 @@ spec:
       serviceAccountName: inventory-consumer-sa
       containers:
       - name: inventory-consumer
-        image: hoangdonguit/inventory-service:inventory-outbox-20260530001333
+        image: hoangdonguit/inventory-service:inventory-outbox-stale-retry-20260530010256
         command: ["/app/inventory-consumer"]
+        env:
+        - name: OUTBOX_BATCH_SIZE
+          value: "25"
+        - name: OUTBOX_IDLE_SLEEP_MS
+          value: "500"
         resources:
           limits:
             cpu: "500m"

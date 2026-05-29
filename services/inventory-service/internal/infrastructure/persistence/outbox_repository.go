@@ -59,8 +59,11 @@ func (r *InventoryRepository) FetchPendingOutboxEvents(ctx context.Context, limi
 		WHERE id IN (
 			SELECT id
 			FROM inventory_outbox_events
-			WHERE status IN ('PENDING', 'FAILED')
-			  AND next_attempt_at <= NOW()
+			WHERE (
+				(status IN ('PENDING', 'FAILED') AND next_attempt_at <= NOW())
+				OR
+				(status = 'PROCESSING' AND updated_at < NOW() - INTERVAL '60 seconds')
+			)
 			ORDER BY created_at ASC
 			LIMIT $1
 			FOR UPDATE SKIP LOCKED
