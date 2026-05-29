@@ -15,7 +15,7 @@ export default function ErrorOrders() {
     setError(null);
     try {
       // Dùng keyword bí mật để lấy toàn bộ đơn lỗi từ Backend
-      const res = await listOrders("ADMIN_ERROR_ALL", 1, 1000); 
+      const res = await listOrders("ADMIN_ERROR_ALL", 1, 1000);
       setErrorOrders(res.data || []);
     } catch (err) {
       setError(err);
