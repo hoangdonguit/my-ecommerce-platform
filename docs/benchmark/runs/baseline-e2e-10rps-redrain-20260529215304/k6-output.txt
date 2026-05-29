@@ -14,11 +14,11 @@
               * baseline_e2e_10rps: 10.00 iterations/s for 1m0s (maxVUs: 20-60, gracefulStop: 30s)
 
 
-running (0m01.0s), 07/20 VUs, 3 complete and 0 interrupted iterations
-baseline_e2e_10rps   [   2% ] 07/20 VUs  0m01.0s/1m0s  10.00 iters/s
+running (0m01.0s), 01/20 VUs, 9 complete and 0 interrupted iterations
+baseline_e2e_10rps   [   2% ] 01/20 VUs  0m01.0s/1m0s  10.00 iters/s
 
-running (0m02.0s), 01/20 VUs, 19 complete and 0 interrupted iterations
-baseline_e2e_10rps   [   3% ] 01/20 VUs  0m02.0s/1m0s  10.00 iters/s
+running (0m02.0s), 02/20 VUs, 18 complete and 0 interrupted iterations
+baseline_e2e_10rps   [   3% ] 02/20 VUs  0m02.0s/1m0s  10.00 iters/s
 
 running (0m03.0s), 01/20 VUs, 29 complete and 0 interrupted iterations
 baseline_e2e_10rps   [   5% ] 01/20 VUs  0m03.0s/1m0s  10.00 iters/s
@@ -29,8 +29,8 @@ baseline_e2e_10rps   [   7% ] 01/20 VUs  0m04.0s/1m0s  10.00 iters/s
 running (0m05.0s), 01/20 VUs, 49 complete and 0 interrupted iterations
 baseline_e2e_10rps   [   8% ] 01/20 VUs  0m05.0s/1m0s  10.00 iters/s
 
-running (0m06.0s), 01/20 VUs, 59 complete and 0 interrupted iterations
-baseline_e2e_10rps   [  10% ] 01/20 VUs  0m06.0s/1m0s  10.00 iters/s
+running (0m06.0s), 03/20 VUs, 57 complete and 0 interrupted iterations
+baseline_e2e_10rps   [  10% ] 03/20 VUs  0m06.0s/1m0s  10.00 iters/s
 
 running (0m07.0s), 01/20 VUs, 69 complete and 0 interrupted iterations
 baseline_e2e_10rps   [  12% ] 01/20 VUs  0m07.0s/1m0s  10.00 iters/s
@@ -56,8 +56,8 @@ baseline_e2e_10rps   [  22% ] 01/20 VUs  0m13.0s/1m0s  10.00 iters/s
 running (0m14.0s), 01/20 VUs, 139 complete and 0 interrupted iterations
 baseline_e2e_10rps   [  23% ] 01/20 VUs  0m14.0s/1m0s  10.00 iters/s
 
-running (0m15.0s), 02/20 VUs, 148 complete and 0 interrupted iterations
-baseline_e2e_10rps   [  25% ] 02/20 VUs  0m15.0s/1m0s  10.00 iters/s
+running (0m15.0s), 01/20 VUs, 149 complete and 0 interrupted iterations
+baseline_e2e_10rps   [  25% ] 01/20 VUs  0m15.0s/1m0s  10.00 iters/s
 
 running (0m16.0s), 01/20 VUs, 159 complete and 0 interrupted iterations
 baseline_e2e_10rps   [  27% ] 01/20 VUs  0m16.0s/1m0s  10.00 iters/s
@@ -80,11 +80,11 @@ baseline_e2e_10rps   [  35% ] 01/20 VUs  0m21.0s/1m0s  10.00 iters/s
 running (0m22.0s), 01/20 VUs, 219 complete and 0 interrupted iterations
 baseline_e2e_10rps   [  37% ] 01/20 VUs  0m22.0s/1m0s  10.00 iters/s
 
-running (0m23.0s), 03/20 VUs, 227 complete and 0 interrupted iterations
-baseline_e2e_10rps   [  38% ] 03/20 VUs  0m23.0s/1m0s  10.00 iters/s
+running (0m23.0s), 01/20 VUs, 229 complete and 0 interrupted iterations
+baseline_e2e_10rps   [  38% ] 01/20 VUs  0m23.0s/1m0s  10.00 iters/s
 
-running (0m24.0s), 01/20 VUs, 239 complete and 0 interrupted iterations
-baseline_e2e_10rps   [  40% ] 01/20 VUs  0m24.0s/1m0s  10.00 iters/s
+running (0m24.0s), 02/20 VUs, 238 complete and 0 interrupted iterations
+baseline_e2e_10rps   [  40% ] 02/20 VUs  0m24.0s/1m0s  10.00 iters/s
 
 running (0m25.0s), 01/20 VUs, 249 complete and 0 interrupted iterations
 baseline_e2e_10rps   [  42% ] 01/20 VUs  0m25.0s/1m0s  10.00 iters/s
@@ -116,8 +116,8 @@ baseline_e2e_10rps   [  55% ] 01/20 VUs  0m33.0s/1m0s  10.00 iters/s
 running (0m34.0s), 01/20 VUs, 339 complete and 0 interrupted iterations
 baseline_e2e_10rps   [  57% ] 01/20 VUs  0m34.0s/1m0s  10.00 iters/s
 
-running (0m35.0s), 02/20 VUs, 348 complete and 0 interrupted iterations
-baseline_e2e_10rps   [  58% ] 02/20 VUs  0m35.0s/1m0s  10.00 iters/s
+running (0m35.0s), 01/20 VUs, 349 complete and 0 interrupted iterations
+baseline_e2e_10rps   [  58% ] 01/20 VUs  0m35.0s/1m0s  10.00 iters/s
 
 running (0m36.0s), 01/20 VUs, 359 complete and 0 interrupted iterations
 baseline_e2e_10rps   [  60% ] 01/20 VUs  0m36.0s/1m0s  10.00 iters/s
@@ -125,8 +125,8 @@ baseline_e2e_10rps   [  60% ] 01/20 VUs  0m36.0s/1m0s  10.00 iters/s
 running (0m37.0s), 01/20 VUs, 369 complete and 0 interrupted iterations
 baseline_e2e_10rps   [  62% ] 01/20 VUs  0m37.0s/1m0s  10.00 iters/s
 
-running (0m38.0s), 02/20 VUs, 378 complete and 0 interrupted iterations
-baseline_e2e_10rps   [  63% ] 02/20 VUs  0m38.0s/1m0s  10.00 iters/s
+running (0m38.0s), 01/20 VUs, 379 complete and 0 interrupted iterations
+baseline_e2e_10rps   [  63% ] 01/20 VUs  0m38.0s/1m0s  10.00 iters/s
 
 running (0m39.0s), 01/20 VUs, 389 complete and 0 interrupted iterations
 baseline_e2e_10rps   [  65% ] 01/20 VUs  0m39.0s/1m0s  10.00 iters/s
@@ -137,14 +137,14 @@ baseline_e2e_10rps   [  67% ] 01/20 VUs  0m40.0s/1m0s  10.00 iters/s
 running (0m41.0s), 01/20 VUs, 409 complete and 0 interrupted iterations
 baseline_e2e_10rps   [  68% ] 01/20 VUs  0m41.0s/1m0s  10.00 iters/s
 
-running (0m42.0s), 01/20 VUs, 419 complete and 0 interrupted iterations
-baseline_e2e_10rps   [  70% ] 01/20 VUs  0m42.0s/1m0s  10.00 iters/s
+running (0m42.0s), 02/20 VUs, 418 complete and 0 interrupted iterations
+baseline_e2e_10rps   [  70% ] 02/20 VUs  0m42.0s/1m0s  10.00 iters/s
 
 running (0m43.0s), 01/20 VUs, 429 complete and 0 interrupted iterations
 baseline_e2e_10rps   [  72% ] 01/20 VUs  0m43.0s/1m0s  10.00 iters/s
 
-running (0m44.0s), 01/20 VUs, 439 complete and 0 interrupted iterations
-baseline_e2e_10rps   [  73% ] 01/20 VUs  0m44.0s/1m0s  10.00 iters/s
+running (0m44.0s), 03/20 VUs, 437 complete and 0 interrupted iterations
+baseline_e2e_10rps   [  73% ] 03/20 VUs  0m44.0s/1m0s  10.00 iters/s
 
 running (0m45.0s), 01/20 VUs, 449 complete and 0 interrupted iterations
 baseline_e2e_10rps   [  75% ] 01/20 VUs  0m45.0s/1m0s  10.00 iters/s
@@ -198,7 +198,7 @@ baseline_e2e_10rps   [ 100% ] 01/20 VUs  1m00.0s/1m0s  10.00 iters/s
   █ THRESHOLDS 
 
     http_req_duration
-    ✓ 'p(95)<1500' p(95)=166.85ms
+    ✓ 'p(95)<1500' p(95)=181.91ms
 
     http_req_failed
     ✓ 'rate<0.01' rate=0.00%
@@ -209,34 +209,34 @@ baseline_e2e_10rps   [ 100% ] 01/20 VUs  1m00.0s/1m0s  10.00 iters/s
 
   █ TOTAL RESULTS 
 
-    checks_total.......: 600     9.995781/s
-    checks_succeeded...: 100.00% 600 out of 600
-    checks_failed......: 0.00%   0 out of 600
+    checks_total.......: 601     9.995624/s
+    checks_succeeded...: 100.00% 601 out of 601
+    checks_failed......: 0.00%   0 out of 601
 
     ✓ order request accepted or rejected
 
     CUSTOM
-    accepted_orders................: 600    9.995781/s
-    unexpected_error_rate..........: 0.00%  0 out of 600
+    accepted_orders................: 601    9.995624/s
+    unexpected_error_rate..........: 0.00%  0 out of 601
 
     HTTP
-    http_req_duration..............: avg=48.76ms min=16.19ms  med=23.22ms  max=1.15s p(90)=75.42ms  p(95)=166.85ms
-      { expected_response:true }...: avg=48.76ms min=16.19ms  med=23.22ms  max=1.15s p(90)=75.42ms  p(95)=166.85ms
-    http_req_failed................: 0.00%  0 out of 600
-    http_reqs......................: 600    9.995781/s
+    http_req_duration..............: avg=51.38ms min=15.74ms  med=24ms     max=388.03ms p(90)=141.39ms p(95)=181.91ms
+      { expected_response:true }...: avg=51.38ms min=15.74ms  med=24ms     max=388.03ms p(90)=141.39ms p(95)=181.91ms
+    http_req_failed................: 0.00%  0 out of 601
+    http_reqs......................: 601    9.995624/s
 
     EXECUTION
-    iteration_duration.............: avg=149.8ms min=116.51ms med=124.18ms max=1.26s p(90)=176.14ms p(95)=268.1ms 
-    iterations.....................: 600    9.995781/s
-    vus............................: 1      min=1        max=7 
+    iteration_duration.............: avg=152.5ms min=116.65ms med=125.46ms max=488.79ms p(90)=241.85ms p(95)=282.89ms
+    iterations.....................: 601    9.995624/s
+    vus............................: 1      min=1        max=3 
     vus_max........................: 20     min=20       max=20
 
     NETWORK
-    data_received..................: 490 kB 8.2 kB/s
-    data_sent......................: 267 kB 4.4 kB/s
+    data_received..................: 505 kB 8.4 kB/s
+    data_sent......................: 282 kB 4.7 kB/s
 
 
 
 
-running (1m00.0s), 00/20 VUs, 600 complete and 0 interrupted iterations
+running (1m00.1s), 00/20 VUs, 601 complete and 0 interrupted iterations
 baseline_e2e_10rps ✓ [ 100% ] 00/20 VUs  1m0s  10.00 iters/s

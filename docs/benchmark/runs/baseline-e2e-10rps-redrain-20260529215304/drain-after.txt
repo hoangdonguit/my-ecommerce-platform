@@ -1,0 +1,133 @@
+===== WAIT 10RPS SAGA DRAIN IMMEDIATELY AFTER K6 =====
+RUN_ID=baseline-e2e-10rps-redrain-20260529215304
+RUN_DIR=docs/benchmark/runs/baseline-e2e-10rps-redrain-20260529215304
+drain_started_at=2026-05-29T21:54:11+07:00
+
+===== DRAIN CHECK 1 / 20 =====
+2026-05-29T21:54:11+07:00
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2995
+ FAILED    |     4
+ PENDING   |   570
+(3 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2995
+ FAILED    |     2
+(2 rows)
+
+LAG_NONZERO=8
+PENDING_COUNT=560
+PROCESSING_COUNT=0
+
+===== DRAIN CHECK 2 / 20 =====
+2026-05-29T21:54:39+07:00
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  3007
+ FAILED    |     4
+ PENDING   |   558
+(3 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  3007
+ FAILED    |     2
+(2 rows)
+
+LAG_NONZERO=8
+PENDING_COUNT=499
+PROCESSING_COUNT=1
+
+===== DRAIN CHECK 3 / 20 =====
+2026-05-29T21:55:09+07:00
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  3166
+ FAILED    |     4
+ PENDING   |   399
+(3 rows)
+
+--- payments ---
+   status   | count 
+------------+-------
+ COMPLETED  |  3185
+ FAILED     |     2
+ PROCESSING |     2
+(3 rows)
+
+LAG_NONZERO=8
+PENDING_COUNT=383
+PROCESSING_COUNT=2
+
+===== DRAIN CHECK 4 / 20 =====
+2026-05-29T21:55:41+07:00
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  3185
+ FAILED    |     4
+ PENDING   |   380
+(3 rows)
+
+--- payments ---
+   status   | count 
+------------+-------
+ COMPLETED  |  3201
+ FAILED     |     2
+ PROCESSING |     2
+(3 rows)
+
+LAG_NONZERO=15
+PENDING_COUNT=247
+PROCESSING_COUNT=0
+
+===== DRAIN CHECK 5 / 20 =====
+2026-05-29T21:56:17+07:00
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  3419
+ FAILED    |     4
+ PENDING   |   146
+(3 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  3443
+ FAILED    |     2
+(2 rows)
+
+LAG_NONZERO=9
+PENDING_COUNT=26
+PROCESSING_COUNT=0
+
+===== DRAIN CHECK 6 / 20 =====
+2026-05-29T21:56:49+07:00
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  3565
+ FAILED    |     4
+(2 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  3565
+ FAILED    |     2
+(2 rows)
+
+LAG_NONZERO=0
+PENDING_COUNT=0
+PROCESSING_COUNT=0
+FINAL_10RPS_E2E_DRAIN_OK
+drain_finished_at=2026-05-29T21:57:10+07:00
