@@ -2,6 +2,7 @@ package inventoryapp
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"strings"
 	"time"
@@ -10,6 +11,7 @@ import (
 	domaininventory "github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/domain/inventory"
 	"github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/infrastructure/persistence"
 	"github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/shared/errs"
+	"github.com/jackc/pgx/v5"
 )
 
 type EventPublisher interface {
@@ -60,13 +62,18 @@ func (s *Service) HandleOrderCreated(ctx context.Context, event OrderCreatedEven
 	if err := validateOrderCreatedEvent(event); err != nil {
 		return err
 	}
+
 	existing, err := s.repo.FindReservationByOrderID(ctx, event.OrderID)
 	if err == nil && existing != nil {
+		if existing.Status == domaininventory.ReservationReserved {
+			return s.enqueueExistingReservedOutbox(ctx, event)
+		}
 		return nil
 	}
 	if err != nil && !persistence.IsNotFound(err) {
 		return errs.WrapInternal(err, "failed to check existing reservation")
 	}
+
 	tx, err := s.repo.BeginTx(ctx)
 	if err != nil {
 		return errs.WrapInternal(err, "failed to begin transaction")
@@ -85,12 +92,11 @@ func (s *Service) HandleOrderCreated(ctx context.Context, event OrderCreatedEven
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
+
 	failedItems := make([]InventoryFailedEventItem, 0)
 	reservationItems := make([]domaininventory.InventoryReservationItem, 0, len(event.Items))
 
 	for _, item := range event.Items {
-		// Atomic UPDATE: trừ kho và kiểm tra đủ hàng trong 1 câu SQL
-		// Không cần SELECT FOR UPDATE → giảm lock contention đáng kể
 		err := s.repo.AtomicReserveInventory(ctx, tx, item.ProductID, item.Quantity)
 		if err != nil {
 			failedItems = append(failedItems, InventoryFailedEventItem{
@@ -109,6 +115,7 @@ func (s *Service) HandleOrderCreated(ctx context.Context, event OrderCreatedEven
 			})
 			continue
 		}
+
 		reservationItems = append(reservationItems, domaininventory.InventoryReservationItem{
 			ID:                uuid.NewString(),
 			ReservationID:     reservationID,
@@ -124,27 +131,18 @@ func (s *Service) HandleOrderCreated(ctx context.Context, event OrderCreatedEven
 		reservation.Status = domaininventory.ReservationFailed
 		reservation.Reason = "insufficient stock or product not found"
 		reservation.Items = reservationItems
+
 		if err := s.repo.CreateReservation(ctx, tx, reservation); err != nil {
 			return errs.WrapInternal(err, "failed to create failed reservation")
 		}
 		if err := s.repo.CreateReservationItems(ctx, tx, reservationItems); err != nil {
 			return errs.WrapInternal(err, "failed to create failed reservation items")
 		}
+		if err := s.enqueueFailedOutbox(ctx, tx, event, failedItems, reservation.Reason); err != nil {
+			return err
+		}
 		if err := tx.Commit(ctx); err != nil {
 			return errs.WrapInternal(err, "failed to commit failed reservation")
-		}
-		if s.publisher != nil {
-			failEvent := InventoryFailedEvent{
-				EventType: "inventory.failed",
-				OrderID:   event.OrderID,
-				UserID:    event.UserID,
-				Status:    domaininventory.ReservationFailed,
-				Reason:    reservation.Reason,
-				Items:     failedItems,
-			}
-			if err := s.publisher.PublishFailed(ctx, failEvent); err != nil {
-				return errs.WrapInternal(err, "failed to publish inventory.failed")
-			}
 		}
 		return nil
 	}
@@ -152,37 +150,96 @@ func (s *Service) HandleOrderCreated(ctx context.Context, event OrderCreatedEven
 	reservation.Status = domaininventory.ReservationReserved
 	reservation.Reason = ""
 	reservation.Items = reservationItems
+
 	if err := s.repo.CreateReservation(ctx, tx, reservation); err != nil {
 		return errs.WrapInternal(err, "failed to create reservation")
 	}
 	if err := s.repo.CreateReservationItems(ctx, tx, reservationItems); err != nil {
 		return errs.WrapInternal(err, "failed to create reservation items")
 	}
+	if err := s.enqueueReservedOutbox(ctx, tx, event); err != nil {
+		return err
+	}
 	if err := tx.Commit(ctx); err != nil {
 		return errs.WrapInternal(err, "failed to commit reservation")
 	}
-	if s.publisher != nil {
-		successItems := make([]InventoryReservedEventItem, 0, len(event.Items))
-		for _, item := range event.Items {
-			successItems = append(successItems, InventoryReservedEventItem{
-				ProductID: item.ProductID,
-				Quantity:  item.Quantity,
-			})
-		}
-		reservedEvent := InventoryReservedEvent{
-			EventType:     "inventory.reserved",
-			OrderID:       event.OrderID,
-			UserID:        event.UserID,
-			Status:        domaininventory.ReservationReserved,
-			Currency:      event.Currency,
-			PaymentMethod: event.PaymentMethod,
-			TotalAmount:   event.TotalAmount,
-			Items:         successItems,
-		}
-		if err := s.publisher.PublishReserved(ctx, reservedEvent); err != nil {
-			return errs.WrapInternal(err, "failed to publish inventory.reserved")
-		}
+
+	return nil
+}
+
+func (s *Service) enqueueExistingReservedOutbox(ctx context.Context, event OrderCreatedEvent) error {
+	tx, err := s.repo.BeginTx(ctx)
+	if err != nil {
+		return errs.WrapInternal(err, "failed to begin outbox transaction")
 	}
+	defer tx.Rollback(ctx)
+
+	if err := s.enqueueReservedOutbox(ctx, tx, event); err != nil {
+		return err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return errs.WrapInternal(err, "failed to commit existing reservation outbox")
+	}
+
+	return nil
+}
+
+func (s *Service) enqueueReservedOutbox(ctx context.Context, tx pgx.Tx, event OrderCreatedEvent) error {
+	successItems := make([]InventoryReservedEventItem, 0, len(event.Items))
+	for _, item := range event.Items {
+		successItems = append(successItems, InventoryReservedEventItem{
+			ProductID: item.ProductID,
+			Quantity:  item.Quantity,
+		})
+	}
+
+	reservedEvent := InventoryReservedEvent{
+		EventType:     "inventory.reserved",
+		OrderID:       event.OrderID,
+		UserID:        event.UserID,
+		Status:        domaininventory.ReservationReserved,
+		Currency:      event.Currency,
+		PaymentMethod: event.PaymentMethod,
+		TotalAmount:   event.TotalAmount,
+		Items:         successItems,
+	}
+
+	return s.enqueueOutboxEvent(ctx, tx, event.OrderID, "inventory.reserved", "inventory.reserved", event.OrderID, reservedEvent)
+}
+
+func (s *Service) enqueueFailedOutbox(ctx context.Context, tx pgx.Tx, event OrderCreatedEvent, failedItems []InventoryFailedEventItem, reason string) error {
+	failedEvent := InventoryFailedEvent{
+		EventType: "inventory.failed",
+		OrderID:   event.OrderID,
+		UserID:    event.UserID,
+		Status:    domaininventory.ReservationFailed,
+		Reason:    reason,
+		Items:     failedItems,
+	}
+
+	return s.enqueueOutboxEvent(ctx, tx, event.OrderID, "inventory.failed", "inventory.failed", event.OrderID, failedEvent)
+}
+
+func (s *Service) enqueueOutboxEvent(ctx context.Context, tx pgx.Tx, aggregateID string, eventType string, topic string, key string, event any) error {
+	payload, err := json.Marshal(event)
+	if err != nil {
+		return errs.WrapInternal(err, "failed to marshal inventory outbox event")
+	}
+
+	outboxEvent := &domaininventory.OutboxEvent{
+		ID:          uuid.NewString(),
+		AggregateID: aggregateID,
+		EventType:   eventType,
+		Topic:       topic,
+		MessageKey:  key,
+		Payload:     payload,
+	}
+
+	if err := s.repo.CreateOutboxEvent(ctx, tx, outboxEvent); err != nil {
+		return errs.WrapInternal(err, "failed to create inventory outbox event")
+	}
+
 	return nil
 }
 

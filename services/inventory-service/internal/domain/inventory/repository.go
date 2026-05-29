@@ -21,4 +21,9 @@ type Repository interface {
 	ListAllInventories(ctx context.Context) ([]Inventory, error)
 	UpdateReservationStatus(ctx context.Context, tx pgx.Tx, reservationID string, status string) error
 	AtomicReserveInventory(ctx context.Context, tx pgx.Tx, productID string, quantity int) error
+
+	CreateOutboxEvent(ctx context.Context, tx pgx.Tx, event *OutboxEvent) error
+	FetchPendingOutboxEvents(ctx context.Context, limit int) ([]OutboxEvent, error)
+	MarkOutboxEventPublished(ctx context.Context, id string) error
+	MarkOutboxEventFailed(ctx context.Context, id string, lastError string) error
 }

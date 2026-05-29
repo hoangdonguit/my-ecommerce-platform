@@ -20,15 +20,15 @@ func NewInventoryPublisher(broker, reservedTopic, failedTopic string) *Inventory
 			Addr:         kafkago.TCP(broker),
 			Topic:        reservedTopic,
 			Balancer:     &kafkago.LeastBytes{},
-			RequiredAcks: kafkago.RequireOne,
-			Async:        true,
+			RequiredAcks: kafkago.RequireAll,
+			Async:        false,
 		},
 		failedWriter: &kafkago.Writer{
 			Addr:         kafkago.TCP(broker),
 			Topic:        failedTopic,
 			Balancer:     &kafkago.LeastBytes{},
-			RequiredAcks: kafkago.RequireOne,
-			Async:        true,
+			RequiredAcks: kafkago.RequireAll,
+			Async:        false,
 		},
 	}
 }
