@@ -1,0 +1,213 @@
+===== WAIT FINAL SAGA DRAIN =====
+
+===== DRAIN CHECK 1 / 15 =====
+Fri May 29 08:02:18 PM +07 2026
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2099
+ FAILED    |     4
+ PENDING   |   265
+(3 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2099
+ FAILED    |     2
+(2 rows)
+
+LAG_NONZERO=8
+PENDING_COUNT=217
+PROCESSING_COUNT=0
+
+===== DRAIN CHECK 2 / 15 =====
+Fri May 29 08:02:57 PM +07 2026
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2199
+ FAILED    |     4
+ PENDING   |   165
+(3 rows)
+
+--- payments ---
+   status   | count 
+------------+-------
+ COMPLETED  |  2222
+ FAILED     |     2
+ PROCESSING |     4
+(3 rows)
+
+LAG_NONZERO=7
+PENDING_COUNT=138
+PROCESSING_COUNT=0
+
+===== DRAIN CHECK 3 / 15 =====
+Fri May 29 08:03:40 PM +07 2026
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2280
+ FAILED    |     4
+ PENDING   |    84
+(3 rows)
+
+--- payments ---
+   status   | count 
+------------+-------
+ COMPLETED  |  2293
+ FAILED     |     2
+ PROCESSING |     1
+(3 rows)
+
+LAG_NONZERO=5
+PENDING_COUNT=10
+PROCESSING_COUNT=0
+
+===== DRAIN CHECK 4 / 15 =====
+Fri May 29 08:04:21 PM +07 2026
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2364
+ FAILED    |     4
+(2 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2364
+ FAILED    |     2
+(2 rows)
+
+LAG_NONZERO=0
+PENDING_COUNT=0
+PROCESSING_COUNT=0
+FINAL_E2E_DRAIN_OK
+
+===== DRAIN CHECK 5 / 15 =====
+Fri May 29 08:04:58 PM +07 2026
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2364
+ FAILED    |     4
+(2 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2364
+ FAILED    |     2
+(2 rows)
+
+LAG_NONZERO=0
+PENDING_COUNT=0
+PROCESSING_COUNT=0
+FINAL_E2E_DRAIN_OK
+
+===== DRAIN CHECK 6 / 15 =====
+Fri May 29 08:05:36 PM +07 2026
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2364
+ FAILED    |     4
+(2 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2364
+ FAILED    |     2
+(2 rows)
+
+LAG_NONZERO=0
+PENDING_COUNT=0
+PROCESSING_COUNT=0
+FINAL_E2E_DRAIN_OK
+
+===== DRAIN CHECK 7 / 15 =====
+Fri May 29 08:06:16 PM +07 2026
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2364
+ FAILED    |     4
+(2 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2364
+ FAILED    |     2
+(2 rows)
+
+LAG_NONZERO=0
+PENDING_COUNT=0
+PROCESSING_COUNT=0
+FINAL_E2E_DRAIN_OK
+
+===== DRAIN CHECK 8 / 15 =====
+Fri May 29 08:06:54 PM +07 2026
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2364
+ FAILED    |     4
+(2 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2364
+ FAILED    |     2
+(2 rows)
+
+LAG_NONZERO=0
+PENDING_COUNT=0
+PROCESSING_COUNT=0
+FINAL_E2E_DRAIN_OK
+
+===== DRAIN CHECK 9 / 15 =====
+Fri May 29 08:07:32 PM +07 2026
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2364
+ FAILED    |     4
+(2 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2364
+ FAILED    |     2
+(2 rows)
+
+LAG_NONZERO=0
+PENDING_COUNT=0
+PROCESSING_COUNT=0
+FINAL_E2E_DRAIN_OK
+
+===== DRAIN CHECK 10 / 15 =====
+Fri May 29 08:08:11 PM +07 2026
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2364
+ FAILED    |     4
+(2 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2364
+ FAILED    |     2
+(2 rows)
+
+LAG_NONZERO=0
+PENDING_COUNT=0
+PROCESSING_COUNT=0
+FINAL_E2E_DRAIN_OK

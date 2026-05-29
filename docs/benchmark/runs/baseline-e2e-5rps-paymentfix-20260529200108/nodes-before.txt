@@ -1,0 +1,4 @@
+NAME          STATUS   ROLES                AGE   VERSION        INTERNAL-IP       EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION       CONTAINER-RUNTIME
+vm1-gateway   Ready    control-plane,etcd   25h   v1.35.5+k3s1   192.168.100.27    <none>        Ubuntu 22.04.5 LTS   5.15.0-179-generic   containerd://2.2.3-k3s1
+vm2-mesh      Ready    control-plane,etcd   25h   v1.35.5+k3s1   192.168.100.240   <none>        Ubuntu 22.04.5 LTS   5.15.0-179-generic   containerd://2.2.3-k3s1
+vm3-gitops    Ready    control-plane,etcd   25h   v1.35.5+k3s1   192.168.100.24    <none>        Ubuntu 22.04.5 LTS   5.15.0-179-generic   containerd://2.2.3-k3s1
