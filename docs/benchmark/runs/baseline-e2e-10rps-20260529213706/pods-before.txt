@@ -1,0 +1,13 @@
+NAME                                    READY   STATUS    RESTARTS   AGE    IP            NODE          NOMINATED NODE   READINESS GATES
+ecommerce-dashboard-5d95974557-tpndh    1/1     Running   0          7h8m   10.42.0.31    vm1-gateway   <none>           <none>
+inventory-api-56cbdd8885-58cgs          1/1     Running   0          18h    10.42.1.37    vm2-mesh      <none>           <none>
+inventory-consumer-7c75658658-gccrn     1/1     Running   0          18h    10.42.1.36    vm2-mesh      <none>           <none>
+mongodb-5f575d5775-7jzjg                1/1     Running   0          24h    10.42.2.19    vm3-gitops    <none>           <none>
+notification-api-55f4988465-v5qr5       1/1     Running   0          23h    10.42.1.20    vm2-mesh      <none>           <none>
+notification-consumer-78c464bd8-j4dt6   1/1     Running   0          12h    10.42.1.38    vm2-mesh      <none>           <none>
+order-service-777cffd596-mx5s9          1/1     Running   0          8h     10.42.1.103   vm2-mesh      <none>           <none>
+payment-api-78b5699cb6-cj5k2            1/1     Running   0          105m   10.42.1.168   vm2-mesh      <none>           <none>
+payment-consumer-7764d6654-nvnss        1/1     Running   0          105m   10.42.1.169   vm2-mesh      <none>           <none>
+read-model-service-7b78d9f76d-kvjgr     1/1     Running   0          8h     10.42.1.102   vm2-mesh      <none>           <none>
+redis-5fcfc85d5d-79lfw                  1/1     Running   0          24h    10.42.2.16    vm3-gitops    <none>           <none>
+web-gateway-b9cbccbfd-l65s8             1/1     Running   0          20h    10.42.0.24    vm1-gateway   <none>           <none>

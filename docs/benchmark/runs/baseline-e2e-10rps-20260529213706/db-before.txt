@@ -1,0 +1,28 @@
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2364
+ FAILED    |     4
+(2 rows)
+
+--- inventory ---
+   status   | count 
+------------+-------
+ FAILED     |     2
+ RESERVED   |  2364
+ ROLLBACKED |     2
+(3 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  2364
+ FAILED    |     2
+(2 rows)
+
+--- notifications ---
+ status | count 
+--------+-------
+ SENT   |  2333
+(1 row)
+
