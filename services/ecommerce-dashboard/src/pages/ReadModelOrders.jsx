@@ -16,7 +16,7 @@ export default function ReadModelOrders() {
     setLoading(true);
     setError(null);
 
-    listReadModelOrders(1, 200)
+    listReadModelOrders(1, 1000)
       .then((res) => {
         setOrders(res.data || []);
         setMeta(res.meta || null);

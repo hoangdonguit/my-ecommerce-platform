@@ -13,7 +13,7 @@ export default function Orders() {
 
   useEffect(() => {
     setLoading(true);
-    listOrders("ADMIN_FETCH_ALL", 1, 100)
+    listOrders("ADMIN_FETCH_ALL", 1, 1000)
       .then(res => setAllOrders(res.data || []))
       .catch(err => setError(err))
       .finally(() => setLoading(false));

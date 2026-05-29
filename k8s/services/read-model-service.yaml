@@ -18,7 +18,7 @@ spec:
       serviceAccountName: read-model-service-sa
       containers:
       - name: read-model-service
-        image: hoangdonguit/read-model-service:mongo-cqrs-20260519232213
+        image: hoangdonguit/read-model-service:readmodel-limit1000-20260529124717
         ports:
         - containerPort: 8085
         env:

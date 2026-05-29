@@ -18,7 +18,7 @@ spec:
       serviceAccountName: order-service-sa
       containers:
       - name: order-service
-        image: hoangdonguit/order-service:flash-sale-listfix-20260521021743
+        image: hoangdonguit/order-service:order-saga-commitfix-limit1000-20260529124717
         ports:
         - containerPort: 8081
         resources:

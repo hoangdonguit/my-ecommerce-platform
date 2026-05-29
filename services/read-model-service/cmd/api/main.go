@@ -323,7 +323,7 @@ func (a *App) health(c *gin.Context) {
 
 func (a *App) listOrders(c *gin.Context) {
 	page := clampInt(queryInt(c, "page", 1), 1, 100000)
-	limit := clampInt(queryInt(c, "limit", 50), 1, 200)
+	limit := clampInt(queryInt(c, "limit", 50), 1, 1000)
 	userID := strings.TrimSpace(c.Query("user_id"))
 
 	filter := bson.M{}

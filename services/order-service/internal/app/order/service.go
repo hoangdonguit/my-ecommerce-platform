@@ -312,8 +312,8 @@ func (s *Service) ListOrders(ctx context.Context, userID string, page int, limit
 	if limit <= 0 {
 		limit = 10
 	}
-	if limit > 100 {
-		limit = 100
+	if limit > 1000 {
+		limit = 1000
 	}
 
 	offset := (page - 1) * limit
