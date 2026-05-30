@@ -18,7 +18,7 @@ spec:
       serviceAccountName: order-service-sa
       containers:
       - name: order-service
-        image: hoangdonguit/order-service:order-saga-commitfix-limit1000-20260529124717
+        image: hoangdonguit/order-service:order-outbox-reliability-20260530202151
         ports:
         - containerPort: 8081
         resources:
@@ -52,6 +52,18 @@ spec:
               key: KAFKA_BROKER
         - name: KAFKA_TOPIC_ORDER_CREATED
           value: "order.created"
+        - name: ORDER_OUTBOX_BATCH_SIZE
+          value: "200"
+        - name: ORDER_OUTBOX_INTERVAL_MS
+          value: "200"
+        - name: ORDER_OUTBOX_STALE_PROCESSING_SECONDS
+          value: "60"
+        - name: ORDER_OUTBOX_REQUEUE_STALE_PUBLISHED
+          value: "true"
+        - name: ORDER_OUTBOX_REQUEUE_AFTER_SECONDS
+          value: "120"
+        - name: ORDER_OUTBOX_REQUEUE_CHECK_MS
+          value: "5000"
 ---
 apiVersion: v1
 kind: Service

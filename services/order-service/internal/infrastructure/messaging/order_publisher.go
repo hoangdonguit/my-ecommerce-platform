@@ -19,11 +19,11 @@ func NewOrderPublisher(broker string, topic string) *OrderPublisher {
 		writer: &kafkago.Writer{
 			Addr:         kafkago.TCP(broker),
 			Topic:        topic,
-			Balancer:     &kafkago.Hash{},   // Hash by key → same order → same partition
-			RequiredAcks: kafkago.RequireOne,
-			Async:        false,             // Giữ sync để đảm bảo delivery
-			BatchSize:    500,               // Gửi tối đa 500 msg/lần
-			BatchTimeout: 10 * time.Millisecond,
+			Balancer:     &kafkago.Hash{}, // Hash by key → same order → same partition
+			RequiredAcks: kafkago.RequireAll,
+			Async:        false, // Giữ sync để đảm bảo delivery
+			BatchSize:    500,   // Gửi tối đa 500 msg/lần
+			BatchTimeout: 5 * time.Millisecond,
 		},
 		topic: topic,
 	}
