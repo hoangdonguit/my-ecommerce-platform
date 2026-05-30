@@ -13,13 +13,20 @@ spec:
       backoffLimit: 1
       template:
         spec:
-          restartPolicy: Never
           nodeSelector:
             kubernetes.io/hostname: vm3-gitops
+          restartPolicy: Never
           containers:
             - name: payment-status-reconciler
               image: postgres:16-alpine
               imagePullPolicy: IfNotPresent
+              resources:
+                requests:
+                  cpu: "20m"
+                  memory: "64Mi"
+                limits:
+                  cpu: "200m"
+                  memory: "128Mi"
               env:
                 - name: PGHOST
                   value: postgresql.db.svc.cluster.local
@@ -29,10 +36,14 @@ spec:
                   value: postgres
                 - name: ORDER_DB
                   value: order_db
+                - name: INVENTORY_DB
+                  value: inventory_db
                 - name: PAYMENT_DB
                   value: payment_db
                 - name: PROCESSING_AGE_SECONDS
                   value: "60"
+                - name: MISSING_PAYMENT_AGE_SECONDS
+                  value: "90"
                 - name: BATCH_LIMIT
                   value: "300"
                 - name: PGPASSWORD
@@ -45,6 +56,8 @@ spec:
                 - -ec
                 - |
                   echo "===== payment-status-reconciler started at $(date -Iseconds) ====="
+
+                  echo "===== phase 1: stale COD PROCESSING payments ====="
 
                   PROCESSING_ROWS="$(
                     psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PAYMENT_DB" -At -F '|' -c "
@@ -60,48 +73,144 @@ spec:
 
                   if [ -z "$PROCESSING_ROWS" ]; then
                     echo "No stale COD PROCESSING payments found."
-                    exit 0
+                  else
+                    echo "Found stale COD PROCESSING payments:"
+                    echo "$PROCESSING_ROWS"
+
+                    for row in $PROCESSING_ROWS; do
+                      old_ifs="$IFS"
+                      IFS='|'
+                      set -- $row
+                      IFS="$old_ifs"
+
+                      payment_id="$1"
+                      order_id="$2"
+
+                      if [ -z "$payment_id" ] || [ -z "$order_id" ]; then
+                        continue
+                      fi
+
+                      tx_id="cod_reconciled_${payment_id}"
+
+                      psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PAYMENT_DB" -c "
+                        UPDATE payments
+                        SET status = 'COMPLETED',
+                            transaction_id = COALESCE(NULLIF(transaction_id, ''), '${tx_id}'),
+                            paid_at = COALESCE(paid_at, NOW()),
+                            failure_code = '',
+                            failure_reason = '',
+                            updated_at = NOW()
+                        WHERE id = '${payment_id}'
+                          AND status = 'PROCESSING'
+                          AND payment_method = 'COD'
+                        RETURNING id, order_id, status, transaction_id;
+                      "
+
+                      echo "Reconciled stale PROCESSING payment ${payment_id}, order ${order_id}"
+                    done
                   fi
 
-                  echo "Found stale COD PROCESSING payments:"
-                  echo "$PROCESSING_ROWS"
+                  echo "===== phase 2: missing payments after inventory RESERVED ====="
 
-                  completed_count=0
-
-                  echo "$PROCESSING_ROWS" | while IFS='|' read -r payment_id order_id; do
-                    if [ -z "$payment_id" ] || [ -z "$order_id" ]; then
-                      continue
-                    fi
-
-                    tx_id="cod_reconciled_${payment_id}"
-
-                    psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PAYMENT_DB" -c "
-                      UPDATE payments
-                      SET status = 'COMPLETED',
-                          transaction_id = COALESCE(NULLIF(transaction_id, ''), '${tx_id}'),
-                          updated_at = NOW()
-                      WHERE id = '${payment_id}'
-                        AND status = 'PROCESSING'
-                        AND payment_method = 'COD';
+                  MISSING_PAYMENT_ROWS="$(
+                    psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -At -F '|' -c "
+                      SELECT id, user_id, total_amount, currency, payment_method
+                      FROM orders
+                      WHERE status = 'PENDING'
+                        AND payment_method = 'COD'
+                        AND created_at < NOW() - (${MISSING_PAYMENT_AGE_SECONDS} || ' seconds')::interval
+                      ORDER BY created_at
+                      LIMIT ${BATCH_LIMIT};
                     "
+                  )"
 
-                    psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
-                      UPDATE orders
-                      SET status = 'COMPLETED',
-                          updated_at = NOW()
-                      WHERE id = '${order_id}'
-                        AND status = 'PENDING';
-                    "
+                  if [ -z "$MISSING_PAYMENT_ROWS" ]; then
+                    echo "No stale PENDING orders need missing-payment repair."
+                  else
+                    echo "Found stale PENDING order candidates:"
+                    echo "$MISSING_PAYMENT_ROWS"
 
-                    completed_count=$((completed_count + 1))
-                    echo "Reconciled payment ${payment_id}, order ${order_id}: PROCESSING/PENDING -> COMPLETED"
-                  done
+                    for row in $MISSING_PAYMENT_ROWS; do
+                      old_ifs="$IFS"
+                      IFS='|'
+                      set -- $row
+                      IFS="$old_ifs"
+
+                      order_id="$1"
+                      user_id="$2"
+                      amount="$3"
+                      currency="$4"
+                      payment_method="$5"
+
+                      if [ -z "$order_id" ] || [ -z "$user_id" ]; then
+                        continue
+                      fi
+
+                      inventory_reserved="$(
+                        psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$INVENTORY_DB" -At -c "
+                          SELECT COUNT(*)
+                          FROM inventory_reservations
+                          WHERE order_id = '${order_id}'::uuid
+                            AND status = 'RESERVED';
+                        "
+                      )"
+
+                      payment_rows="$(
+                        psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PAYMENT_DB" -At -c "
+                          SELECT COUNT(*)
+                          FROM payments
+                          WHERE order_id = '${order_id}'::uuid;
+                        "
+                      )"
+
+                      echo "candidate order_id=${order_id} inventory_reserved=${inventory_reserved} payment_rows=${payment_rows}"
+
+                      if [ "$inventory_reserved" = "1" ] && [ "$payment_rows" = "0" ]; then
+                        psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PAYMENT_DB" -v ON_ERROR_STOP=1 -c "
+                          INSERT INTO payments (
+                            id,
+                            order_id,
+                            user_id,
+                            amount,
+                            currency,
+                            payment_method,
+                            status,
+                            failure_code,
+                            failure_reason,
+                            transaction_id,
+                            idempotency_key,
+                            paid_at,
+                            created_at,
+                            updated_at
+                          )
+                          SELECT
+                            gen_random_uuid(),
+                            '${order_id}'::uuid,
+                            '${user_id}',
+                            ${amount},
+                            '${currency}',
+                            '${payment_method}',
+                            'COMPLETED',
+                            '',
+                            '',
+                            'reconcile_' || replace(gen_random_uuid()::text, '-', ''),
+                            'payment:${order_id}',
+                            NOW(),
+                            NOW(),
+                            NOW()
+                          WHERE NOT EXISTS (
+                            SELECT 1
+                            FROM payments
+                            WHERE order_id = '${order_id}'::uuid
+                          )
+                          RETURNING id, order_id, status, transaction_id;
+                        "
+
+                        echo "Created missing COMPLETED payment for order ${order_id}"
+                      else
+                        echo "Skipped order ${order_id}"
+                      fi
+                    done
+                  fi
 
                   echo "===== payment-status-reconciler finished at $(date -Iseconds) ====="
-              resources:
-                requests:
-                  cpu: 20m
-                  memory: 64Mi
-                limits:
-                  cpu: 200m
-                  memory: 128Mi
