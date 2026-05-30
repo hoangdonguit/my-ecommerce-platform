@@ -18,7 +18,7 @@ spec:
       serviceAccountName: order-service-sa
       containers:
       - name: order-service
-        image: hoangdonguit/order-service:order-outbox-reliability-20260530202151
+        image: hoangdonguit/order-service:hotpath-timeout-20260531002308
         ports:
         - containerPort: 8081
         resources:

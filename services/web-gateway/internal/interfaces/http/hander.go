@@ -144,7 +144,7 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 		idempotencyKey = "web-" + uuid.NewString()
 	}
 
-	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 15*time.Second)
 	defer cancel()
 
 	order, err := h.orders.CreateOrder(ctx, req, idempotencyKey)

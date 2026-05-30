@@ -55,13 +55,8 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 		message = "Order already exists for this idempotency key"
 	}
 
-	// --- LOGIC XÓA CACHE (INVALIDATION) ---
-	// Xóa toàn bộ cache liên quan đến danh sách order trên Dashboard để tránh dữ liệu thiu
-	keys, _ := h.redis.Keys(c.Request.Context(), "dashboard:orders:*").Result()
-	if len(keys) > 0 {
-		h.redis.Del(c.Request.Context(), keys...)
-	}
-	// --------------------------------------
+	// Avoid Redis KEYS invalidation in the synchronous CreateOrder hot path.
+	// Dashboard/read-model data is refreshed separately and should not block order creation.
 
 	c.JSON(statusCode, APIResponse{
 		Success: true,

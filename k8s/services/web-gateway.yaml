@@ -18,7 +18,7 @@ spec:
       serviceAccountName: web-gateway-sa
       containers:
       - name: web-gateway
-        image: hoangdonguit/web-gateway:read-cache-20260520004648
+        image: hoangdonguit/web-gateway:hotpath-timeout-20260531002308
         ports:
         - containerPort: 8090
         resources:
