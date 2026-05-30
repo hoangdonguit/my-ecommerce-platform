@@ -42,6 +42,7 @@ func (r *InventoryRepository) CreateOutboxEvent(ctx context.Context, tx pgx.Tx, 
 		event.MessageKey,
 		event.Payload,
 	)
+
 	return err
 }
 
@@ -94,6 +95,7 @@ func (r *InventoryRepository) FetchPendingOutboxEvents(ctx context.Context, limi
 
 	for rows.Next() {
 		var event domaininventory.OutboxEvent
+
 		if err := rows.Scan(
 			&event.ID,
 			&event.AggregateID,
@@ -122,7 +124,11 @@ func (r *InventoryRepository) FetchPendingOutboxEvents(ctx context.Context, limi
 	return events, nil
 }
 
-func (r *InventoryRepository) MarkOutboxEventPublished(ctx context.Context, id string) error {
+func (r *InventoryRepository) MarkOutboxEventsPublished(ctx context.Context, ids []string) error {
+	if len(ids) == 0 {
+		return nil
+	}
+
 	query := `
 		UPDATE inventory_outbox_events
 		SET
@@ -130,13 +136,18 @@ func (r *InventoryRepository) MarkOutboxEventPublished(ctx context.Context, id s
 			published_at = NOW(),
 			updated_at = NOW(),
 			last_error = NULL
-		WHERE id = $1
+		WHERE id = ANY($1::uuid[])
 	`
-	_, err := r.db.Exec(ctx, query, id)
+
+	_, err := r.db.Exec(ctx, query, ids)
 	return err
 }
 
-func (r *InventoryRepository) MarkOutboxEventFailed(ctx context.Context, id string, lastError string) error {
+func (r *InventoryRepository) MarkOutboxEventsFailed(ctx context.Context, ids []string, lastError string) error {
+	if len(ids) == 0 {
+		return nil
+	}
+
 	query := `
 		UPDATE inventory_outbox_events
 		SET
@@ -144,8 +155,17 @@ func (r *InventoryRepository) MarkOutboxEventFailed(ctx context.Context, id stri
 			last_error = $2,
 			next_attempt_at = NOW() + (LEAST(attempts, 12) * INTERVAL '10 seconds'),
 			updated_at = NOW()
-		WHERE id = $1
+		WHERE id = ANY($1::uuid[])
 	`
-	_, err := r.db.Exec(ctx, query, id, lastError)
+
+	_, err := r.db.Exec(ctx, query, ids, lastError)
 	return err
+}
+
+func (r *InventoryRepository) MarkOutboxEventPublished(ctx context.Context, id string) error {
+	return r.MarkOutboxEventsPublished(ctx, []string{id})
+}
+
+func (r *InventoryRepository) MarkOutboxEventFailed(ctx context.Context, id string, lastError string) error {
+	return r.MarkOutboxEventsFailed(ctx, []string{id}, lastError)
 }

@@ -113,9 +113,9 @@ func main() {
 
 func startOutboxPublisherLoop(ctx context.Context, repo *persistence.InventoryRepository, publisher *messaging.OutboxPublisher) {
 	batchSize := getEnvInt("OUTBOX_BATCH_SIZE", 100)
-	idleSleep := time.Duration(getEnvInt("OUTBOX_IDLE_SLEEP_MS", 1000)) * time.Millisecond
+	idleSleep := time.Duration(getEnvInt("OUTBOX_IDLE_SLEEP_MS", 200)) * time.Millisecond
 
-	log.Printf("inventory outbox publisher started batch_size=%d idle_sleep=%s", batchSize, idleSleep)
+	log.Printf("inventory outbox publisher started batch_size=%d idle_sleep=%s mode=batch", batchSize, idleSleep)
 
 	for {
 		select {
@@ -136,41 +136,38 @@ func startOutboxPublisherLoop(ctx context.Context, repo *persistence.InventoryRe
 			continue
 		}
 
+		ids := make([]string, 0, len(events))
 		for _, event := range events {
-			publishCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
-			err := publisher.PublishRaw(publishCtx, event.Topic, event.MessageKey, event.Payload)
-			cancel()
-
-			if err != nil {
-				log.Printf(
-					"inventory outbox publish failed id=%s aggregate_id=%s event_type=%s topic=%s attempts=%d err=%v",
-					event.ID,
-					event.AggregateID,
-					event.EventType,
-					event.Topic,
-					event.Attempts,
-					err,
-				)
-				if markErr := repo.MarkOutboxEventFailed(ctx, event.ID, err.Error()); markErr != nil {
-					log.Printf("inventory outbox mark failed failed id=%s err=%v", event.ID, markErr)
-				}
-				continue
-			}
-
-			if err := repo.MarkOutboxEventPublished(ctx, event.ID); err != nil {
-				log.Printf("inventory outbox mark published failed id=%s err=%v", event.ID, err)
-				continue
-			}
-
-			log.Printf(
-				"inventory outbox published id=%s aggregate_id=%s event_type=%s topic=%s attempts=%d",
-				event.ID,
-				event.AggregateID,
-				event.EventType,
-				event.Topic,
-				event.Attempts,
-			)
+			ids = append(ids, event.ID)
 		}
+
+		publishCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+		err = publisher.PublishBatch(publishCtx, events)
+		cancel()
+
+		if err != nil {
+			log.Printf("inventory outbox batch publish failed count=%d err=%v", len(events), err)
+
+			if markErr := repo.MarkOutboxEventsFailed(ctx, ids, err.Error()); markErr != nil {
+				log.Printf("inventory outbox batch mark failed failed count=%d err=%v", len(ids), markErr)
+			}
+
+			time.Sleep(idleSleep)
+			continue
+		}
+
+		if err := repo.MarkOutboxEventsPublished(ctx, ids); err != nil {
+			log.Printf("inventory outbox batch mark published failed count=%d err=%v", len(ids), err)
+			time.Sleep(idleSleep)
+			continue
+		}
+
+		log.Printf(
+			"inventory outbox batch published count=%d first_aggregate_id=%s last_aggregate_id=%s",
+			len(events),
+			events[0].AggregateID,
+			events[len(events)-1].AggregateID,
+		)
 	}
 }
 
