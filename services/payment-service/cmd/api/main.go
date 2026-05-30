@@ -8,7 +8,6 @@ import (
 	paymentapp "github.com/hoangdonguit/my-ecommerce-platform/payment-service/internal/app/payment"
 	"github.com/hoangdonguit/my-ecommerce-platform/payment-service/internal/config"
 	"github.com/hoangdonguit/my-ecommerce-platform/payment-service/internal/infrastructure/db"
-	"github.com/hoangdonguit/my-ecommerce-platform/payment-service/internal/infrastructure/messaging"
 	"github.com/hoangdonguit/my-ecommerce-platform/payment-service/internal/infrastructure/persistence"
 	httpapi "github.com/hoangdonguit/my-ecommerce-platform/payment-service/internal/interfaces/http"
 )
@@ -30,15 +29,10 @@ func main() {
 
 	repo := persistence.NewPaymentRepository(pool)
 
-	publisher := messaging.NewPaymentPublisher(
-		cfg.KafkaBroker,
-		cfg.PaymentCompletedTopic,
-		cfg.PaymentFailedTopic,
-	)
-	defer publisher.Close()
-
 	gateway := paymentapp.NewSimulatedPaymentGateway()
-	service := paymentapp.NewService(repo, publisher, gateway)
+
+	// Payment terminal events are emitted via payment_outbox_events.
+	service := paymentapp.NewService(repo, nil, gateway)
 	handler := httpapi.NewPaymentHandler(service)
 
 	router := httpapi.SetupRouter(handler)

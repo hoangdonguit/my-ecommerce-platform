@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
+	"strconv"
 	"time"
 
 	paymentapp "github.com/hoangdonguit/my-ecommerce-platform/payment-service/internal/app/payment"
@@ -42,15 +44,23 @@ func main() {
 
 	repo := persistence.NewPaymentRepository(pool)
 
-	publisher := messaging.NewPaymentPublisher(
+	eventPublisher := messaging.NewPaymentPublisher(
 		cfg.KafkaBroker,
 		cfg.PaymentCompletedTopic,
 		cfg.PaymentFailedTopic,
 	)
-	defer publisher.Close()
+	defer eventPublisher.Close()
+
+	outboxPublisher := messaging.NewPaymentOutboxPublisher(cfg.KafkaBroker)
+	defer outboxPublisher.Close()
+
+	go startPaymentOutboxPublisherLoop(ctx, repo, outboxPublisher)
 
 	gateway := paymentapp.NewSimulatedPaymentGateway()
-	service := paymentapp.NewService(repo, publisher, gateway)
+
+	// Payment terminal events are now published by payment_outbox_events.
+	// Keep direct publisher disabled in the business service to avoid duplicate events.
+	service := paymentapp.NewService(repo, nil, gateway)
 
 	reader := kafkago.NewReader(kafkago.ReaderConfig{
 		Brokers: []string{cfg.KafkaBroker},
@@ -115,6 +125,80 @@ func main() {
 			continue
 		}
 	}
+}
+
+func startPaymentOutboxPublisherLoop(ctx context.Context, repo *persistence.PaymentRepository, publisher *messaging.PaymentOutboxPublisher) {
+	batchSize := getEnvInt("PAYMENT_OUTBOX_BATCH_SIZE", 200)
+	idleSleep := time.Duration(getEnvInt("PAYMENT_OUTBOX_IDLE_SLEEP_MS", 200)) * time.Millisecond
+
+	log.Printf("payment outbox publisher started batch_size=%d idle_sleep=%s mode=batch", batchSize, idleSleep)
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+		}
+
+		events, err := repo.FetchPendingOutboxEvents(ctx, batchSize)
+		if err != nil {
+			log.Printf("payment outbox fetch failed err=%v", err)
+			time.Sleep(idleSleep)
+			continue
+		}
+
+		if len(events) == 0 {
+			time.Sleep(idleSleep)
+			continue
+		}
+
+		ids := make([]string, 0, len(events))
+		for _, event := range events {
+			ids = append(ids, event.ID)
+		}
+
+		publishCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+		err = publisher.PublishBatch(publishCtx, events)
+		cancel()
+
+		if err != nil {
+			log.Printf("payment outbox batch publish failed count=%d err=%v", len(events), err)
+
+			if markErr := repo.MarkOutboxEventsFailed(ctx, ids, err.Error()); markErr != nil {
+				log.Printf("payment outbox batch mark failed failed count=%d err=%v", len(ids), markErr)
+			}
+
+			time.Sleep(idleSleep)
+			continue
+		}
+
+		if err := repo.MarkOutboxEventsPublished(ctx, ids); err != nil {
+			log.Printf("payment outbox batch mark published failed count=%d err=%v", len(ids), err)
+			time.Sleep(idleSleep)
+			continue
+		}
+
+		log.Printf(
+			"payment outbox batch published count=%d first_aggregate_id=%s last_aggregate_id=%s",
+			len(events),
+			events[0].AggregateID,
+			events[len(events)-1].AggregateID,
+		)
+	}
+}
+
+func getEnvInt(key string, fallback int) int {
+	raw := os.Getenv(key)
+	if raw == "" {
+		return fallback
+	}
+
+	value, err := strconv.Atoi(raw)
+	if err != nil || value <= 0 {
+		return fallback
+	}
+
+	return value
 }
 
 func processPaymentMessage(ctx context.Context, service *paymentapp.Service, msg kafkago.Message) error {

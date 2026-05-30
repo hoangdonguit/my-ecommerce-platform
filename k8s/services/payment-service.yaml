@@ -18,7 +18,7 @@ spec:
       serviceAccountName: payment-api-sa
       containers:
       - name: payment-api
-        image: hoangdonguit/payment-service:payment-resume-processing-20260529194944
+        image: hoangdonguit/payment-service:payment-outbox-20260530171950
         command: ["/app/payment-api"]
         ports:
         - containerPort: 8083
@@ -67,7 +67,7 @@ spec:
       serviceAccountName: payment-consumer-sa
       containers:
       - name: payment-consumer
-        image: hoangdonguit/payment-service:payment-resume-processing-20260529194944
+        image: hoangdonguit/payment-service:payment-outbox-20260530171950
         command: ["/app/payment-consumer"]
         resources:
           limits:
@@ -93,6 +93,10 @@ spec:
             configMapKeyRef:
               name: ecommerce-runtime-config
               key: KAFKA_BROKER
+        - name: PAYMENT_OUTBOX_BATCH_SIZE
+          value: "200"
+        - name: PAYMENT_OUTBOX_IDLE_SLEEP_MS
+          value: "200"
 
 ---
 apiVersion: v1
