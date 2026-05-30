@@ -1,0 +1,37 @@
+--- server version ---
+                                   version                                    
+------------------------------------------------------------------------------
+ PostgreSQL 18.4 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 12.2.0, 64-bit
+(1 row)
+
+--- wal/logical replication settings ---
+ wal_level 
+-----------
+ replica
+(1 row)
+
+ max_replication_slots 
+-----------------------
+ 10
+(1 row)
+
+ max_wal_senders 
+-----------------
+ 16
+(1 row)
+
+ max_slot_wal_keep_size 
+------------------------
+ -1
+(1 row)
+
+--- replication slots ---
+ slot_name | plugin | slot_type | database | active | restart_lsn | confirmed_flush_lsn 
+-----------+--------+-----------+----------+--------+-------------+---------------------
+(0 rows)
+
+--- publications ---
+ pubname | puballtables | pubinsert | pubupdate | pubdelete 
+---------+--------------+-----------+-----------+-----------
+(0 rows)
+

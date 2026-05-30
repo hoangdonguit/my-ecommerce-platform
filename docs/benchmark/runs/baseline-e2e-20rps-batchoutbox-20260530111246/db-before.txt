@@ -1,0 +1,34 @@
+--- inventory outbox ---
+  status   | count 
+-----------+-------
+ PUBLISHED |  1234
+(1 row)
+
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  5966
+ FAILED    |     4
+(2 rows)
+
+--- inventory ---
+   status   | count 
+------------+-------
+ FAILED     |     2
+ RESERVED   |  5966
+ ROLLBACKED |     2
+(3 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  5966
+ FAILED    |     2
+(2 rows)
+
+--- notifications ---
+ status | count 
+--------+-------
+ SENT   |  5907
+(1 row)
+

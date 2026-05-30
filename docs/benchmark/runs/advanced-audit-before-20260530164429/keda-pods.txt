@@ -1,0 +1,4 @@
+keda          keda-admission-webhooks-7b48797dc8-xl2cs                    1/1     Running     0             43h
+keda          keda-operator-55db59458d-mdkc9                              1/1     Running     1 (43h ago)   43h
+keda          keda-operator-metrics-apiserver-5c648889d4-6cbnh            1/1     Running     0             43h
+kube-system   metrics-server-786d997795-dt2n9                             1/1     Running     0             46h

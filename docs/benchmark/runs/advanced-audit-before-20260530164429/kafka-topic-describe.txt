@@ -1,0 +1,55 @@
+
+----- topic=order.created -----
+Topic: order.created	TopicId: bxNGmMFIRDq_PUNRpmyLWQ	PartitionCount: 8	ReplicationFactor: 1	Configs: 
+	Topic: order.created	Partition: 0	Leader: 0	Replicas: 0	Isr: 0
+	Topic: order.created	Partition: 1	Leader: 0	Replicas: 0	Isr: 0
+	Topic: order.created	Partition: 2	Leader: 0	Replicas: 0	Isr: 0
+	Topic: order.created	Partition: 3	Leader: 0	Replicas: 0	Isr: 0
+	Topic: order.created	Partition: 4	Leader: 0	Replicas: 0	Isr: 0
+	Topic: order.created	Partition: 5	Leader: 0	Replicas: 0	Isr: 0
+	Topic: order.created	Partition: 6	Leader: 0	Replicas: 0	Isr: 0
+	Topic: order.created	Partition: 7	Leader: 0	Replicas: 0	Isr: 0
+
+----- topic=inventory.reserved -----
+Topic: inventory.reserved	TopicId: 6u93DbF0QIecJ75_3sCVoQ	PartitionCount: 8	ReplicationFactor: 1	Configs: 
+	Topic: inventory.reserved	Partition: 0	Leader: 0	Replicas: 0	Isr: 0
+	Topic: inventory.reserved	Partition: 1	Leader: 0	Replicas: 0	Isr: 0
+	Topic: inventory.reserved	Partition: 2	Leader: 0	Replicas: 0	Isr: 0
+	Topic: inventory.reserved	Partition: 3	Leader: 0	Replicas: 0	Isr: 0
+	Topic: inventory.reserved	Partition: 4	Leader: 0	Replicas: 0	Isr: 0
+	Topic: inventory.reserved	Partition: 5	Leader: 0	Replicas: 0	Isr: 0
+	Topic: inventory.reserved	Partition: 6	Leader: 0	Replicas: 0	Isr: 0
+	Topic: inventory.reserved	Partition: 7	Leader: 0	Replicas: 0	Isr: 0
+
+----- topic=inventory.failed -----
+Topic: inventory.failed	TopicId: 5D0hLE7dSYO90oKPdJfCxQ	PartitionCount: 8	ReplicationFactor: 1	Configs: 
+	Topic: inventory.failed	Partition: 0	Leader: 0	Replicas: 0	Isr: 0
+	Topic: inventory.failed	Partition: 1	Leader: 0	Replicas: 0	Isr: 0
+	Topic: inventory.failed	Partition: 2	Leader: 0	Replicas: 0	Isr: 0
+	Topic: inventory.failed	Partition: 3	Leader: 0	Replicas: 0	Isr: 0
+	Topic: inventory.failed	Partition: 4	Leader: 0	Replicas: 0	Isr: 0
+	Topic: inventory.failed	Partition: 5	Leader: 0	Replicas: 0	Isr: 0
+	Topic: inventory.failed	Partition: 6	Leader: 0	Replicas: 0	Isr: 0
+	Topic: inventory.failed	Partition: 7	Leader: 0	Replicas: 0	Isr: 0
+
+----- topic=payment.completed -----
+Topic: payment.completed	TopicId: bKEAVNPPQrmzAUVyB5BsZw	PartitionCount: 8	ReplicationFactor: 1	Configs: 
+	Topic: payment.completed	Partition: 0	Leader: 0	Replicas: 0	Isr: 0
+	Topic: payment.completed	Partition: 1	Leader: 0	Replicas: 0	Isr: 0
+	Topic: payment.completed	Partition: 2	Leader: 0	Replicas: 0	Isr: 0
+	Topic: payment.completed	Partition: 3	Leader: 0	Replicas: 0	Isr: 0
+	Topic: payment.completed	Partition: 4	Leader: 0	Replicas: 0	Isr: 0
+	Topic: payment.completed	Partition: 5	Leader: 0	Replicas: 0	Isr: 0
+	Topic: payment.completed	Partition: 6	Leader: 0	Replicas: 0	Isr: 0
+	Topic: payment.completed	Partition: 7	Leader: 0	Replicas: 0	Isr: 0
+
+----- topic=payment.failed -----
+Topic: payment.failed	TopicId: AQEjoi8KSRKIv4osx7E0eQ	PartitionCount: 8	ReplicationFactor: 1	Configs: 
+	Topic: payment.failed	Partition: 0	Leader: 0	Replicas: 0	Isr: 0
+	Topic: payment.failed	Partition: 1	Leader: 0	Replicas: 0	Isr: 0
+	Topic: payment.failed	Partition: 2	Leader: 0	Replicas: 0	Isr: 0
+	Topic: payment.failed	Partition: 3	Leader: 0	Replicas: 0	Isr: 0
+	Topic: payment.failed	Partition: 4	Leader: 0	Replicas: 0	Isr: 0
+	Topic: payment.failed	Partition: 5	Leader: 0	Replicas: 0	Isr: 0
+	Topic: payment.failed	Partition: 6	Leader: 0	Replicas: 0	Isr: 0
+	Topic: payment.failed	Partition: 7	Leader: 0	Replicas: 0	Isr: 0

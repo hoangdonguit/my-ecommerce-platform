@@ -1,0 +1,8 @@
+NAMESPACE   NAME                           SCALETARGETKIND      SCALETARGETNAME         MIN   MAX   READY   ACTIVE   FALLBACK   PAUSED   TRIGGERS   AUTHENTICATIONS   AGE
+default     inventory-api-scaler           apps/v1.Deployment   inventory-api           1     8     True    True     False      False    cpu                          43h
+default     inventory-consumer-scaler      apps/v1.Deployment   inventory-consumer      1     16    True    False    False      False    kafka                        43h
+default     notification-api-scaler        apps/v1.Deployment   notification-api        1     8     True    True     False      False    cpu                          43h
+default     notification-consumer-scaler   apps/v1.Deployment   notification-consumer   1     16    True    True     False      False    kafka                        43h
+default     order-service-scaler           apps/v1.Deployment   order-service           1     8     True    True     False      False    cpu                          43h
+default     payment-api-scaler             apps/v1.Deployment   payment-api             1     8     True    True     False      False    cpu                          43h
+default     payment-consumer-scaler        apps/v1.Deployment   payment-consumer        1     16    True    False    False      False    kafka                        43h

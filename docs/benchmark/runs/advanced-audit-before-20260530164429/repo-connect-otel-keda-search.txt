@@ -1,0 +1,39 @@
+./docs/benchmark/runs/advanced-audit-before-20260530164429/hpa-all.txt:2:default     keda-hpa-inventory-api-scaler           Deployment/inventory-api           cpu: 0%/25%                1         8         1          43h
+./docs/benchmark/runs/advanced-audit-before-20260530164429/hpa-all.txt:3:default     keda-hpa-inventory-consumer-scaler      Deployment/inventory-consumer      20/20 (avg)                1         16        1          43h
+./docs/benchmark/runs/advanced-audit-before-20260530164429/hpa-all.txt:4:default     keda-hpa-notification-api-scaler        Deployment/notification-api        cpu: 0%/25%                1         8         1          43h
+./docs/benchmark/runs/advanced-audit-before-20260530164429/hpa-all.txt:5:default     keda-hpa-notification-consumer-scaler   Deployment/notification-consumer   20/20 (avg), 20/20 (avg)   1         16        1          43h
+./docs/benchmark/runs/advanced-audit-before-20260530164429/hpa-all.txt:6:default     keda-hpa-order-service-scaler           Deployment/order-service           cpu: 1%/25%                1         8         1          43h
+./docs/benchmark/runs/advanced-audit-before-20260530164429/hpa-all.txt:7:default     keda-hpa-payment-api-scaler             Deployment/payment-api             cpu: 0%/25%                1         8         1          43h
+./docs/benchmark/runs/advanced-audit-before-20260530164429/hpa-all.txt:8:default     keda-hpa-payment-consumer-scaler        Deployment/payment-consumer        20/20 (avg)                1         16        1          43h
+./docs/benchmark/runs/advanced-audit-before-20260530164429/keda-pods.txt:1:keda          keda-admission-webhooks-7b48797dc8-xl2cs                    1/1     Running     0             43h
+./docs/benchmark/runs/advanced-audit-before-20260530164429/keda-pods.txt:2:keda          keda-operator-55db59458d-mdkc9                              1/1     Running     1 (43h ago)   43h
+./docs/benchmark/runs/advanced-audit-before-20260530164429/keda-pods.txt:3:keda          keda-operator-metrics-apiserver-5c648889d4-6cbnh            1/1     Running     0             43h
+./docs/benchmark/runs/advanced-audit-before-20260530164429/pods-all.txt:41:keda          keda-admission-webhooks-7b48797dc8-xl2cs                    1/1     Running     0             43h     10.42.1.9         vm2-mesh      <none>           <none>
+./docs/benchmark/runs/advanced-audit-before-20260530164429/pods-all.txt:42:keda          keda-operator-55db59458d-mdkc9                              1/1     Running     1 (43h ago)   43h     10.42.1.7         vm2-mesh      <none>           <none>
+./docs/benchmark/runs/advanced-audit-before-20260530164429/pods-all.txt:43:keda          keda-operator-metrics-apiserver-5c648889d4-6cbnh            1/1     Running     0             43h     10.42.1.8         vm2-mesh      <none>           <none>
+./README.md:307:The restore check creates a temporary database, restores a dump file, verifies tables and row counts, and then removes the temporary database. It does not overwrite production data.
+./README.md:703:- Evaluate OpenTelemetry, Vault, and Debezium as future enhancements.
+./README.md:745:- Consider Istio Canary, OpenTelemetry, Vault, and Debezium as optional advanced extensions.
+./docs/report/progress-after-12-05-upgrades.md:123:- OpenTelemetry tracing.
+./k8s/services/api-keda-scale.yaml:1:apiVersion: keda.sh/v1alpha1
+./k8s/services/api-keda-scale.yaml:2:kind: ScaledObject
+./k8s/services/api-keda-scale.yaml:19:apiVersion: keda.sh/v1alpha1
+./k8s/services/api-keda-scale.yaml:20:kind: ScaledObject
+./k8s/services/api-keda-scale.yaml:35:apiVersion: keda.sh/v1alpha1
+./k8s/services/api-keda-scale.yaml:36:kind: ScaledObject
+./k8s/services/api-keda-scale.yaml:51:apiVersion: keda.sh/v1alpha1
+./k8s/services/api-keda-scale.yaml:52:kind: ScaledObject
+./k8s/services/consumer-keda-scale.yaml:1:apiVersion: keda.sh/v1alpha1
+./k8s/services/consumer-keda-scale.yaml:2:kind: ScaledObject
+./k8s/services/consumer-keda-scale.yaml:17:      consumerGroup: inventory-service-group
+./k8s/services/consumer-keda-scale.yaml:19:      lagThreshold: "20"
+./k8s/services/consumer-keda-scale.yaml:29:apiVersion: keda.sh/v1alpha1
+./k8s/services/consumer-keda-scale.yaml:30:kind: ScaledObject
+./k8s/services/consumer-keda-scale.yaml:45:      consumerGroup: payment-service-group
+./k8s/services/consumer-keda-scale.yaml:47:      lagThreshold: "20"
+./k8s/services/consumer-keda-scale.yaml:57:apiVersion: keda.sh/v1alpha1
+./k8s/services/consumer-keda-scale.yaml:58:kind: ScaledObject
+./k8s/services/consumer-keda-scale.yaml:73:      consumerGroup: notification-service-group
+./k8s/services/consumer-keda-scale.yaml:75:      lagThreshold: "20"
+./k8s/services/consumer-keda-scale.yaml:86:      consumerGroup: notification-service-group
+./k8s/services/consumer-keda-scale.yaml:88:      lagThreshold: "20"

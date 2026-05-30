@@ -1,0 +1,8 @@
+NAMESPACE   NAME                                    REFERENCE                          TARGETS                    MINPODS   MAXPODS   REPLICAS   AGE
+default     keda-hpa-inventory-api-scaler           Deployment/inventory-api           cpu: 0%/25%                1         8         1          43h
+default     keda-hpa-inventory-consumer-scaler      Deployment/inventory-consumer      20/20 (avg)                1         16        1          43h
+default     keda-hpa-notification-api-scaler        Deployment/notification-api        cpu: 0%/25%                1         8         1          43h
+default     keda-hpa-notification-consumer-scaler   Deployment/notification-consumer   20/20 (avg), 20/20 (avg)   1         16        1          43h
+default     keda-hpa-order-service-scaler           Deployment/order-service           cpu: 1%/25%                1         8         1          43h
+default     keda-hpa-payment-api-scaler             Deployment/payment-api             cpu: 0%/25%                1         8         1          43h
+default     keda-hpa-payment-consumer-scaler        Deployment/payment-consumer        20/20 (avg)                1         16        1          43h

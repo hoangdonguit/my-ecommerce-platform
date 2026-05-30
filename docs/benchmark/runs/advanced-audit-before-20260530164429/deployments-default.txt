@@ -1,0 +1,13 @@
+NAME                    READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS              IMAGES                                                                     SELECTOR
+ecommerce-dashboard     1/1     1            1           40h   ecommerce-dashboard     hoangdonguit/ecommerce-dashboard:dashboard-ui-polish-20260529142705        app=ecommerce-dashboard
+inventory-api           1/1     1            1           43h   inventory-api           hoangdonguit/inventory-service:inventory-outbox-batch-20260530105626       app=inventory-api
+inventory-consumer      1/1     1            1           43h   inventory-consumer      hoangdonguit/inventory-service:inventory-outbox-batch-20260530105626       app=inventory-consumer
+mongodb                 1/1     1            1           43h   mongodb                 mongo:7                                                                    app=mongodb
+notification-api        1/1     1            1           43h   notification-api        hoangdonguit/notification-service:dlq-retry-20260520020224                 app=notification-api
+notification-consumer   1/1     1            1           43h   notification-consumer   hoangdonguit/notification-service:dlq-retry-20260520020224                 app=notification-consumer
+order-service           1/1     1            1           43h   order-service           hoangdonguit/order-service:order-saga-commitfix-limit1000-20260529124717   app=order-service
+payment-api             1/1     1            1           43h   payment-api             hoangdonguit/payment-service:payment-resume-processing-20260529194944      app=payment-api
+payment-consumer        1/1     1            1           43h   payment-consumer        hoangdonguit/payment-service:payment-resume-processing-20260529194944      app=payment-consumer
+read-model-service      1/1     1            1           43h   read-model-service      hoangdonguit/read-model-service:readmodel-limit1000-20260529124717         app=read-model-service
+redis                   1/1     1            1           43h   redis                   redis:6.2-alpine                                                           app=redis
+web-gateway             1/1     1            1           43h   web-gateway             hoangdonguit/web-gateway:read-cache-20260520004648                         app=web-gateway

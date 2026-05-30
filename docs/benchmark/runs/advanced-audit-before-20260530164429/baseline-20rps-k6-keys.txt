@@ -1,0 +1,22 @@
+[
+  "accepted_orders",
+  "checks",
+  "data_received",
+  "data_sent",
+  "dropped_iterations",
+  "http_req_blocked",
+  "http_req_connecting",
+  "http_req_duration",
+  "http_req_duration{expected_response:true}",
+  "http_req_failed",
+  "http_req_receiving",
+  "http_req_sending",
+  "http_req_tls_handshaking",
+  "http_req_waiting",
+  "http_reqs",
+  "iteration_duration",
+  "iterations",
+  "unexpected_error_rate",
+  "vus",
+  "vus_max"
+]

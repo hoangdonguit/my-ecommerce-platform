@@ -1,0 +1,321 @@
+===== WAIT 20RPS BATCH OUTBOX SAGA DRAIN =====
+RUN_ID=baseline-e2e-20rps-batchoutbox-20260530111246
+RUN_DIR=docs/benchmark/runs/baseline-e2e-20rps-batchoutbox-20260530111246
+drain_started_at=2026-05-30T11:13:56+07:00
+
+===== DRAIN CHECK 1 / 40 =====
+2026-05-30T11:13:56+07:00
+--- inventory outbox ---
+   status   | count 
+------------+-------
+ PROCESSING |    24
+ PUBLISHED  |  1600
+(2 rows)
+
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  5987
+ FAILED    |     4
+ PENDING   |  1174
+(3 rows)
+
+--- payments ---
+   status   | count 
+------------+-------
+ COMPLETED  |  5993
+ FAILED     |     2
+ PROCESSING |     4
+(3 rows)
+
+LAG_NONZERO=17
+PENDING_COUNT=1108
+PROCESSING_COUNT=0
+OUTBOX_OPEN=12
+
+===== DRAIN CHECK 2 / 40 =====
+2026-05-30T11:14:40+07:00
+--- inventory outbox ---
+   status   | count 
+------------+-------
+ PROCESSING |     7
+ PUBLISHED  |  1918
+(2 rows)
+
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  6070
+ FAILED    |     4
+ PENDING   |  1091
+(3 rows)
+
+--- payments ---
+   status   | count 
+------------+-------
+ COMPLETED  |  6072
+ FAILED     |     2
+ PROCESSING |     1
+(3 rows)
+
+LAG_NONZERO=14
+PENDING_COUNT=1050
+PROCESSING_COUNT=3
+OUTBOX_OPEN=13
+
+===== DRAIN CHECK 3 / 40 =====
+2026-05-30T11:15:24+07:00
+--- inventory outbox ---
+   status   | count 
+------------+-------
+ PENDING    |     2
+ PROCESSING |    16
+ PUBLISHED  |  2260
+(3 rows)
+
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  6242
+ FAILED    |     4
+ PENDING   |   919
+(3 rows)
+
+--- payments ---
+   status   | count 
+------------+-------
+ COMPLETED  |  6272
+ FAILED     |     2
+ PROCESSING |     1
+(3 rows)
+
+LAG_NONZERO=12
+PENDING_COUNT=785
+PROCESSING_COUNT=0
+OUTBOX_OPEN=0
+
+===== DRAIN CHECK 4 / 40 =====
+2026-05-30T11:16:11+07:00
+--- inventory outbox ---
+  status   | count 
+-----------+-------
+ PUBLISHED |  2429
+(1 row)
+
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  6503
+ FAILED    |     4
+ PENDING   |   658
+(3 rows)
+
+--- payments ---
+   status   | count 
+------------+-------
+ COMPLETED  |  6530
+ FAILED     |     2
+ PROCESSING |     3
+(3 rows)
+
+LAG_NONZERO=9
+PENDING_COUNT=520
+PROCESSING_COUNT=0
+OUTBOX_OPEN=0
+
+===== DRAIN CHECK 5 / 40 =====
+2026-05-30T11:17:00+07:00
+--- inventory outbox ---
+  status   | count 
+-----------+-------
+ PUBLISHED |  2429
+(1 row)
+
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  6762
+ FAILED    |     4
+ PENDING   |   399
+(3 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  6783
+ FAILED    |     2
+(2 rows)
+
+LAG_NONZERO=12
+PENDING_COUNT=368
+PROCESSING_COUNT=0
+OUTBOX_OPEN=0
+
+===== DRAIN CHECK 6 / 40 =====
+2026-05-30T11:17:38+07:00
+--- inventory outbox ---
+  status   | count 
+-----------+-------
+ PUBLISHED |  2429
+(1 row)
+
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  6801
+ FAILED    |     4
+ PENDING   |   360
+(3 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  6819
+ FAILED    |     2
+(2 rows)
+
+LAG_NONZERO=10
+PENDING_COUNT=286
+PROCESSING_COUNT=0
+OUTBOX_OPEN=0
+
+===== DRAIN CHECK 7 / 40 =====
+2026-05-30T11:18:19+07:00
+--- inventory outbox ---
+  status   | count 
+-----------+-------
+ PUBLISHED |  2429
+(1 row)
+
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  6949
+ FAILED    |     4
+ PENDING   |   212
+(3 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  6958
+ FAILED    |     2
+(2 rows)
+
+LAG_NONZERO=6
+PENDING_COUNT=150
+PROCESSING_COUNT=0
+OUTBOX_OPEN=0
+
+===== DRAIN CHECK 8 / 40 =====
+2026-05-30T11:19:00+07:00
+--- inventory outbox ---
+  status   | count 
+-----------+-------
+ PUBLISHED |  2429
+(1 row)
+
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  7053
+ FAILED    |     4
+ PENDING   |   108
+(3 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  7059
+ FAILED    |     2
+(2 rows)
+
+LAG_NONZERO=5
+PENDING_COUNT=70
+PROCESSING_COUNT=0
+OUTBOX_OPEN=0
+
+===== DRAIN CHECK 9 / 40 =====
+2026-05-30T11:19:39+07:00
+--- inventory outbox ---
+  status   | count 
+-----------+-------
+ PUBLISHED |  2429
+(1 row)
+
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  7106
+ FAILED    |     4
+ PENDING   |    55
+(3 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  7109
+ FAILED    |     2
+(2 rows)
+
+LAG_NONZERO=2
+PENDING_COUNT=36
+PROCESSING_COUNT=0
+OUTBOX_OPEN=0
+
+===== DRAIN CHECK 10 / 40 =====
+2026-05-30T11:20:16+07:00
+--- inventory outbox ---
+  status   | count 
+-----------+-------
+ PUBLISHED |  2429
+(1 row)
+
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  7140
+ FAILED    |     4
+ PENDING   |    21
+(3 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  7142
+ FAILED    |     2
+(2 rows)
+
+LAG_NONZERO=2
+PENDING_COUNT=7
+PROCESSING_COUNT=0
+OUTBOX_OPEN=0
+
+===== DRAIN CHECK 11 / 40 =====
+2026-05-30T11:20:49+07:00
+--- inventory outbox ---
+  status   | count 
+-----------+-------
+ PUBLISHED |  2429
+(1 row)
+
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED |  7161
+ FAILED    |     4
+(2 rows)
+
+--- payments ---
+  status   | count 
+-----------+-------
+ COMPLETED |  7161
+ FAILED    |     2
+(2 rows)
+
+LAG_NONZERO=0
+PENDING_COUNT=0
+PROCESSING_COUNT=0
+OUTBOX_OPEN=0
+FINAL_20RPS_BATCH_OUTBOX_E2E_DRAIN_OK
+drain_finished_at=2026-05-30T11:21:12+07:00
