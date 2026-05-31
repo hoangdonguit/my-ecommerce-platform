@@ -1,0 +1,18 @@
+Live ClickHouse CDC proof:
+
+Order lifecycle captured in ClickHouse:
+
+Row 1:
+status: PENDING
+op: c
+
+Row 2:
+status: COMPLETED
+op: u
+
+Connector:
+order-db-orders-flat-connector RUNNING
+task 0 RUNNING
+
+Pod check:
+No bad pods.

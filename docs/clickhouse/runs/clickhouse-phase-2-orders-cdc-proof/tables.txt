@@ -1,0 +1,3 @@
+analytics	mv_orders_flat_cdc_events	MaterializedView
+analytics	orders_flat_cdc_events	MergeTree
+analytics	orders_flat_cdc_queue	Kafka
