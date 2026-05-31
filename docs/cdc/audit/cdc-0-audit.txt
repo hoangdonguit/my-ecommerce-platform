@@ -1,0 +1,147 @@
+===== CDC-0 AUDIT START =====
+2026-05-31T23:39:08+07:00
+===== GIT / ARGO =====
+?? docs/cdc/
+NAME                       SYNC STATUS   HEALTH STATUS   REVISION                                   PROJECT
+ecommerce-infrastructure   Synced        Healthy         39cbe0614f3542e6f3d5ebd6145e47c3a4cd54a2   default
+ecommerce-platform         Synced        Healthy         39cbe0614f3542e6f3d5ebd6145e47c3a4cd54a2   default
+infrastructure-layer       Synced        Healthy         39cbe0614f3542e6f3d5ebd6145e47c3a4cd54a2   default
+===== POSTGRES CDC SETTINGS =====
+ wal_level 
+-----------
+ replica
+(1 row)
+
+ max_replication_slots 
+-----------------------
+ 10
+(1 row)
+
+ max_wal_senders 
+-----------------
+ 16
+(1 row)
+
+ max_slot_wal_keep_size 
+------------------------
+ -1
+(1 row)
+
+ listen_addresses 
+------------------
+ *
+(1 row)
+
+ shared_preload_libraries 
+--------------------------
+ pgaudit
+(1 row)
+
+--- replication slots ---
+ slot_name | plugin | slot_type | database | active | restart_lsn | confirmed_flush_lsn 
+-----------+--------+-----------+----------+--------+-------------+---------------------
+(0 rows)
+
+--- publications per db ---
+### DB=order_db
+ pubname | puballtables | pubinsert | pubupdate | pubdelete | pubtruncate 
+---------+--------------+-----------+-----------+-----------+-------------
+(0 rows)
+
+### DB=inventory_db
+ pubname | puballtables | pubinsert | pubupdate | pubdelete | pubtruncate 
+---------+--------------+-----------+-----------+-----------+-------------
+(0 rows)
+
+### DB=payment_db
+ pubname | puballtables | pubinsert | pubupdate | pubdelete | pubtruncate 
+---------+--------------+-----------+-----------+-----------+-------------
+(0 rows)
+
+### DB=notification_db
+ pubname | puballtables | pubinsert | pubupdate | pubdelete | pubtruncate 
+---------+--------------+-----------+-----------+-----------+-------------
+(0 rows)
+
+===== POSTGRES TABLES / PRIMARY KEYS =====
+
+### DB=order_db tables
+ table_schema | table_name  
+--------------+-------------
+ public       | order_items
+ public       | orders
+ public       | outbox
+(3 rows)
+
+
+### DB=order_db primary keys
+ table_name  | column_name 
+-------------+-------------
+ order_items | id
+ orders      | id
+ outbox      | id
+(3 rows)
+
+
+### DB=inventory_db tables
+ table_schema |         table_name          
+--------------+-----------------------------
+ public       | inventories
+ public       | inventory_outbox_events
+ public       | inventory_reservation_items
+ public       | inventory_reservations
+(4 rows)
+
+
+### DB=inventory_db primary keys
+         table_name          | column_name 
+-----------------------------+-------------
+ inventories                 | product_id
+ inventory_outbox_events     | id
+ inventory_reservation_items | id
+ inventory_reservations      | id
+(4 rows)
+
+
+### DB=payment_db tables
+ table_schema |      table_name       
+--------------+-----------------------
+ public       | payment_attempts
+ public       | payment_outbox_events
+ public       | payments
+(3 rows)
+
+
+### DB=payment_db primary keys
+      table_name       | column_name 
+-----------------------+-------------
+ payment_attempts      | id
+ payment_outbox_events | id
+ payments              | id
+(3 rows)
+
+
+### DB=notification_db tables
+ table_schema |  table_name   
+--------------+---------------
+ public       | notifications
+(1 row)
+
+
+### DB=notification_db primary keys
+  table_name   | column_name 
+---------------+-------------
+ notifications | id
+(1 row)
+
+===== KAFKA CURRENT STATE =====
+===== KAFKA CONNECT / DEBEZIUM EXISTING CHECK =====
+===== POSTGRES SERVICE / SECRET =====
+NAME            TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE    SELECTOR
+postgresql      ClusterIP   10.43.35.230    <none>        5432/TCP   3d3h   app.kubernetes.io/component=primary,app.kubernetes.io/instance=postgresql,app.kubernetes.io/name=postgresql
+postgresql-hl   ClusterIP   None            <none>        5432/TCP   3d3h   app.kubernetes.io/component=primary,app.kubernetes.io/instance=postgresql,app.kubernetes.io/name=postgresql
+pgbouncer       ClusterIP   10.43.185.249   <none>        6432/TCP   3d2h   app=pgbouncer
+[
+  "postgres-password"
+]
+===== RESOURCE SNAPSHOT =====

@@ -1,0 +1,4 @@
+NAME          CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)   
+vm1-gateway   231m         5%       4331Mi          54%         
+vm2-mesh      204m         5%       3065Mi          38%         
+vm3-gitops    564m         14%      5269Mi          66%         

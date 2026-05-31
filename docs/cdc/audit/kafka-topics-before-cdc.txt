@@ -1,0 +1,11 @@
+__consumer_offsets
+inventory.failed
+inventory.reserved
+inventory.reserved.dlq
+order.cancelled
+order.created
+payment.completed
+payment.completed.dlq
+payment.dlq
+payment.failed
+payment.failed.dlq
