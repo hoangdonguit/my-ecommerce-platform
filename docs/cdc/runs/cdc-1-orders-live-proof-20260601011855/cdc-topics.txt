@@ -1,0 +1,5 @@
+cdc.order_db.public.orders
+debezium_connect_configs
+debezium_connect_offsets
+debezium_connect_statuses
+__debezium-heartbeat.cdc.order_db

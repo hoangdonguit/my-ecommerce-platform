@@ -1,0 +1,5 @@
+   slot_name    |  plugin  | slot_type | database | active | restart_lsn | confirmed_flush_lsn 
+----------------+----------+-----------+----------+--------+-------------+---------------------
+ dbz_order_slot | pgoutput | logical   | order_db | t      | 0/21F9C588  | 0/21FF8020
+(1 row)
+

@@ -1,0 +1,5 @@
+        pubname        | schema_name | table_name 
+-----------------------+-------------+------------
+ dbz_order_publication | public      | orders
+(1 row)
+
