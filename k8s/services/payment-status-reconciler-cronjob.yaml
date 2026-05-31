@@ -10,7 +10,7 @@ spec:
   failedJobsHistoryLimit: 5
   jobTemplate:
     spec:
-      backoffLimit: 1
+      backoffLimit: 3
       template:
         spec:
           nodeSelector:
@@ -56,6 +56,25 @@ spec:
                 - -ec
                 - |
                   echo "===== payment-status-reconciler started at $(date -Iseconds) ====="
+
+                  wait_for_postgres() {
+                    echo "Waiting for PostgreSQL to become ready..."
+                    for i in $(seq 1 60); do
+                      if pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" >/dev/null 2>&1; then
+                        echo "PostgreSQL is ready."
+                        return 0
+                      fi
+
+                      echo "PostgreSQL is not ready yet ($i/60). Sleeping 2s..."
+                      sleep 2
+                    done
+
+                    echo "PostgreSQL is not ready after 120s. Exit reconciler safely."
+                    exit 1
+                  }
+
+                  wait_for_postgres
+
 
                   echo "===== phase 1: stale COD PROCESSING payments ====="
 
