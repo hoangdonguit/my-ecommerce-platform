@@ -1,0 +1,6 @@
+===== DYNAMIC FILTER AUDIT START =====
+2026-06-01T02:04:15+07:00
+===== CURRENT SYSTEM CHECK =====
+?? docs/dynamic-filter/
+===== CURRENT CONNECTORS =====
+===== CURRENT CONNECT PLUGINS =====

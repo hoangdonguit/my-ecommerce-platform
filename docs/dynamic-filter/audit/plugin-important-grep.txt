@@ -1,0 +1,300 @@
+/tmp/kafka-connect-dynamic-filter/README.md:1:# kafka-connect-dynamic-filter
+/tmp/kafka-connect-dynamic-filter/README.md:4:  <img src="./assets/logo.png" alt="kafka-connect-dynamic-filter logo" width="200"/>
+/tmp/kafka-connect-dynamic-filter/README.md:7:[![CI](https://github.com/caobahuong/kafka-connect-dynamic-filter/actions/workflows/ci.yml/badge.svg)](https://github.com/caobahuong/kafka-connect-dynamic-filter/actions/workflows/ci.yml)
+/tmp/kafka-connect-dynamic-filter/README.md:8:[![Maven Central](https://img.shields.io/maven-central/v/io.github.caobahuong/kafka-connect-dynamic-filter-core?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.caobahuong/kafka-connect-dynamic-filter-core)
+/tmp/kafka-connect-dynamic-filter/README.md:10:[![Kafka Connect](https://img.shields.io/badge/Kafka_Connect-3.x-blue?logo=apachekafka)](https://kafka.apache.org/documentation/#connect)
+/tmp/kafka-connect-dynamic-filter/README.md:17:**A Kafka Connect SMT for filtering Debezium CDC records with dynamic conditions** update rules at any time without restarting the connector.
+/tmp/kafka-connect-dynamic-filter/README.md:19:> This document covers features and installation. For a step-by-step deployment walkthrough, see: [Deploying kafka-connect-dynamic-filter](https://github.com/caobahuong/kafka-connect-dynamic-filter/tree/main/blogs/en)
+/tmp/kafka-connect-dynamic-filter/README.md:25:Debezium's built-in `Filter` SMT requires static Groovy/JS scripts hard-coded into the connector config. Changing a filter means editing the config, redeploying, and restarting the connector disrupting the pipeline each time.
+/tmp/kafka-connect-dynamic-filter/README.md:27:For example: suppose your pipeline currently streams only records where `ref_id` is 1, 2, or 3. Adding values 4 and 5 with Debezium Filter requires editing the config, redeploying, restarting the connector, and tolerating pipeline disruption in the meantime.
+/tmp/kafka-connect-dynamic-filter/README.md:29:With this library, you update the rule in Redis, a Kafka topic, or a JSON file. The connector picks it up on the very next record no config changes, no restart, no downtime.
+/tmp/kafka-connect-dynamic-filter/README.md:31:| | Debezium Filter (built-in) | kafka-connect-dynamic-filter |
+/tmp/kafka-connect-dynamic-filter/README.md:33:| Rule update | ❌ Connector restart required | ✅ Takes effect on next record |
+/tmp/kafka-connect-dynamic-filter/README.md:34:| Rule language | Groovy / JS hardcoded | Dynamic JSON |
+/tmp/kafka-connect-dynamic-filter/README.md:35:| Rule source | Config file | Redis, Kafka topic, File, or custom |
+/tmp/kafka-connect-dynamic-filter/README.md:36:| Compound conditions | Write code | AND / OR / nested via JSON |
+/tmp/kafka-connect-dynamic-filter/README.md:45:| Module | Where rules are stored |
+/tmp/kafka-connect-dynamic-filter/README.md:47:| [**core**](./kafka-connect-dynamic-filter-core/) | Base library implement your own rule source |
+/tmp/kafka-connect-dynamic-filter/README.md:48:| [**redis**](./kafka-connect-dynamic-filter-redis/) | Redis key, with Keyspace Notifications + polling |
+/tmp/kafka-connect-dynamic-filter/README.md:49:| [**kafka**](./kafka-connect-dynamic-filter-kafka/) | Kafka topic |
+/tmp/kafka-connect-dynamic-filter/README.md:50:| [**file**](./kafka-connect-dynamic-filter-file/) | JSON file, auto-reloads on change |
+/tmp/kafka-connect-dynamic-filter/README.md:58:- [Rule Syntax](#rule-syntax)
+/tmp/kafka-connect-dynamic-filter/README.md:59:- [Rule Sources](#rule-sources)
+/tmp/kafka-connect-dynamic-filter/README.md:60:- [How Records Are Filtered](#how-records-are-filtered)
+/tmp/kafka-connect-dynamic-filter/README.md:63:- [Configuration Reference](#configuration-reference)
+/tmp/kafka-connect-dynamic-filter/README.md:71:### Step 1: Download the JAR and copy to the plugin directory
+/tmp/kafka-connect-dynamic-filter/README.md:73:Each module ships as a **self-contained fat JAR** core classes and all runtime dependencies are bundled inside. You only need one file.
+/tmp/kafka-connect-dynamic-filter/README.md:75:Download the latest JAR from [Releases](https://github.com/caobahuong/kafka-connect-dynamic-filter/releases), then:
+/tmp/kafka-connect-dynamic-filter/README.md:78:PLUGIN_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-dynamic-filter
+/tmp/kafka-connect-dynamic-filter/README.md:82:cp kafka-connect-dynamic-filter-redis-*.jar  $PLUGIN_DIR/
+/tmp/kafka-connect-dynamic-filter/README.md:83:# or: kafka-connect-dynamic-filter-kafka-*.jar
+/tmp/kafka-connect-dynamic-filter/README.md:84:# or: kafka-connect-dynamic-filter-file-*.jar
+/tmp/kafka-connect-dynamic-filter/README.md:89:> find /opt /usr /etc -iname "*kafka*" 2>/dev/null | grep plugin
+/tmp/kafka-connect-dynamic-filter/README.md:91:> It's usually at `/opt/kafka-connect/plugins/`
+/tmp/kafka-connect-dynamic-filter/README.md:93:After copying, restart Kafka Connect workers:
+/tmp/kafka-connect-dynamic-filter/README.md:97:systemctl restart kafka-connect
+/tmp/kafka-connect-dynamic-filter/README.md:105:> Copy the JAR into the running container and restart:
+/tmp/kafka-connect-dynamic-filter/README.md:107:> docker cp kafka-connect-dynamic-filter-redis-*.jar <container_name>:/opt/kafka-connect/plugins/
+/tmp/kafka-connect-dynamic-filter/README.md:110:> This approach loses the JAR on container recreation. Mount a volume in `docker-compose.yml` for persistence:
+/tmp/kafka-connect-dynamic-filter/README.md:113:>   kafka-connect:
+/tmp/kafka-connect-dynamic-filter/README.md:115:>       - ./plugins:/opt/kafka-connect/plugins
+/tmp/kafka-connect-dynamic-filter/README.md:117:> Copy the JAR to `./plugins/` on the host, then run `docker compose restart kafka-connect`.
+/tmp/kafka-connect-dynamic-filter/README.md:119:### Step 2: Declare the SMT in the connector config
+/tmp/kafka-connect-dynamic-filter/README.md:121:**Via the Kafka Connect REST API:**
+/tmp/kafka-connect-dynamic-filter/README.md:123:curl -X PUT http://localhost:8083/connectors/my-debezium-connector/config \
+/tmp/kafka-connect-dynamic-filter/README.md:126:    ... other config
+/tmp/kafka-connect-dynamic-filter/README.md:127:    "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+/tmp/kafka-connect-dynamic-filter/README.md:128:    "transforms": "dynamicFilter",
+/tmp/kafka-connect-dynamic-filter/README.md:129:    "transforms.dynamicFilter.type": "io.kafkaconnect.dynamicfilter.redis.RedisDynamicFilter",
+/tmp/kafka-connect-dynamic-filter/README.md:130:    "transforms.dynamicFilter.filter.id": "company-filter",
+/tmp/kafka-connect-dynamic-filter/README.md:131:    "transforms.dynamicFilter.field.name": "com_id",
+/tmp/kafka-connect-dynamic-filter/README.md:132:    "transforms.dynamicFilter.redis.uri": "redis://localhost:6379",
+/tmp/kafka-connect-dynamic-filter/README.md:133:    "transforms.dynamicFilter.redis.key": "filter:companies"
+/tmp/kafka-connect-dynamic-filter/README.md:140:curl -X PUT http://localhost:8083/connectors/my-debezium-connector/config \
+/tmp/kafka-connect-dynamic-filter/README.md:143:    ... other config
+/tmp/kafka-connect-dynamic-filter/README.md:144:    "transforms": "filterComId",
+/tmp/kafka-connect-dynamic-filter/README.md:145:    "transforms.filterComId.type": "io.kafkaconnect.dynamicfilter.redis.RedisDynamicFilter",
+/tmp/kafka-connect-dynamic-filter/README.md:146:    "transforms.filterComId.filter.id": "company-filter",
+/tmp/kafka-connect-dynamic-filter/README.md:147:    "transforms.filterComId.field.name": "com_id",
+/tmp/kafka-connect-dynamic-filter/README.md:148:    "transforms.filterComId.empty.list.behavior": "pass_all",
+/tmp/kafka-connect-dynamic-filter/README.md:149:    "transforms.filterComId.redis.uri": "redis://<IP_ADDRESS>:6379/1",
+/tmp/kafka-connect-dynamic-filter/README.md:150:    "transforms.filterComId.redis.key": "REDIS_CONFIG_RULE_KEY"
+/tmp/kafka-connect-dynamic-filter/README.md:156:# Verify the connector received the config
+/tmp/kafka-connect-dynamic-filter/README.md:162:| Redis | `io.kafkaconnect.dynamicfilter.redis.RedisDynamicFilter` |
+/tmp/kafka-connect-dynamic-filter/README.md:163:| Kafka | `io.kafkaconnect.dynamicfilter.kafka.KafkaDynamicFilter` |
+/tmp/kafka-connect-dynamic-filter/README.md:164:| File | `io.kafkaconnect.dynamicfilter.file.FileDynamicFilter` |
+/tmp/kafka-connect-dynamic-filter/README.md:165:| Core (custom) | `io.kafkaconnect.dynamicfilter.DynamicListFilter` |
+/tmp/kafka-connect-dynamic-filter/README.md:167:> See full per-module config in [Configuration Reference](#configuration-reference).
+/tmp/kafka-connect-dynamic-filter/README.md:169:### Use core as a library (Maven / Gradle)
+/tmp/kafka-connect-dynamic-filter/README.md:171:If you want to implement your own rule source via the Java API:
+/tmp/kafka-connect-dynamic-filter/README.md:174:<dependency>
+/tmp/kafka-connect-dynamic-filter/README.md:175:  <groupId>io.kafkaconnect</groupId>
+/tmp/kafka-connect-dynamic-filter/README.md:176:  <artifactId>kafka-connect-dynamic-filter-core</artifactId>
+/tmp/kafka-connect-dynamic-filter/README.md:178:</dependency>
+/tmp/kafka-connect-dynamic-filter/README.md:182:implementation 'io.kafkaconnect:kafka-connect-dynamic-filter-core:0.1.0'
+/tmp/kafka-connect-dynamic-filter/README.md:188:git clone https://github.com/caobahuong/kafka-connect-dynamic-filter.git
+/tmp/kafka-connect-dynamic-filter/README.md:189:cd kafka-connect-dynamic-filter
+/tmp/kafka-connect-dynamic-filter/README.md:197:Assumes you have already copied the JAR and restarted workers (Step 1 above). Concrete examples for each module below.
+/tmp/kafka-connect-dynamic-filter/README.md:199:### Redis
+/tmp/kafka-connect-dynamic-filter/README.md:201:Add to your connector config:
+/tmp/kafka-connect-dynamic-filter/README.md:204:transforms=dynamicFilter
+/tmp/kafka-connect-dynamic-filter/README.md:205:transforms.dynamicFilter.type=io.kafkaconnect.dynamicfilter.redis.RedisDynamicFilter
+/tmp/kafka-connect-dynamic-filter/README.md:206:transforms.dynamicFilter.filter.id=company-filter
+/tmp/kafka-connect-dynamic-filter/README.md:207:transforms.dynamicFilter.field.name=com_id
+/tmp/kafka-connect-dynamic-filter/README.md:208:transforms.dynamicFilter.redis.uri=redis://localhost:6379
+/tmp/kafka-connect-dynamic-filter/README.md:209:transforms.dynamicFilter.redis.key=filter:companies
+/tmp/kafka-connect-dynamic-filter/README.md:210:transforms.dynamicFilter.empty.list.behavior=pass_all
+/tmp/kafka-connect-dynamic-filter/README.md:213:Control the filter from anywhere, at any time no restart needed:
+/tmp/kafka-connect-dynamic-filter/README.md:217:redis-cli SET filter:companies '[1, 2, 3]'
+/tmp/kafka-connect-dynamic-filter/README.md:220:redis-cli SET filter:companies '[1, 2, 3, 4]'
+/tmp/kafka-connect-dynamic-filter/README.md:222:# Multi-condition: allowed companies + active status + not deleted
+/tmp/kafka-connect-dynamic-filter/README.md:223:redis-cli SET filter:companies '{
+/tmp/kafka-connect-dynamic-filter/README.md:225:  "conditions": [
+/tmp/kafka-connect-dynamic-filter/README.md:233:redis-cli DEL filter:companies
+/tmp/kafka-connect-dynamic-filter/README.md:236:> **Recommendation:** Enable `Keyspace Notifications` so the filter picks up new rules **instantly** instead of waiting for the next poll cycle (default 5 seconds).
+/tmp/kafka-connect-dynamic-filter/README.md:238:> Enable on the Redis server:
+/tmp/kafka-connect-dynamic-filter/README.md:240:> redis-cli CONFIG SET notify-keyspace-events KEA
+/tmp/kafka-connect-dynamic-filter/README.md:242:> Enable in the connector config:
+/tmp/kafka-connect-dynamic-filter/README.md:244:> transforms.dynamicFilter.redis.keyspace.notifications.enabled=true
+/tmp/kafka-connect-dynamic-filter/README.md:245:> transforms.dynamicFilter.redis.keyspace.db.index=0
+/tmp/kafka-connect-dynamic-filter/README.md:247:> See details in [Rule Sources → Redis](#redis-1).
+/tmp/kafka-connect-dynamic-filter/README.md:249:### Kafka topic
+/tmp/kafka-connect-dynamic-filter/README.md:251:Add to your connector config:
+/tmp/kafka-connect-dynamic-filter/README.md:254:transforms=dynamicFilter
+/tmp/kafka-connect-dynamic-filter/README.md:255:transforms.dynamicFilter.type=io.kafkaconnect.dynamicfilter.kafka.KafkaDynamicFilter
+/tmp/kafka-connect-dynamic-filter/README.md:256:transforms.dynamicFilter.filter.id=company-filter
+/tmp/kafka-connect-dynamic-filter/README.md:257:transforms.dynamicFilter.field.name=com_id
+/tmp/kafka-connect-dynamic-filter/README.md:258:transforms.dynamicFilter.rule.bootstrap.servers=localhost:9092
+/tmp/kafka-connect-dynamic-filter/README.md:259:transforms.dynamicFilter.rule.topic=filter-rules
+/tmp/kafka-connect-dynamic-filter/README.md:262:Publish a JSON message to topic `filter-rules` to update the rule. Publish a tombstone (null value) to clear it.
+/tmp/kafka-connect-dynamic-filter/README.md:264:> Use a compacted topic (`cleanup.policy=compact`) so the rule persists after a broker restart.
+/tmp/kafka-connect-dynamic-filter/README.md:266:### File
+/tmp/kafka-connect-dynamic-filter/README.md:268:> ⚠️ **Not recommended for production.** This module depends on the worker's local filesystem. In multi-worker or containerized deployments each instance must be manually synchronized rule drift across workers is easy to miss. Suitable for dev/test or single-worker setups only.
+/tmp/kafka-connect-dynamic-filter/README.md:270:Add to your connector config:
+/tmp/kafka-connect-dynamic-filter/README.md:273:transforms=dynamicFilter
+/tmp/kafka-connect-dynamic-filter/README.md:274:transforms.dynamicFilter.type=io.kafkaconnect.dynamicfilter.file.FileDynamicFilter
+/tmp/kafka-connect-dynamic-filter/README.md:275:transforms.dynamicFilter.filter.id=company-filter
+/tmp/kafka-connect-dynamic-filter/README.md:276:transforms.dynamicFilter.field.name=com_id
+/tmp/kafka-connect-dynamic-filter/README.md:277:transforms.dynamicFilter.rule.file=/etc/kafka-connect/filters/companies.json
+/tmp/kafka-connect-dynamic-filter/README.md:280:Edit the file it reloads automatically. Delete the file to clear the rule.
+/tmp/kafka-connect-dynamic-filter/README.md:284:## Rule Syntax
+/tmp/kafka-connect-dynamic-filter/README.md:288:Suitable when filtering on a single field (requires `field.name` in the config).
+/tmp/kafka-connect-dynamic-filter/README.md:297:DynamicListFilter.setAllowedValues("company-filter", List.of(1, 2, 3));
+/tmp/kafka-connect-dynamic-filter/README.md:298:DynamicListFilter.clearFilterRule("company-filter");
+/tmp/kafka-connect-dynamic-filter/README.md:303:### Compound rules (AND / OR)
+/tmp/kafka-connect-dynamic-filter/README.md:305:No `field.name` needed. Rules can be nested to any depth.
+/tmp/kafka-connect-dynamic-filter/README.md:311:  "conditions": [
+/tmp/kafka-connect-dynamic-filter/README.md:321:// AND all conditions must match
+/tmp/kafka-connect-dynamic-filter/README.md:322:FilterRule rule = FilterRule.and(
+/tmp/kafka-connect-dynamic-filter/README.md:323:    FilterRule.in("com_id", List.of(1, 2, 3)),
+/tmp/kafka-connect-dynamic-filter/README.md:324:    FilterRule.eq("status", "ACTIVE"),
+/tmp/kafka-connect-dynamic-filter/README.md:325:    FilterRule.isNull("deleted_at")
+/tmp/kafka-connect-dynamic-filter/README.md:329:FilterRule rule = FilterRule.or(
+/tmp/kafka-connect-dynamic-filter/README.md:330:    FilterRule.in("com_id", List.of(1, 2)),
+/tmp/kafka-connect-dynamic-filter/README.md:331:    FilterRule.eq("tier", "PREMIUM")
+/tmp/kafka-connect-dynamic-filter/README.md:335:FilterRule rule = FilterRule.or(
+/tmp/kafka-connect-dynamic-filter/README.md:336:    FilterRule.and(
+/tmp/kafka-connect-dynamic-filter/README.md:337:        FilterRule.in("com_id", List.of(1, 2)),
+/tmp/kafka-connect-dynamic-filter/README.md:338:        FilterRule.eq("status", "ACTIVE")
+/tmp/kafka-connect-dynamic-filter/README.md:340:    FilterRule.eq("vip", true)
+/tmp/kafka-connect-dynamic-filter/README.md:344:FilterRule rule = FilterRule.and(
+/tmp/kafka-connect-dynamic-filter/README.md:345:    FilterRule.gte("score", 60),
+/tmp/kafka-connect-dynamic-filter/README.md:346:    FilterRule.lte("score", 100)
+/tmp/kafka-connect-dynamic-filter/README.md:349:DynamicListFilter.setFilterRule("company-filter", rule);
+/tmp/kafka-connect-dynamic-filter/README.md:358:| `IN` | `FilterRule.in(field, values)` | `"IN"` | value is in the list |
+/tmp/kafka-connect-dynamic-filter/README.md:359:| `NOT_IN` | `FilterRule.notIn(field, values)` | `"NOT_IN"` | value is not in the list |
+/tmp/kafka-connect-dynamic-filter/README.md:360:| `EQ` | `FilterRule.eq(field, value)` | `"EQ"` | value equals |
+/tmp/kafka-connect-dynamic-filter/README.md:361:| `NE` | `FilterRule.ne(field, value)` | `"NE"` | value does not equal |
+/tmp/kafka-connect-dynamic-filter/README.md:362:| `IS_NULL` | `FilterRule.isNull(field)` | `"IS_NULL"` | value is null |
+/tmp/kafka-connect-dynamic-filter/README.md:363:| `IS_NOT_NULL` | `FilterRule.isNotNull(field)` | `"IS_NOT_NULL"` | value is not null |
+/tmp/kafka-connect-dynamic-filter/README.md:364:| `GT` | `FilterRule.gt(field, n)` | `"GT"` / `">"` | value > n |
+/tmp/kafka-connect-dynamic-filter/README.md:365:| `LT` | `FilterRule.lt(field, n)` | `"LT"` / `"<"` | value < n |
+/tmp/kafka-connect-dynamic-filter/README.md:366:| `GTE` | `FilterRule.gte(field, n)` | `"GTE"` / `">="` | value >= n |
+/tmp/kafka-connect-dynamic-filter/README.md:367:| `LTE` | `FilterRule.lte(field, n)` | `"LTE"` / `"<="` | value <= n |
+/tmp/kafka-connect-dynamic-filter/README.md:368:| `AND` | `FilterRule.and(rules…)` | `"AND"` | all sub-rules pass |
+/tmp/kafka-connect-dynamic-filter/README.md:369:| `OR` | `FilterRule.or(rules…)` | `"OR"` | any sub-rule passes |
+/tmp/kafka-connect-dynamic-filter/README.md:375:## Rule Sources
+/tmp/kafka-connect-dynamic-filter/README.md:377:### Redis
+/tmp/kafka-connect-dynamic-filter/README.md:379:`RedisDynamicFilter` polls a Redis key on a configurable interval and applies its value as the active rule. Optionally enable **Keyspace Notifications** for instant updates polling continues as a fallback.
+/tmp/kafka-connect-dynamic-filter/README.md:381:**Minimum config:**
+/tmp/kafka-connect-dynamic-filter/README.md:384:transforms.myFilter.type=io.kafkaconnect.dynamicfilter.redis.RedisDynamicFilter
+/tmp/kafka-connect-dynamic-filter/README.md:385:transforms.myFilter.filter.id=company-filter
+/tmp/kafka-connect-dynamic-filter/README.md:386:transforms.myFilter.field.name=com_id
+/tmp/kafka-connect-dynamic-filter/README.md:387:transforms.myFilter.redis.uri=redis://localhost:6379
+/tmp/kafka-connect-dynamic-filter/README.md:388:transforms.myFilter.redis.key=filter:company-filter
+/tmp/kafka-connect-dynamic-filter/README.md:394:redis://:password@host:6379         # password only
+/tmp/kafka-connect-dynamic-filter/README.md:395:redis://user:password@host:6379     # ACL user + password
+/tmp/kafka-connect-dynamic-filter/README.md:396:rediss://host:6380                  # TLS
+/tmp/kafka-connect-dynamic-filter/README.md:397:rediss://:password@host:6380        # TLS + password
+/tmp/kafka-connect-dynamic-filter/README.md:398:redis://host:6379/2                 # database 2
+/tmp/kafka-connect-dynamic-filter/README.md:403:Enable on the Redis server once:
+/tmp/kafka-connect-dynamic-filter/README.md:405:redis-cli CONFIG SET notify-keyspace-events KEA
+/tmp/kafka-connect-dynamic-filter/README.md:408:Enable in the connector config:
+/tmp/kafka-connect-dynamic-filter/README.md:410:transforms.myFilter.redis.keyspace.notifications.enabled=true
+/tmp/kafka-connect-dynamic-filter/README.md:411:transforms.myFilter.redis.keyspace.db.index=0
+/tmp/kafka-connect-dynamic-filter/README.md:414:> **Managed Redis (ElastiCache, Azure Cache):** Keyspace Notifications may be restricted check your provider's docs before enabling.
+/tmp/kafka-connect-dynamic-filter/README.md:418:### Kafka topic
+/tmp/kafka-connect-dynamic-filter/README.md:420:`KafkaDynamicFilter` runs an internal Kafka consumer. The latest message on the topic is the active rule. A tombstone (null value) clears the rule.
+/tmp/kafka-connect-dynamic-filter/README.md:423:transforms.myFilter.type=io.kafkaconnect.dynamicfilter.kafka.KafkaDynamicFilter
+/tmp/kafka-connect-dynamic-filter/README.md:424:transforms.myFilter.filter.id=company-filter
+/tmp/kafka-connect-dynamic-filter/README.md:425:transforms.myFilter.field.name=com_id
+/tmp/kafka-connect-dynamic-filter/README.md:426:transforms.myFilter.rule.bootstrap.servers=localhost:9092
+/tmp/kafka-connect-dynamic-filter/README.md:427:transforms.myFilter.rule.topic=filter-rules
+/tmp/kafka-connect-dynamic-filter/README.md:430:> Use a **compacted topic** (`cleanup.policy=compact`) so the rule is retained and replayed on restart.
+/tmp/kafka-connect-dynamic-filter/README.md:434:### File
+/tmp/kafka-connect-dynamic-filter/README.md:436:`FileDynamicFilter` monitors the file's last-modified timestamp and only reloads on change.
+/tmp/kafka-connect-dynamic-filter/README.md:439:transforms.myFilter.type=io.kafkaconnect.dynamicfilter.file.FileDynamicFilter
+/tmp/kafka-connect-dynamic-filter/README.md:440:transforms.myFilter.filter.id=company-filter
+/tmp/kafka-connect-dynamic-filter/README.md:441:transforms.myFilter.field.name=com_id
+/tmp/kafka-connect-dynamic-filter/README.md:442:transforms.myFilter.rule.file=/etc/kafka-connect/filters/company-filter.json
+/tmp/kafka-connect-dynamic-filter/README.md:449:Use when you need to pull rules from a source not covered by the built-in modules (database, HTTP endpoint, ZooKeeper, etc.).
+/tmp/kafka-connect-dynamic-filter/README.md:451:**Step 1 Add the dependency:**
+/tmp/kafka-connect-dynamic-filter/README.md:454:<dependency>
+/tmp/kafka-connect-dynamic-filter/README.md:455:  <groupId>io.kafkaconnect</groupId>
+/tmp/kafka-connect-dynamic-filter/README.md:456:  <artifactId>kafka-connect-dynamic-filter-core</artifactId>
+/tmp/kafka-connect-dynamic-filter/README.md:458:</dependency>
+/tmp/kafka-connect-dynamic-filter/README.md:461:**Step 2 Extend `DynamicListFilter`:**
+/tmp/kafka-connect-dynamic-filter/README.md:466:import io.kafkaconnect.dynamicfilter.DynamicListFilter;
+/tmp/kafka-connect-dynamic-filter/README.md:467:import org.apache.kafka.connect.connector.ConnectRecord;
+/tmp/kafka-connect-dynamic-filter/README.md:474:public class DatabaseDynamicFilter<R extends ConnectRecord<R>> extends DynamicListFilter<R> {
+/tmp/kafka-connect-dynamic-filter/README.md:477:    private String filterId;
+/tmp/kafka-connect-dynamic-filter/README.md:480:    public void configure(Map<String, ?> configs) {
+/tmp/kafka-connect-dynamic-filter/README.md:481:        super.configure(configs);  // required initializes core
+/tmp/kafka-connect-dynamic-filter/README.md:482:        this.filterId = (String) configs.get("filter.id");
+/tmp/kafka-connect-dynamic-filter/README.md:485:        scheduler.scheduleAtFixedRate(this::reloadRule, 0, 10, TimeUnit.SECONDS);
+/tmp/kafka-connect-dynamic-filter/README.md:488:    private void reloadRule() {
+/tmp/kafka-connect-dynamic-filter/README.md:490:            String ruleJson = fetchRuleFromMySource(); // implement this
+/tmp/kafka-connect-dynamic-filter/README.md:491:            if (ruleJson != null) {
+/tmp/kafka-connect-dynamic-filter/README.md:492:                DynamicListFilter.setFilterRuleJson(filterId, ruleJson);
+/tmp/kafka-connect-dynamic-filter/README.md:494:                DynamicListFilter.clearFilterRule(filterId);
+/tmp/kafka-connect-dynamic-filter/README.md:497:            // swallow keep the previous rule
+/tmp/kafka-connect-dynamic-filter/README.md:507:    private String fetchRuleFromMySource() {
+/tmp/kafka-connect-dynamic-filter/README.md:514:`ruleJson` accepts the same JSON format as Redis/Kafka/File see [Rule Syntax](#rule-syntax).
+/tmp/kafka-connect-dynamic-filter/README.md:516:**Step 3 Declare in the connector config:**
+/tmp/kafka-connect-dynamic-filter/README.md:519:transforms=dynamicFilter
+/tmp/kafka-connect-dynamic-filter/README.md:520:transforms.dynamicFilter.type=com.example.DatabaseDynamicFilter
+/tmp/kafka-connect-dynamic-filter/README.md:521:transforms.dynamicFilter.filter.id=company-filter
+/tmp/kafka-connect-dynamic-filter/README.md:522:transforms.dynamicFilter.field.name=com_id
+/tmp/kafka-connect-dynamic-filter/README.md:525:**Step 4 Build a fat JAR and deploy:**
+/tmp/kafka-connect-dynamic-filter/README.md:527:Use `maven-shade-plugin` to bundle `core` into your JAR (same pattern as the redis/kafka/file modules), then copy to the Kafka Connect plugin directory.
+/tmp/kafka-connect-dynamic-filter/README.md:531:  <groupId>org.apache.maven.plugins</groupId>
+/tmp/kafka-connect-dynamic-filter/README.md:532:  <artifactId>maven-shade-plugin</artifactId>
+/tmp/kafka-connect-dynamic-filter/README.md:538:      <configuration>
+/tmp/kafka-connect-dynamic-filter/README.md:539:        <createDependencyReducedPom>false</createDependencyReducedPom>
+/tmp/kafka-connect-dynamic-filter/README.md:540:      </configuration>
+/tmp/kafka-connect-dynamic-filter/README.md:548:cp target/your-custom-filter-*.jar $PLUGIN_DIR/
+/tmp/kafka-connect-dynamic-filter/README.md:551:> ⚠️ `DynamicListFilter.setFilterRule()` writes to a static in-JVM registry. This only works when your loader runs **in the same JVM as Kafka Connect** (embedded or standalone mode). In distributed Kafka Connect, use the background thread pattern above to load rules from an external source.
+/tmp/kafka-connect-dynamic-filter/README.md:555:## How Records Are Filtered
+/tmp/kafka-connect-dynamic-filter/README.md:557:| Condition | Result |
+/tmp/kafka-connect-dynamic-filter/README.md:560:| No rule + `pass_all` | **pass** |
+/tmp/kafka-connect-dynamic-filter/README.md:561:| No rule + `block_all` | **drop** |
+/tmp/kafka-connect-dynamic-filter/README.md:562:| Record value is not a Kafka Connect `Struct` | **pass** |
+/tmp/kafka-connect-dynamic-filter/README.md:564:| `after` struct matches rule | **pass** |
+/tmp/kafka-connect-dynamic-filter/README.md:567:| Rule evaluation throws exception | **pass** + error counter incremented |
+/tmp/kafka-connect-dynamic-filter/README.md:575:Enable in config:
+/tmp/kafka-connect-dynamic-filter/README.md:577:transforms.myFilter.metrics.enabled=true
+/tmp/kafka-connect-dynamic-filter/README.md:580:MBean: `io.kafkaconnect:type=DynamicListFilter,filterId=<filterId>`
+/tmp/kafka-connect-dynamic-filter/README.md:585:| `Passed` / `Dropped` | Forwarded / filtered out |
+/tmp/kafka-connect-dynamic-filter/README.md:596:Enable in config:
+/tmp/kafka-connect-dynamic-filter/README.md:598:transforms.myFilter.debug.conditions=true
+/tmp/kafka-connect-dynamic-filter/README.md:601:Configure the logger (log4j / logback):
+/tmp/kafka-connect-dynamic-filter/README.md:603:<logger name="io.kafkaconnect.dynamicfilter.DynamicListFilter.company-filter"
+/tmp/kafka-connect-dynamic-filter/README.md:609:## Configuration Reference
+/tmp/kafka-connect-dynamic-filter/README.md:615:| `filter.id` | *required* | Unique filter name. Must match the ID used in Java API calls. |
+/tmp/kafka-connect-dynamic-filter/README.md:616:| `field.name` | `""` | Field for allow-list mode. Leave empty when using compound rules. |
+/tmp/kafka-connect-dynamic-filter/README.md:617:| `empty.list.behavior` | `pass_all` | Behavior when no rule is set: `pass_all` or `block_all`. |
+/tmp/kafka-connect-dynamic-filter/README.md:619:| `debug.conditions` | `false` | Log per-record rule result at DEBUG level. |
+/tmp/kafka-connect-dynamic-filter/README.md:621:### Redis module
+/tmp/kafka-connect-dynamic-filter/README.md:625:| `redis.uri` | *required* | Connection URI. `redis://` or `rediss://` (TLS). |
+/tmp/kafka-connect-dynamic-filter/README.md:626:| `redis.key` | *required* | Redis key holding the rule. |
+/tmp/kafka-connect-dynamic-filter/README.md:627:| `redis.poll.interval.ms` | `5000` | Poll interval (ms). |
+/tmp/kafka-connect-dynamic-filter/README.md:628:| `redis.pool.max.total` | `8` | Max connections in the pool. |
+/tmp/kafka-connect-dynamic-filter/README.md:629:| `redis.pool.max.idle` | `4` | Max idle connections. |
+/tmp/kafka-connect-dynamic-filter/README.md:630:| `redis.pool.min.idle` | `1` | Min idle connections. |
+/tmp/kafka-connect-dynamic-filter/README.md:631:| `redis.pool.connection.timeout.ms` | `2000` | TCP connect timeout (ms). |
+/tmp/kafka-connect-dynamic-filter/README.md:632:| `redis.pool.socket.timeout.ms` | `2000` | Socket read/write timeout (ms). |
+/tmp/kafka-connect-dynamic-filter/README.md:633:| `redis.keyspace.notifications.enabled` | `false` | Enable Keyspace Notifications. |
+/tmp/kafka-connect-dynamic-filter/README.md:634:| `redis.keyspace.db.index` | `0` | DB index for the keyspace channel. Must match DB in `redis.uri`. |
+/tmp/kafka-connect-dynamic-filter/README.md:636:### Kafka module
+/tmp/kafka-connect-dynamic-filter/README.md:640:| `rule.bootstrap.servers` | *required* | Bootstrap servers for the rule topic cluster. |
+/tmp/kafka-connect-dynamic-filter/README.md:641:| `rule.topic` | *required* | Topic holding the rules. |
+/tmp/kafka-connect-dynamic-filter/README.md:642:| `rule.consumer.group.id` | `dynamic-filter-{filterId}` | Consumer group ID. |
+/tmp/kafka-connect-dynamic-filter/README.md:643:| `rule.poll.timeout.ms` | `1000` | Consumer poll timeout (ms). |
+/tmp/kafka-connect-dynamic-filter/README.md:645:### File module
+/tmp/kafka-connect-dynamic-filter/README.md:649:| `rule.file` | *required* | Absolute path to the JSON rule file. |
+/tmp/kafka-connect-dynamic-filter/README.md:650:| `file.poll.interval.ms` | `5000` | File check interval (ms). |
+/tmp/kafka-connect-dynamic-filter/README.md:660:# Redis module only (requires Docker for integration tests)
+/tmp/kafka-connect-dynamic-filter/README.md:661:./mvnw test -pl kafka-connect-dynamic-filter-redis
+/tmp/kafka-connect-dynamic-filter/README.md:664:> Redis integration tests use [Testcontainers](https://testcontainers.com/) and are **skipped automatically** when Docker is unavailable.
+/tmp/kafka-connect-dynamic-filter/README.md:675:Have a question or feature request? Open an [Issue](https://github.com/caobahuong/kafka-connect-dynamic-filter/issues) before writing code to avoid duplicate work.
+/tmp/kafka-connect-dynamic-filter/CONTRIBUTING.md:10:- Maven 3.6+ (or use the included `./mvnw` wrapper - no installation needed)
+/tmp/kafka-connect-dynamic-filter/CONTRIBUTING.md:30:./mvnw package -pl kafka-connect-dynamic-filter-redis -am -DskipTests
+/tmp/kafka-connect-dynamic-filter/CONTRIBUTING.md:47:This project enforces [Checkstyle](https://checkstyle.org) rules automatically during `verify`. Your IDE can highlight violations in real time:
+/tmp/kafka-connect-dynamic-filter/CONTRIBUTING.md:57:kafka-connect-dynamic-filter-core/    Base SMT + rule engine (no external dependencies)
+/tmp/kafka-connect-dynamic-filter/CONTRIBUTING.md:58:kafka-connect-dynamic-filter-redis/   Redis rule source
+/tmp/kafka-connect-dynamic-filter/CONTRIBUTING.md:59:kafka-connect-dynamic-filter-kafka/   Kafka topic rule source
+/tmp/kafka-connect-dynamic-filter/CONTRIBUTING.md:60:kafka-connect-dynamic-filter-file/    File rule source
+/tmp/kafka-connect-dynamic-filter/CONTRIBUTING.md:62:support/checkstyle/                   Shared Checkstyle config
+/tmp/kafka-connect-dynamic-filter/CONTRIBUTING.md:65:The core module has zero runtime dependencies beyond the Kafka Connect API. Keep it that way - rule source modules may add their own dependencies.
+/tmp/kafka-connect-dynamic-filter/CONTRIBUTING.md:85:## Adding a New Rule Source
+/tmp/kafka-connect-dynamic-filter/CONTRIBUTING.md:87:1. Create a new module `kafka-connect-dynamic-filter-<name>/`
+/tmp/kafka-connect-dynamic-filter/CONTRIBUTING.md:89:3. Implement `DynamicListFilter` from `kafka-connect-dynamic-filter-core`
+/tmp/kafka-connect-dynamic-filter/CONTRIBUTING.md:90:4. Override `loadRule()` to fetch the rule from your source
+/tmp/kafka-connect-dynamic-filter/CONTRIBUTING.md:91:5. Package as a fat JAR using `maven-shade-plugin` (see `-redis` module as reference)
+/tmp/kafka-connect-dynamic-filter/CONTRIBUTING.md:106:Please open a [GitHub issue](https://github.com/caobahuong/kafka-connect-dynamic-filter/issues) with:
+/tmp/kafka-connect-dynamic-filter/CONTRIBUTING.md:109:- Connector config (redact credentials)
+/tmp/kafka-connect-dynamic-filter/CONTRIBUTING.md:110:- Kafka Connect version and connector log output
+/tmp/kafka-connect-dynamic-filter/examples/docker/README.md:1:# kafka-connect-dynamic-filter - Docker Demo
+/tmp/kafka-connect-dynamic-filter/examples/docker/README.md:3:This demo shows how `RedisDynamicFilter` SMT lets you change filter rules on a live Kafka Connect pipeline **without restarting anything**.
+/tmp/kafka-connect-dynamic-filter/examples/docker/README.md:7:- CDC events from MySQL stream to a Kafka topic via Debezium
+/tmp/kafka-connect-dynamic-filter/examples/docker/README.md:8:- A filter rule stored in Redis controls which records pass through
+/tmp/kafka-connect-dynamic-filter/examples/docker/README.md:9:- Update the rule with `redis-cli` → the change takes effect **instantly, zero restarts**
+/tmp/kafka-connect-dynamic-filter/examples/docker/README.md:17:That's it. No Java, no Maven, no manual plugin installation.
+/tmp/kafka-connect-dynamic-filter/examples/docker/README.md:31:1. Build the Kafka Connect image with the filter plugin baked in
+/tmp/kafka-connect-dynamic-filter/examples/docker/README.md:32:2. Start Kafka (KRaft), Kafka Connect, MySQL, Redis
+/tmp/kafka-connect-dynamic-filter/examples/docker/README.md:41:### Step 2 - Watch the Kafka topic (separate terminal)
+/tmp/kafka-connect-dynamic-filter/examples/docker/README.md:47:Shows only records that pass the current filter rule in real time.
+/tmp/kafka-connect-dynamic-filter/examples/docker/README.md:61:Walks through 5 filter scenarios step by step.
+/tmp/kafka-connect-dynamic-filter/examples/docker/README.md:67:All filter changes take effect **instantly** - no connector restart needed.
+/tmp/kafka-connect-dynamic-filter/examples/docker/README.md:69:### Pass everything (no filter)
+/tmp/kafka-connect-dynamic-filter/examples/docker/README.md:72:docker exec demo-redis redis-cli DEL filter:companies

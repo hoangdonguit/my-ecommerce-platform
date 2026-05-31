@@ -1,0 +1,260 @@
+# Hướng dẫn cài đặt và sử dụng kafka-connect-dynamic-filter với Docker
+
+Bài viết này dành cho môi trường **Docker / Docker Compose**. Nếu bạn đang dùng Kafka Connect cài trực tiếp trên Linux, xem [Hướng dẫn cài đặt và sử dụng](./Hướng%20dẫn%20cài%20đặt%20và%20sử%20dụng.md).
+
+> **Demo sẵn sàng chạy:** Nếu bạn chỉ muốn thử nhanh, dùng luôn `examples/docker/` trong repo - `docker compose up -d` là xong, không cần cấu hình gì thêm.
+
+---
+
+## Yêu cầu
+
+- Docker Engine 20.10+ và Docker Compose v2
+- Quyền truy cập vào [GitHub Releases](https://github.com/caobahuong/kafka-connect-dynamic-filter/releases)
+- (Tùy chọn) Debezium connector image nếu bạn cần CDC
+
+---
+
+## Bước 1: Tải JAR về máy host
+
+Tải fat JAR tương ứng với module bạn muốn dùng từ trang Releases:
+
+```bash
+# Tạo thư mục lưu plugin trên máy host
+mkdir -p ./kafka-connect-plugins/kafka-connect-dynamic-filter
+
+wget -P ./kafka-connect-plugins/kafka-connect-dynamic-filter \
+  https://github.com/caobahuong/kafka-connect-dynamic-filter/releases/download/v0.1.0/kafka-connect-dynamic-filter-redis-0.1.0.jar
+```
+
+| Module | File tải về |
+|--------|-------------|
+| Redis  | `kafka-connect-dynamic-filter-redis-0.1.0.jar` |
+| Kafka topic | `kafka-connect-dynamic-filter-kafka-0.1.0.jar` |
+| File JSON | `kafka-connect-dynamic-filter-file-0.1.0.jar` |
+
+---
+
+## Bước 2: Docker Compose
+
+Tạo file `docker-compose.yml` với stack đầy đủ: Kafka (KRaft - không cần Zookeeper), Kafka Connect (Debezium), và Redis.
+
+```yaml
+services:
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server kafka:29092 > /dev/null 2>&1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  kafka-connect:
+    image: quay.io/debezium/connect:2.7
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8083:8083"
+    environment:
+      BOOTSTRAP_SERVERS: kafka:29092
+      GROUP_ID: connect-cluster
+      CONFIG_STORAGE_TOPIC: connect-configs
+      OFFSET_STORAGE_TOPIC: connect-offsets
+      STATUS_STORAGE_TOPIC: connect-status
+      CONNECT_PLUGIN_PATH: /kafka/connect,/kafka/connect/custom-plugins
+    volumes:
+      - ./kafka-connect-plugins:/kafka/connect/custom-plugins:ro
+
+  redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --save "" --appendonly no
+```
+
+> **Lưu ý:** KRaft là chế độ Kafka không cần Zookeeper (mặc định từ Kafka 3.3+). `CLUSTER_ID` cần pin cứng để metadata không mất khi container restart. Debezium image (`quay.io/debezium/connect`) đã bao gồm Kafka Connect runtime.
+
+---
+
+## Bước 3: Khởi động stack
+
+```bash
+docker compose up -d
+```
+
+Kiểm tra tất cả container đang chạy:
+
+```bash
+docker compose ps
+```
+
+<!-- [ảnh: output `docker compose ps` với STATUS `Up` cho tất cả service] -->
+
+Đợi Kafka Connect khởi động xong (30–60 giây), sau đó kiểm tra REST API:
+
+```bash
+curl -s http://localhost:8083/connector-plugins | python3 -m json.tool | grep -i dynamic
+```
+
+Nếu thấy `io.kafkaconnect.dynamicfilter.redis.RedisDynamicFilter` là plugin đã được load thành công.
+
+<!-- [ảnh: terminal hiển thị output REST API với class RedisDynamicFilter trong danh sách] -->
+
+---
+
+## Bước 4: Đăng ký connector
+
+Dùng REST API để tạo connector mới với SMT filter:
+
+```bash
+curl -X POST http://localhost:8083/connectors \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "debezium-mysql-with-filter",
+    "config": {
+      "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+      "database.hostname": "mysql",
+      "database.port": "3306",
+      "database.user": "debezium",
+      "database.password": "password",
+      "database.server.id": "1",
+      "topic.prefix": "mydb",
+      "database.include.list": "myapp",
+      "schema.history.internal.kafka.bootstrap.servers": "kafka:29092",
+      "schema.history.internal.kafka.topic": "schema-changes.myapp",
+
+      "transforms": "dynamicFilter",
+      "transforms.dynamicFilter.type": "io.kafkaconnect.dynamicfilter.redis.RedisDynamicFilter",
+      "transforms.dynamicFilter.filter.id": "company-filter",
+      "transforms.dynamicFilter.field.name": "com_id",
+      "transforms.dynamicFilter.redis.uri": "redis://redis:6379",
+      "transforms.dynamicFilter.redis.key": "filter:companies",
+      "transforms.dynamicFilter.empty.list.behavior": "pass_all"
+    }
+  }'
+```
+
+> Chú ý dùng hostname nội bộ trong Docker network (`redis`, `kafka`) thay vì `localhost`.
+
+Kiểm tra connector đang chạy:
+
+```bash
+curl -s http://localhost:8083/connectors/debezium-mysql-with-filter/status | python3 -m json.tool
+```
+
+<!-- [ảnh: output JSON với `"state": "RUNNING"` cho connector và tất cả tasks] -->
+
+---
+
+## Bước 5: Điều khiển filter qua Redis
+
+### Từ máy host (Redis port đã expose ra 6379)
+
+```bash
+# Allow-list đơn giản
+redis-cli SET filter:companies '[1, 2, 3]'
+
+# Điều kiện phức hợp
+redis-cli SET filter:companies '{
+  "op": "AND",
+  "conditions": [
+    {"field": "com_id",  "op": "IN", "values": [1, 2, 3]},
+    {"field": "status",  "op": "EQ", "values": ["ACTIVE"]}
+  ]
+}'
+
+# Xóa rule (tắt filter, mọi bản ghi đều qua)
+redis-cli DEL filter:companies
+```
+
+### Từ bên trong container
+
+Nếu Redis không expose port ra ngoài, dùng `docker exec`:
+
+```bash
+docker compose exec redis redis-cli SET filter:companies '[1, 2, 3]'
+```
+
+---
+
+## Bước 6: Xem log
+
+### Xem log realtime của Kafka Connect
+
+```bash
+docker compose logs -f kafka-connect
+```
+
+### Lọc log theo filter ID
+
+```bash
+docker compose logs -f kafka-connect | grep "company-filter"
+```
+
+<!-- [ảnh: terminal hiển thị dòng log `Filter rule updated for 'company-filter'` sau khi SET Redis key] -->
+
+### Kiểm tra bản ghi trên topic
+
+```bash
+docker compose exec kafka \
+  kafka-console-consumer \
+  --bootstrap-server kafka:29092 \
+  --topic mydb.myapp.orders \
+  --from-beginning \
+  --property print.key=true
+```
+
+---
+
+## Bước 7 (tùy chọn): Bật Keyspace Notifications
+
+Để filter nhận cập nhật ngay lập tức thay vì chờ polling:
+
+**Bước 1: Bật trên Redis:**
+
+```bash
+docker compose exec redis redis-cli CONFIG SET notify-keyspace-events KEA
+```
+
+**Bước 2: Cập nhật connector config:**
+
+```bash
+curl -X PUT http://localhost:8083/connectors/debezium-mysql-with-filter/config \
+  -H "Content-Type: application/json" \
+  -d '{
+    ...các config khác...,
+    "transforms.dynamicFilter.redis.keyspace.notifications.enabled": "true",
+    "transforms.dynamicFilter.redis.keyspace.db.index": "0"
+  }'
+```
+
+Sau đó mỗi lần bạn `SET` hoặc `DEL` key trên Redis, filter sẽ reload rule ngay lập tức mà không cần chờ hết chu kỳ polling.
+
+---
+
+## Cách khác: Mount plugin vào image tùy chỉnh
+
+Nếu bạn muốn build image sẵn plugin (ví dụ cho môi trường production không có quyền mount volume):
+
+**Dockerfile:**
+
+```dockerfile
+FROM quay.io/debezium/connect:2.7
+
+# Copy plugin JAR vào thư mục plugin của Debezium
+COPY kafka-connect-dynamic-filter-redis-*.jar /kafka/connect/kafka-connect-dynamic-filter/
+```
+

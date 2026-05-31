@@ -1,0 +1,260 @@
+# Hướng dẫn cài đặt và sử dụng kafka-connect-dynamic-filter
+
+Bài viết này hướng dẫn toàn bộ quy trình: từ tải thư viện về máy, đến cấu hình Debezium connector, đến việc điều khiển filter hoàn toàn không cần restart.
+
+Môi trường sử dụng trong bài: **Linux, Kafka Connect chạy dạng systemd service**. Nếu bạn đang dùng Docker, xem thêm [Hướng dẫn cài đặt và sử dụng với docker](./Hướng%20dẫn%20cài%20đặt%20và%20sử%20dụng%20với%20docker.md).
+
+---
+
+## Mục lục
+
+- [Yêu cầu](#yêu-cầu)
+- [Bước 1: Tải JAR về máy](#bước-1-tải-jar-về-máy)
+- [Bước 2: Tìm thư mục plugin của Kafka Connect](#bước-2-tìm-thư-mục-plugin-của-kafka-connect)
+- [Bước 3: Copy JAR vào thư mục plugin](#bước-3-copy-jar-vào-thư-mục-plugin)
+- [Bước 4: Khởi động lại Kafka Connect](#bước-4-khởi-động-lại-kafka-connect)
+- [Bước 5: Thêm filter vào connector](#bước-5-thêm-filter-vào-connector)
+- [Bước 6: Điều khiển filter qua Redis](#bước-6-điều-khiển-filter-qua-redis)
+- [Bước 7: Xác minh filter hoạt động](#bước-7-xác-minh-filter-hoạt-động)
+- [Cấu hình tham chiếu nhanh](#cấu-hình-tham-chiếu-nhanh)
+- [Xử lý sự cố thường gặp](#xử-lý-sự-cố-thường-gặp)
+
+---
+
+## Yêu cầu
+
+- Kafka Connect đã cài đặt và đang chạy (standalone hoặc distributed)
+- Debezium connector đã được cài đặt vào Kafka Connect
+- Redis đang hoạt động (nếu dùng module `redis`)
+- Java 17 trở lên
+- Quyền `sudo` hoặc quyền ghi vào thư mục plugin của Kafka Connect
+
+---
+
+## Bước 1: Tải JAR về máy
+
+Vào trang [Releases](https://github.com/caobahuong/kafka-connect-dynamic-filter/releases) và tải file JAR tương ứng với module bạn muốn dùng:
+
+| Bạn muốn lưu rule ở đâu? | Tải file nào? |
+|---|---|
+| Redis | `kafka-connect-dynamic-filter-redis-0.1.0.jar` |
+| Kafka topic | `kafka-connect-dynamic-filter-kafka-0.1.0.jar` |
+| File JSON | `kafka-connect-dynamic-filter-file-0.1.0.jar` |
+
+Mỗi file là một **fat JAR**: tất cả dependency đã được đóng gói bên trong. Bạn chỉ cần đúng **một** file, không cần tải thêm gì.
+
+Ví dụ tải về thư mục Downloads:
+
+```bash
+wget -P ~/Downloads https://github.com/caobahuong/kafka-connect-dynamic-filter/releases/download/v0.1.0/kafka-connect-dynamic-filter-redis-0.1.0.jar
+```
+
+---
+
+## Bước 2: Tìm thư mục plugin của Kafka Connect
+
+Kafka Connect tải plugin từ một hoặc nhiều thư mục được khai báo trong file cấu hình. Bạn cần tìm đường dẫn đó trước khi copy JAR.
+
+**Cách 1: Tìm trong file cấu hình:**
+
+```bash
+grep -r "plugin.path" /etc/kafka/ /opt/kafka/ 2>/dev/null
+```
+
+**Cách 2: Tìm theo tên thư mục:**
+
+```bash
+find /opt /usr /etc -iname "*plugin*" -type d 2>/dev/null | grep -i kafka
+```
+
+Thường thấy ở một trong các đường dẫn sau:
+
+```
+/opt/kafka/plugins/
+/opt/confluent/share/java/
+/usr/share/confluent-hub-components/
+/etc/kafka-connect/plugins/
+```
+
+**Cách 3: Hỏi trực tiếp process đang chạy:**
+
+```bash
+# Xem toàn bộ tham số khởi động của Kafka Connect
+ps aux | grep ConnectDistributed
+# hoặc
+ps aux | grep ConnectStandalone
+```
+
+Tìm tham số `plugin.path` trong output.
+
+<!-- [ảnh: terminal hiển thị kết quả lệnh `grep plugin.path` với đường dẫn plugin directory] -->
+
+---
+
+## Bước 3: Copy JAR vào thư mục plugin
+
+Copy JAR vào thư mục tìm được ở Bước 2, hoặc tạo một thư mục con bên trong đó:
+
+```bash
+# Cách 1: Copy thẳng vào thư mục đang có trong plugin.path
+sudo cp ~/Downloads/kafka-connect-dynamic-filter-redis-*.jar \
+        /usr/share/confluent-hub-components/
+
+# Cách 2: Tạo thư mục con riêng (Kafka Connect scan cả subdirectory một cấp)
+sudo mkdir -p /usr/share/confluent-hub-components/kafka-connect-dynamic-filter
+sudo cp ~/Downloads/kafka-connect-dynamic-filter-redis-*.jar \
+        /usr/share/confluent-hub-components/kafka-connect-dynamic-filter/
+```
+
+Cả hai cách đều không cần sửa `plugin.path`. Chỉ cần sửa nếu bạn copy JAR ra ngoài hoàn toàn cây thư mục hiện tại.
+
+Kiểm tra file đã ở đúng chỗ:
+
+```bash
+ls -lh /usr/share/confluent-hub-components/kafka-connect-dynamic-filter-redis-*.jar
+```
+
+---
+
+## Bước 4: Khởi động lại Kafka Connect
+
+```bash
+sudo systemctl restart kafka-connect
+```
+
+Đợi khoảng 10–30 giây rồi kiểm tra trạng thái:
+
+```bash
+sudo systemctl status kafka-connect
+```
+
+<!-- [ảnh: terminal hiển thị `systemctl status kafka-connect` với trạng thái `active (running)`] -->
+
+Kiểm tra Kafka Connect đã nhận plugin bằng REST API:
+
+```bash
+curl -s http://localhost:8083/connector-plugins | python3 -m json.tool | grep -i dynamic
+```
+
+Nếu thấy `io.kafkaconnect.dynamicfilter.redis.RedisDynamicFilter` trong output là thành công.
+
+---
+
+## Bước 5: Thêm filter vào connector
+
+Bây giờ thêm cấu hình SMT vào Debezium connector của bạn. Có hai cách:
+
+### Cách A: Cập nhật connector đang chạy qua REST API
+
+```bash
+curl -X PUT http://localhost:8083/connectors/connector-name/config \
+  -H "Content-Type: application/json" \
+  -d '{
+    "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+    "database.hostname": "localhost",
+    "database.port": "3306",
+    "database.user": "debezium",
+    "database.password": "password",
+    "database.server.id": "1",
+    "topic.prefix": "mydb",
+    "database.include.list": "myapp",
+    "schema.history.internal.kafka.bootstrap.servers": "localhost:9092",
+    "schema.history.internal.kafka.topic": "schema-changes.myapp",
+
+    "transforms": "dynamicFilter",
+    "transforms.dynamicFilter.type": "io.kafkaconnect.dynamicfilter.redis.RedisDynamicFilter",
+    "transforms.dynamicFilter.filter.id": "company-filter",
+    "transforms.dynamicFilter.field.name": "com_id",
+    "transforms.dynamicFilter.redis.uri": "redis://localhost:6379",
+    "transforms.dynamicFilter.redis.key": "filter:companies",
+    "transforms.dynamicFilter.empty.list.behavior": "pass_all"
+  }'
+```
+
+> Thay `connector-name` bằng tên connector thực tế. Xem danh sách connector hiện có: `curl http://localhost:8083/connectors`
+
+### Cách B: Tạo connector mới với filter đã có sẵn
+
+```bash
+curl -X POST http://localhost:8083/connectors \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "debezium-mysql-with-filter",
+    "config": {
+      "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+      "database.hostname": "localhost",
+      "database.port": "3306",
+      "database.user": "debezium",
+      "database.password": "password",
+      "database.server.id": "1",
+      "topic.prefix": "mydb",
+      "database.include.list": "myapp",
+      "schema.history.internal.kafka.bootstrap.servers": "localhost:9092",
+      "schema.history.internal.kafka.topic": "schema-changes.myapp",
+
+      "transforms": "dynamicFilter",
+      "transforms.dynamicFilter.type": "io.kafkaconnect.dynamicfilter.redis.RedisDynamicFilter",
+      "transforms.dynamicFilter.filter.id": "company-filter",
+      "transforms.dynamicFilter.field.name": "com_id",
+      "transforms.dynamicFilter.redis.uri": "redis://localhost:6379",
+      "transforms.dynamicFilter.redis.key": "filter:companies",
+      "transforms.dynamicFilter.empty.list.behavior": "pass_all"
+    }
+  }'
+```
+
+Kiểm tra connector đã nhận config và đang chạy:
+
+```bash
+curl http://localhost:8083/connectors/debezium-mysql-with-filter/status | python3 -m json.tool
+```
+
+<!-- [ảnh: terminal hiển thị response JSON với `"state": "RUNNING"` cho connector và tasks] -->
+
+---
+
+## Bước 6: Điều khiển filter qua Redis
+
+Đây là phần cốt lõi: bạn có thể thay đổi rule **bất kỳ lúc nào**, **từ bất kỳ đâu**, mà **không cần động vào Kafka Connect**.
+
+### Allow-list đơn giản
+
+Chỉ cho phép bản ghi có `com_id` là 1, 2, 3 đi qua:
+
+```bash
+redis-cli SET filter:companies '[1, 2, 3]'
+```
+
+Từ bản ghi tiếp theo, chỉ công ty 1, 2, 3 được phép lên Kafka topic.
+
+### Thêm công ty vào danh sách
+
+Thêm công ty 4 và 5: có hiệu lực **ngay lập tức**, không cần restart:
+
+```bash
+redis-cli SET filter:companies '[1, 2, 3, 4, 5]'
+```
+
+### Điều kiện phức hợp
+
+Chỉ cho qua bản ghi của công ty trong danh sách, đang hoạt động (`ACTIVE`), và chưa bị xóa:
+
+```bash
+redis-cli SET filter:companies '{
+  "op": "AND",
+  "conditions": [
+    {"field": "com_id",     "op": "IN",      "values": [1, 2, 3]},
+    {"field": "status",     "op": "EQ",      "values": ["ACTIVE"]},
+    {"field": "deleted_at", "op": "IS_NULL"}
+  ]
+}'
+```
+
+### Cho tất cả đi qua (tắt filter)
+
+```bash
+redis-cli DEL filter:companies
+```
+
+Khi không có key, filter hoạt động theo `empty.list.behavior`: ở ví dụ trên là `pass_all`, tức tất cả bản ghi đều qua.
+

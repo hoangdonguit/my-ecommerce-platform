@@ -1,0 +1,9 @@
+kafka-connect-dynamic-filter-core/src/main/java/io/kafkaconnect/dynamicfilter/DynamicListFilter.java
+kafka-connect-dynamic-filter-core/src/main/java/io/kafkaconnect/dynamicfilter/FilterMetrics.java
+kafka-connect-dynamic-filter-core/src/main/java/io/kafkaconnect/dynamicfilter/FilterMetricsMXBean.java
+kafka-connect-dynamic-filter-core/src/main/java/io/kafkaconnect/dynamicfilter/FilterRule.java
+kafka-connect-dynamic-filter-file/src/main/java/io/kafkaconnect/dynamicfilter/file/FileDynamicFilter.java
+kafka-connect-dynamic-filter-kafka/src/main/java/io/kafkaconnect/dynamicfilter/kafka/KafkaDynamicFilter.java
+kafka-connect-dynamic-filter-redis/src/main/java/io/kafkaconnect/dynamicfilter/redis/RedisDynamicFilter.java
+support/checkstyle/src/main/resources/checkstyle-suppressions.xml
+support/checkstyle/src/main/resources/checkstyle.xml
