@@ -1,0 +1,2 @@
+NAME      	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART            	APP VERSION
+postgresql	db       	1       	2026-05-28 19:51:37.741082635 +0700 +07	deployed	postgresql-18.6.8	18.4.0     
