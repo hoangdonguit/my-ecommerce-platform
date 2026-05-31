@@ -22,7 +22,7 @@ spec:
         kubernetes.io/hostname: vm3-gitops
       containers:
         - name: kafka-connect
-          image: quay.io/debezium/connect:2.7
+          image: hoangdonguit/kafka-connect-debezium:dynamic-filter-redis-20260601022704
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8083
