@@ -1,0 +1,42 @@
+{
+  "http_req_duration": {
+    "max": 2018.015819,
+    "p(90)": 924.4515250000001,
+    "p(95)": 1226.50071585,
+    "avg": 373.02257860833447,
+    "min": 16.506626,
+    "med": 232.33383600000002,
+    "thresholds": {
+      "p(95)<1500": false
+    }
+  },
+  "http_reqs": {
+    "count": 1200,
+    "rate": 19.891963532178497
+  },
+  "iterations": {
+    "count": 1200,
+    "rate": 19.891963532178497
+  },
+  "dropped_iterations": null,
+  "accepted_orders": {
+    "count": 1200,
+    "rate": 19.891963532178497
+  },
+  "http_req_failed": {
+    "passes": 0,
+    "fails": 1200,
+    "thresholds": {
+      "rate<0.01": false
+    },
+    "value": 0
+  },
+  "unexpected_error_rate": {
+    "passes": 0,
+    "fails": 1200,
+    "thresholds": {
+      "rate<0.01": false
+    },
+    "value": 0
+  }
+}

@@ -1,0 +1,25 @@
+--- orders ---
+  status   | count 
+-----------+-------
+ COMPLETED | 14268
+ FAILED    |     4
+(2 rows)
+
+--- order outbox ---
+  status   | count 
+-----------+-------
+ PUBLISHED | 14272
+(1 row)
+
+--- inventory outbox ---
+  status   | count 
+-----------+-------
+ PUBLISHED |  9536
+(1 row)
+
+--- payment outbox ---
+  status   | count 
+-----------+-------
+ PUBLISHED |  7107
+(1 row)
+

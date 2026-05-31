@@ -1,0 +1,4 @@
+NAME                       SYNC STATUS   HEALTH STATUS   REVISION                                   PROJECT
+ecommerce-infrastructure   Synced        Healthy         cda33bf2bb42415cf0326610919384928755cc89   default
+ecommerce-platform         Synced        Healthy         cda33bf2bb42415cf0326610919384928755cc89   default
+infrastructure-layer       Synced        Healthy         cda33bf2bb42415cf0326610919384928755cc89   default

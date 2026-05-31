@@ -1,0 +1,7 @@
+NAME                    READY   UP-TO-DATE   AVAILABLE   AGE    CONTAINERS              IMAGES                                                                 SELECTOR
+web-gateway             2/2     2            2           3d1h   web-gateway             hoangdonguit/web-gateway:hotpath-timeout-20260531002308                app=web-gateway
+order-service           2/2     2            2           3d1h   order-service           hoangdonguit/order-service:hotpath-timeout-20260531002308              app=order-service
+inventory-consumer      1/1     1            1           3d1h   inventory-consumer      hoangdonguit/inventory-service:inventory-outbox-batch-20260530105626   app=inventory-consumer
+payment-consumer        1/1     1            1           3d1h   payment-consumer        hoangdonguit/payment-service:payment-outbox-20260530171950             app=payment-consumer
+notification-consumer   1/1     1            1           3d1h   notification-consumer   hoangdonguit/notification-service:dlq-retry-20260520020224             app=notification-consumer
+read-model-service      1/1     1            1           3d1h   read-model-service      hoangdonguit/read-model-service:readmodel-limit1000-20260529124717     app=read-model-service
