@@ -6,7 +6,7 @@ metadata:
 spec:
   scaleTargetRef:
     name: order-service
-  minReplicaCount: 1
+  minReplicaCount: 2
   maxReplicaCount: 8
   cooldownPeriod: 60
   pollingInterval: 15
