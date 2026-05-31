@@ -1,0 +1,18 @@
+# Additional Helm values for Bitnami PostgreSQL to support Debezium CDC.
+# PostgreSQL remains the OLTP source of truth.
+# Debezium will use logical decoding from WAL.
+
+primary:
+  extendedConfiguration: |
+    wal_level = logical
+    max_replication_slots = 10
+    max_wal_senders = 16
+    max_slot_wal_keep_size = 2GB
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
