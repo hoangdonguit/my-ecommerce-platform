@@ -8,10 +8,13 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
 func SetupRouter(handler *Handler) *gin.Engine {
 	router := gin.Default()
+
+	router.Use(otelgin.Middleware("web-gateway"))
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: []string{

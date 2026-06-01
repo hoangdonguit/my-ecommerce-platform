@@ -18,7 +18,7 @@ spec:
       serviceAccountName: web-gateway-sa
       containers:
       - name: web-gateway
-        image: hoangdonguit/web-gateway:hotpath-timeout-20260531002308
+        image: hoangdonguit/web-gateway:otel-webgateway-20260601213658
         ports:
         - containerPort: 8090
         resources:
@@ -70,6 +70,14 @@ spec:
             configMapKeyRef:
               name: ecommerce-runtime-config
               key: REDIS_ADDR
+        - name: OTEL_ENABLED
+          value: "true"
+        - name: OTEL_SERVICE_NAME
+          value: "web-gateway"
+        - name: OTEL_ENVIRONMENT
+          value: "development"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "otel-collector.observability.svc.cluster.local:4317"
 ---
 apiVersion: v1
 kind: Service

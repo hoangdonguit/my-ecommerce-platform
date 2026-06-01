@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os"
+	"strings"
 )
 
 type Config struct {
@@ -17,6 +18,11 @@ type Config struct {
 	ReadModelServiceURL    string
 	RedisAddr              string
 	RedisPassword          string
+
+	OTelEnabled     bool
+	OTelServiceName string
+	OTelEnvironment string
+	OTelEndpoint    string
 }
 
 func Load() Config {
@@ -32,6 +38,11 @@ func Load() Config {
 		ReadModelServiceURL:    getEnv("READ_MODEL_SERVICE_URL", "http://localhost:8085/api/v1"),
 		RedisAddr:              getEnv("REDIS_ADDR", "redis.default.svc.cluster.local:6379"),
 		RedisPassword:          getEnv("REDIS_PASSWORD", ""),
+
+		OTelEnabled:     getEnvBool("OTEL_ENABLED", false),
+		OTelServiceName: getEnv("OTEL_SERVICE_NAME", "web-gateway"),
+		OTelEnvironment: getEnv("OTEL_ENVIRONMENT", getEnv("APP_ENV", "development")),
+		OTelEndpoint:    getEnv("OTEL_EXPORTER_OTLP_ENDPOINT", "otel-collector.observability.svc.cluster.local:4317"),
 	}
 
 	validate(cfg)
@@ -65,4 +76,20 @@ func getEnv(key string, fallback string) string {
 		return fallback
 	}
 	return value
+}
+
+func getEnvBool(key string, fallback bool) bool {
+	value := strings.ToLower(strings.TrimSpace(os.Getenv(key)))
+	if value == "" {
+		return fallback
+	}
+
+	switch value {
+	case "1", "true", "yes", "y", "on":
+		return true
+	case "0", "false", "no", "n", "off":
+		return false
+	default:
+		return fallback
+	}
 }
