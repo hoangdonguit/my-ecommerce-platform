@@ -12,7 +12,7 @@ data:
   listen.xml: |
     <clickhouse>
       <listen_host>0.0.0.0</listen_host>
-      <max_server_memory_usage_to_ram_ratio>0.6</max_server_memory_usage_to_ram_ratio>
+      <max_server_memory_usage_to_ram_ratio>0.75</max_server_memory_usage_to_ram_ratio>
     </clickhouse>
 ---
 apiVersion: v1
@@ -70,11 +70,11 @@ spec:
               subPath: listen.xml
           resources:
             requests:
-              cpu: 250m
-              memory: 512Mi
-            limits:
-              cpu: 1000m
+              cpu: 500m
               memory: 1Gi
+            limits:
+              cpu: 1500m
+              memory: 2Gi
           readinessProbe:
             httpGet:
               path: /ping
