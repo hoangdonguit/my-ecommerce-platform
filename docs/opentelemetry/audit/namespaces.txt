@@ -1,0 +1,13 @@
+NAME              STATUS   AGE
+analytics         Active   11h
+argocd            Active   3d17h
+cdc               Active   12h
+chaos-mesh        Active   3d13h
+db                Active   3d17h
+default           Active   3d19h
+kafka             Active   3d17h
+keda              Active   3d16h
+kube-node-lease   Active   3d19h
+kube-public       Active   3d19h
+kube-system       Active   3d19h
+monitoring        Active   3d17h
