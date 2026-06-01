@@ -18,7 +18,7 @@ spec:
       serviceAccountName: order-service-sa
       containers:
       - name: order-service
-        image: hoangdonguit/order-service:otel-orderservice-20260601232328
+        image: hoangdonguit/order-service:otel-kafka-orderservice-20260602003109
         ports:
         - containerPort: 8081
         resources:

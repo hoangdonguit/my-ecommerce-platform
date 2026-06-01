@@ -6,7 +6,10 @@ import (
 	"time"
 
 	orderapp "github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/app/order"
+	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/observability"
 	kafkago "github.com/segmentio/kafka-go"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 type OrderPublisher struct {
@@ -36,22 +39,41 @@ func (p *OrderPublisher) PublishOrderCreated(ctx context.Context, event orderapp
 
 // Gửi BATCH - dùng WriteMessages 1 lần cho toàn bộ
 func (p *OrderPublisher) PublishOrderCreatedBatch(ctx context.Context, events []orderapp.OrderCreatedEvent) error {
+	ctx, span := otel.Tracer("order-service").Start(ctx, "kafka publish order.created")
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.String("messaging.system", "kafka"),
+		attribute.String("messaging.destination.name", p.topic),
+		attribute.Int("messaging.batch.message_count", len(events)),
+	)
+
 	msgs := make([]kafkago.Message, 0, len(events))
 	for _, event := range events {
 		payload, err := json.Marshal(event)
 		if err != nil {
 			continue
 		}
+		headers := make([]kafkago.Header, 0)
+		otel.GetTextMapPropagator().Inject(ctx, observability.NewKafkaHeadersCarrier(&headers))
+
 		msgs = append(msgs, kafkago.Message{
-			Key:   []byte(event.OrderID),
-			Value: payload,
-			Time:  time.Now(),
+			Key:     []byte(event.OrderID),
+			Value:   payload,
+			Time:    time.Now(),
+			Headers: headers,
 		})
 	}
 	if len(msgs) == 0 {
 		return nil
 	}
-	return p.writer.WriteMessages(ctx, msgs...)
+
+	if err := p.writer.WriteMessages(ctx, msgs...); err != nil {
+		span.RecordError(err)
+		return err
+	}
+
+	return nil
 }
 
 func (p *OrderPublisher) Close() error {
