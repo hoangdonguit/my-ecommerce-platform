@@ -18,7 +18,7 @@ spec:
       serviceAccountName: order-service-sa
       containers:
       - name: order-service
-        image: hoangdonguit/order-service:hotpath-timeout-20260531002308
+        image: hoangdonguit/order-service:otel-orderservice-20260601232328
         ports:
         - containerPort: 8081
         resources:
@@ -64,6 +64,14 @@ spec:
           value: "120"
         - name: ORDER_OUTBOX_REQUEUE_CHECK_MS
           value: "5000"
+        - name: OTEL_ENABLED
+          value: "true"
+        - name: OTEL_SERVICE_NAME
+          value: "order-service"
+        - name: OTEL_ENVIRONMENT
+          value: "development"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "otel-collector.observability.svc.cluster.local:4317"
 ---
 apiVersion: v1
 kind: Service

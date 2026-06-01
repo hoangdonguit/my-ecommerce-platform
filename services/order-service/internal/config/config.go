@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -16,6 +17,11 @@ type Config struct {
 	OrderCreatedTopic string
 	RedisAddr         string
 	RedisPassword     string
+
+	OTelEnabled     bool
+	OTelServiceName string
+	OTelEnvironment string
+	OTelEndpoint    string
 }
 
 func Load() Config {
@@ -30,6 +36,11 @@ func Load() Config {
 		OrderCreatedTopic: getEnv("KAFKA_TOPIC_ORDER_CREATED", "order.created"),
 		RedisAddr:         getEnv("REDIS_ADDR", "redis-master.cache.svc.cluster.local:6379"),
 		RedisPassword:     getEnv("REDIS_PASSWORD", "redissecret"), // Mật khẩu mặc định của cụm K8s
+
+		OTelEnabled:     getEnvBool("OTEL_ENABLED", false),
+		OTelServiceName: getEnv("OTEL_SERVICE_NAME", "order-service"),
+		OTelEnvironment: getEnv("OTEL_ENVIRONMENT", getEnv("APP_ENV", "development")),
+		OTelEndpoint:    getEnv("OTEL_EXPORTER_OTLP_ENDPOINT", "otel-collector.observability.svc.cluster.local:4317"),
 	}
 
 	validate(cfg)
@@ -51,4 +62,19 @@ func getEnv(key string, fallback string) string {
 		return fallback
 	}
 	return value
+}
+func getEnvBool(key string, fallback bool) bool {
+	value := strings.ToLower(strings.TrimSpace(os.Getenv(key)))
+	if value == "" {
+		return fallback
+	}
+
+	switch value {
+	case "1", "true", "yes", "y", "on":
+		return true
+	case "0", "false", "no", "n", "off":
+		return false
+	default:
+		return fallback
+	}
 }

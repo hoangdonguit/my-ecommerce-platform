@@ -1,9 +1,14 @@
 package http
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+)
 
 func SetupRouter(orderHandler *OrderHandler) *gin.Engine {
 	router := gin.Default()
+
+	router.Use(otelgin.Middleware("order-service"))
 
 	api := router.Group("/api/v1")
 	{

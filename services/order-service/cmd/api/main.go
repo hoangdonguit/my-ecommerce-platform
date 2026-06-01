@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
@@ -14,11 +15,30 @@ import (
 	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/infrastructure/messaging"
 	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/infrastructure/persistence"
 	httpapi "github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/interfaces/http"
+	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/observability"
 	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/worker" // IMPORT WORKER Ở ĐÂY
 )
 
 func main() {
 	cfg := config.Load()
+
+	tracingShutdown, err := observability.InitTracing(context.Background(), observability.TracingConfig{
+		Enabled:     cfg.OTelEnabled,
+		ServiceName: cfg.OTelServiceName,
+		Environment: cfg.OTelEnvironment,
+		Endpoint:    cfg.OTelEndpoint,
+	})
+	if err != nil {
+		log.Fatalf("failed to initialize tracing: %v", err)
+	}
+	defer func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		if err := tracingShutdown(ctx); err != nil {
+			log.Printf("failed to shutdown tracing: %v", err)
+		}
+	}()
 
 	if cfg.AppEnv == "production" {
 		gin.SetMode(gin.ReleaseMode)
