@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: analytics-layer
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/hoangdonguit/my-ecommerce-platform
+    targetRevision: main
+    path: k8s/analytics
+    directory:
+      recurse: false
+      exclude: '*example*.yaml'
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: analytics
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
