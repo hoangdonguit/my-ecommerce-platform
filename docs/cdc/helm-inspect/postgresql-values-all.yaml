@@ -16,7 +16,7 @@ auth:
   metricsPassword: ""
   metricsUsername: ""
   password: ""
-  postgresPassword: securepassword
+  postgresPassword: REDACTED
   replicationPassword: ""
   replicationUsername: repl_user
   secretKeys:
