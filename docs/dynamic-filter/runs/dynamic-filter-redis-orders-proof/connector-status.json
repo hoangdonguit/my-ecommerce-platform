@@ -1,0 +1,1 @@
+{"name":"order-db-orders-dynamic-filter-connector","connector":{"state":"RUNNING","worker_id":"10.42.2.87:8083"},"tasks":[{"id":0,"state":"RUNNING","worker_id":"10.42.2.87:8083"}],"type":"source"}pod "connect-dynamic-filter-status-record" deleted from cdc namespace
