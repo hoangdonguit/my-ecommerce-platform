@@ -4,9 +4,9 @@ kube-system   kube-prometheus-stack-kube-etcd                  ClusterIP   None 
 kube-system   kube-prometheus-stack-kube-proxy                 ClusterIP   None            <none>        10249/TCP                         3d13h
 kube-system   kube-prometheus-stack-kube-scheduler             ClusterIP   None            <none>        10259/TCP                         3d13h
 kube-system   kube-prometheus-stack-kubelet                    ClusterIP   None            <none>        10250/TCP,4194/TCP,10255/TCP      3d13h
-monitoring    kube-prometheus-stack-grafana                    NodePort    10.43.211.207   <none>        80:31000/TCP                      3d13h
-monitoring    kube-prometheus-stack-kube-state-metrics         ClusterIP   10.43.113.181   <none>        8080/TCP                          3d13h
-monitoring    kube-prometheus-stack-operator                   ClusterIP   10.43.198.129   <none>        443/TCP                           3d13h
-monitoring    kube-prometheus-stack-prometheus                 ClusterIP   10.43.96.206    <none>        9090/TCP,8080/TCP                 3d13h
-monitoring    kube-prometheus-stack-prometheus-node-exporter   ClusterIP   10.43.250.102   <none>        9100/TCP                          3d13h
+monitoring    kube-prometheus-stack-grafana                    NodePort    10.43.REDACTED.REDACTED   <none>        80:31000/TCP                      3d13h
+monitoring    kube-prometheus-stack-kube-state-metrics         ClusterIP   10.43.REDACTED.REDACTED   <none>        8080/TCP                          3d13h
+monitoring    kube-prometheus-stack-operator                   ClusterIP   10.43.REDACTED.REDACTED   <none>        443/TCP                           3d13h
+monitoring    kube-prometheus-stack-prometheus                 ClusterIP   10.43.REDACTED.REDACTED    <none>        9090/TCP,8080/TCP                 3d13h
+monitoring    kube-prometheus-stack-prometheus-node-exporter   ClusterIP   10.43.REDACTED.REDACTED   <none>        9100/TCP                          3d13h
 monitoring    prometheus-operated                              ClusterIP   None            <none>        9090/TCP                          3d13h

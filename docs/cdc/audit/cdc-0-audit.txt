@@ -138,9 +138,9 @@ infrastructure-layer       Synced        Healthy         39cbe0614f3542e6f3d5ebd
 ===== KAFKA CONNECT / DEBEZIUM EXISTING CHECK =====
 ===== POSTGRES SERVICE / SECRET =====
 NAME            TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE    SELECTOR
-postgresql      ClusterIP   10.43.35.230    <none>        5432/TCP   3d3h   app.kubernetes.io/component=primary,app.kubernetes.io/instance=postgresql,app.kubernetes.io/name=postgresql
+postgresql      ClusterIP   10.43.REDACTED.REDACTED    <none>        5432/TCP   3d3h   app.kubernetes.io/component=primary,app.kubernetes.io/instance=postgresql,app.kubernetes.io/name=postgresql
 postgresql-hl   ClusterIP   None            <none>        5432/TCP   3d3h   app.kubernetes.io/component=primary,app.kubernetes.io/instance=postgresql,app.kubernetes.io/name=postgresql
-pgbouncer       ClusterIP   10.43.185.249   <none>        6432/TCP   3d2h   app=pgbouncer
+pgbouncer       ClusterIP   10.43.REDACTED.REDACTED   <none>        6432/TCP   3d2h   app=pgbouncer
 [
   "postgres-password"
 ]
