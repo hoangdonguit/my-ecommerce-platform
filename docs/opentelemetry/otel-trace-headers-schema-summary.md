@@ -23,7 +23,7 @@ The payment outbox trigger function `enqueue_payment_outbox_event()` was updated
 
 - `docs/opentelemetry/runs/otel-trace-headers-schema-20260602232803/run-info.txt`
 - `docs/opentelemetry/runs/otel-trace-headers-schema-20260602232803/gateway-health.txt`
-- `docs/opentelemetry/runs/otel-trace-headers-schema-20260602232803/smoke.log`
+- `docs/opentelemetry/runs/otel-trace-headers-schema-20260602232803/smoke-output.txt`
 - `docs/opentelemetry/runs/otel-trace-headers-schema-20260602232803/order-id.txt`
 - `docs/opentelemetry/runs/otel-trace-headers-schema-20260602232803/db-headers-check.txt`
 - `docs/opentelemetry/runs/otel-trace-headers-schema-20260602232803/kafka-lag-after.txt`
