@@ -1,0 +1,4 @@
+RUN_DIR=docs/opentelemetry/runs/otel-trace-headers-schema-20260602232803
+SUMMARY=docs/opentelemetry/otel-trace-headers-schema-summary.md
+GATEWAY_URL=http://localhost:18090
+API_KEY=[REDACTED]

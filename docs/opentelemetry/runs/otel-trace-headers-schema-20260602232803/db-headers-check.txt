@@ -1,0 +1,66 @@
+----- DB verification after schema migration smoke -----
+Using secret=postgresql key=postgres-password password=[REDACTED]
+
+--- order ---
+-[ RECORD 1 ]---+-------------------------------------
+id              | 3fb8cdf9-f97e-48a1-87a8-78c99649ca3b
+status          | COMPLETED
+idempotency_key | smoke-price-20260602232804
+created_at      | 2026-06-02 16:29:34.672739
+updated_at      | 2026-06-02 16:29:36.151131
+
+
+--- order outbox headers ---
+-[ RECORD 1 ]+-------------------------------------
+event_type   | order.created
+aggregate_id | 3fb8cdf9-f97e-48a1-87a8-78c99649ca3b
+status       | PUBLISHED
+headers      | {}
+published_at | 2026-06-02 16:29:34.758444
+
+
+--- inventory outbox headers ---
+-[ RECORD 1 ]+-------------------------------------
+event_type   | inventory.reserved
+aggregate_id | 3fb8cdf9-f97e-48a1-87a8-78c99649ca3b
+topic        | inventory.reserved
+status       | PUBLISHED
+headers      | {}
+published_at | 2026-06-02 16:29:35.987433
+
+
+--- payment and payment trace_headers ---
+-[ RECORD 1 ]-+-------------------------------------
+id            | 7f6282c4-a34b-4f4b-a06d-9b52a62f2881
+order_id      | 3fb8cdf9-f97e-48a1-87a8-78c99649ca3b
+status        | COMPLETED
+trace_headers | {}
+created_at    | 2026-06-02 16:29:35.98939
+updated_at    | 2026-06-02 16:29:36.005438
+
+
+--- payment outbox headers ---
+-[ RECORD 1 ]+-------------------------------------
+aggregate_id | 7f6282c4-a34b-4f4b-a06d-9b52a62f2881
+event_type   | payment.completed
+topic        | payment.completed
+status       | PUBLISHED
+headers      | {}
+published_at | 2026-06-02 16:29:36.148669
+
+
+--- outbox status sanity ---
+  status   | count
+-----------+-------
+ PUBLISHED | 14287
+(1 row)
+
+  status   | count
+-----------+-------
+ PUBLISHED |  9551
+(1 row)
+
+  status   | count
+-----------+-------
+ PUBLISHED |  7122
+(1 row)
