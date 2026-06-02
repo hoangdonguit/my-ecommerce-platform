@@ -18,7 +18,7 @@ spec:
       serviceAccountName: inventory-api-sa
       containers:
       - name: inventory-api
-        image: hoangdonguit/inventory-service:otel-full-saga-20260603005334
+        image: hoangdonguit/inventory-service:otel-full-saga-inventory-hotfix-20260603013722
         command: ["/app/inventory-api"]
         ports:
         - containerPort: 8082
@@ -96,7 +96,7 @@ spec:
       serviceAccountName: inventory-consumer-sa
       containers:
       - name: inventory-consumer
-        image: hoangdonguit/inventory-service:otel-full-saga-20260603005334
+        image: hoangdonguit/inventory-service:otel-full-saga-inventory-hotfix-20260603013722
         command: ["/app/inventory-consumer"]
         resources:
           limits:
