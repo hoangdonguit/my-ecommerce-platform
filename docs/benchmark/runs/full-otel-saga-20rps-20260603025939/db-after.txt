@@ -1,0 +1,28 @@
+--- order_db after, this run ---
+  status   | count
+-----------+-------
+ COMPLETED |  1201
+(1 row)
+
+--- order_db total after ---
+  status   | count
+-----------+-------
+ COMPLETED | 16091
+ FAILED    |     4
+(2 rows)
+
+--- outbox status after ---
+  status   | count
+-----------+-------
+ PUBLISHED | 16095
+(1 row)
+
+  status   | count
+-----------+-------
+ PUBLISHED | 11359
+(1 row)
+
+  status   | count
+-----------+-------
+ PUBLISHED |  8930
+(1 row)

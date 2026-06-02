@@ -1,0 +1,73 @@
+===== POST-BENCHMARK STATE FOR FULL OTEL 20RPS =====
+2026-06-03T03:14:46+07:00
+
+----- Git -----
+4b44397 docs: record full otel saga 10rps benchmark
+?? docs/benchmark/full-otel-saga-20rps-summary.md
+?? docs/benchmark/runs/full-otel-saga-20rps-20260603025939/
+
+----- ArgoCD applications -----
+NAME                       SYNC STATUS   HEALTH STATUS
+analytics-layer            Synced        Healthy
+cdc-layer                  Synced        Healthy
+ecommerce-infrastructure   Synced        Healthy
+ecommerce-platform         Synced        Healthy
+infrastructure-layer       Synced        Healthy
+observability-layer        Synced        Healthy
+
+----- ecommerce-platform -----
+NAME                 SYNC STATUS   HEALTH STATUS
+ecommerce-platform   Synced        Healthy
+
+----- HPA / KEDA generated HPA -----
+NAME                                    REFERENCE                          TARGETS                    MINPODS   MAXPODS   REPLICAS   AGE
+keda-hpa-inventory-api-scaler           Deployment/inventory-api           cpu: 0%/25%                1         8         1          5d5h
+keda-hpa-inventory-consumer-scaler      Deployment/inventory-consumer      20/20 (avg)                1         16        1          5d5h
+keda-hpa-notification-api-scaler        Deployment/notification-api        cpu: 0%/25%                1         8         1          5d5h
+keda-hpa-notification-consumer-scaler   Deployment/notification-consumer   20/20 (avg), 20/20 (avg)   1         16        1          5d5h
+keda-hpa-order-service-scaler           Deployment/order-service           cpu: 4%/25%                2         8         2          5d5h
+keda-hpa-payment-api-scaler             Deployment/payment-api             cpu: 0%/25%                1         8         1          5d5h
+keda-hpa-payment-consumer-scaler        Deployment/payment-consumer        20/20 (avg)                1         16        1          5d5h
+
+----- Order service deployment -----
+NAME            READY   UP-TO-DATE   AVAILABLE   AGE    CONTAINERS      IMAGES                                                     SELECTOR
+order-service   2/2     2            2           5d5h   order-service   hoangdonguit/order-service:otel-full-saga-20260603005334   app=order-service
+desired_spec_replicas=2 status_replicas=2 ready=2 available=2 updated=2
+
+----- Order service pods -----
+NAME                             READY   STATUS    RESTARTS   AGE    IP            NODE       NOMINATED NODE   READINESS GATES
+order-service-574c4466b9-qsxg2   1/1     Running   0          121m   10.42.1.175   vm2-mesh   <none>           <none>
+order-service-574c4466b9-r7dn8   1/1     Running   0          122m   10.42.1.168   vm2-mesh   <none>           <none>
+
+----- Order service recent scaling events -----
+Events:
+  Type    Reason             Age                  From                   Message
+  ----    ------             ----                 ----                   -------
+  Normal  ScalingReplicaSet  6m28s (x8 over 11m)  deployment-controller  Scaled up replica set order-service-574c4466b9 from 2 to 3
+  Normal  ScalingReplicaSet  5m43s (x8 over 11m)  deployment-controller  Scaled down replica set order-service-574c4466b9 from 3 to 2
+
+----- Runtime deployments -----
+NAME                    IMAGE                                                                           READY   AVAILABLE
+inventory-api           hoangdonguit/inventory-service:otel-full-saga-inventory-hotfix-20260603013722   1       1
+inventory-consumer      hoangdonguit/inventory-service:otel-full-saga-inventory-hotfix-20260603013722   1       1
+notification-api        hoangdonguit/notification-service:otel-full-saga-20260603005334                 1       1
+notification-consumer   hoangdonguit/notification-service:otel-full-saga-20260603005334                 1       1
+order-service           hoangdonguit/order-service:otel-full-saga-20260603005334                        2       2
+payment-api             hoangdonguit/payment-service:otel-full-saga-payment-hotfix-20260603015846       1       1
+payment-consumer        hoangdonguit/payment-service:otel-full-saga-payment-hotfix-20260603015846       1       1
+read-model-service      hoangdonguit/read-model-service:otel-full-saga-20260603005334                   1       1
+web-gateway             hoangdonguit/web-gateway:otel-webgateway-20260601213658                         2       2
+
+----- Strict recent error grep -----
+
+### web-gateway
+
+### order-service
+
+### inventory-consumer
+
+### payment-consumer
+
+### notification-consumer
+
+### read-model-service

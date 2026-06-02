@@ -1,0 +1,132 @@
+----- drain check 1 at 2026-06-03T03:02:38+07:00 -----
+--- orders for run ---
+  status   | count
+-----------+-------
+ COMPLETED |   875
+ PENDING   |   326
+(2 rows)
+
+--- open outbox all services ---
+ status | count
+--------+-------
+(0 rows)
+
+ status | count
+--------+-------
+(0 rows)
+
+ status | count
+--------+-------
+(0 rows)
+
+PENDING_COUNT=326 OPEN_OUTBOX_COUNT=0
+----- drain check 2 at 2026-06-03T03:02:51+07:00 -----
+--- orders for run ---
+  status   | count
+-----------+-------
+ COMPLETED |  1078
+ PENDING   |   123
+(2 rows)
+
+--- open outbox all services ---
+ status | count
+--------+-------
+(0 rows)
+
+ status | count
+--------+-------
+(0 rows)
+
+ status | count
+--------+-------
+(0 rows)
+
+PENDING_COUNT=123 OPEN_OUTBOX_COUNT=0
+----- drain check 3 at 2026-06-03T03:03:04+07:00 -----
+--- orders for run ---
+  status   | count
+-----------+-------
+ COMPLETED |  1078
+ PENDING   |   123
+(2 rows)
+
+--- open outbox all services ---
+ status | count
+--------+-------
+(0 rows)
+
+ status | count
+--------+-------
+(0 rows)
+
+ status | count
+--------+-------
+(0 rows)
+
+PENDING_COUNT=123 OPEN_OUTBOX_COUNT=0
+----- drain check 4 at 2026-06-03T03:03:17+07:00 -----
+--- orders for run ---
+  status   | count
+-----------+-------
+ COMPLETED |  1135
+ PENDING   |    66
+(2 rows)
+
+--- open outbox all services ---
+ status | count
+--------+-------
+(0 rows)
+
+ status | count
+--------+-------
+(0 rows)
+
+ status | count
+--------+-------
+(0 rows)
+
+PENDING_COUNT=66 OPEN_OUTBOX_COUNT=0
+----- drain check 5 at 2026-06-03T03:03:30+07:00 -----
+--- orders for run ---
+  status   | count
+-----------+-------
+ COMPLETED |  1135
+ PENDING   |    66
+(2 rows)
+
+--- open outbox all services ---
+ status | count
+--------+-------
+(0 rows)
+
+ status | count
+--------+-------
+(0 rows)
+
+ status | count
+--------+-------
+(0 rows)
+
+PENDING_COUNT=64 OPEN_OUTBOX_COUNT=0
+----- drain check 6 at 2026-06-03T03:03:43+07:00 -----
+--- orders for run ---
+  status   | count
+-----------+-------
+ COMPLETED |  1201
+(1 row)
+
+--- open outbox all services ---
+ status | count
+--------+-------
+(0 rows)
+
+ status | count
+--------+-------
+(0 rows)
+
+ status | count
+--------+-------
+(0 rows)
+
+PENDING_COUNT=0 OPEN_OUTBOX_COUNT=0
+DRAIN_OK
