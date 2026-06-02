@@ -18,7 +18,7 @@ spec:
       serviceAccountName: inventory-api-sa
       containers:
       - name: inventory-api
-        image: hoangdonguit/inventory-service:inventory-outbox-batch-20260530105626
+        image: hoangdonguit/inventory-service:otel-full-saga-20260603005334
         command: ["/app/inventory-api"]
         ports:
         - containerPort: 8082
@@ -54,6 +54,14 @@ spec:
           value: "inventory.reserved"
         - name: KAFKA_TOPIC_INVENTORY_FAILED
           value: "inventory.failed"
+        - name: OTEL_ENABLED
+          value: "true"
+        - name: OTEL_SERVICE_NAME
+          value: "inventory-service"
+        - name: OTEL_ENVIRONMENT
+          value: "development"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "otel-collector.observability.svc.cluster.local:4317"
 ---
 apiVersion: v1
 kind: Service
@@ -88,13 +96,8 @@ spec:
       serviceAccountName: inventory-consumer-sa
       containers:
       - name: inventory-consumer
-        image: hoangdonguit/inventory-service:inventory-outbox-batch-20260530105626
+        image: hoangdonguit/inventory-service:otel-full-saga-20260603005334
         command: ["/app/inventory-consumer"]
-        env:
-        - name: OUTBOX_BATCH_SIZE
-          value: "25"
-        - name: OUTBOX_IDLE_SLEEP_MS
-          value: "500"
         resources:
           limits:
             cpu: "500m"
@@ -123,3 +126,19 @@ spec:
           value: "inventory-service-group"
         - name: KAFKA_TOPIC_ORDER_CREATED
           value: "order.created"
+        - name: KAFKA_TOPIC_INVENTORY_RESERVED
+          value: "inventory.reserved"
+        - name: KAFKA_TOPIC_INVENTORY_FAILED
+          value: "inventory.failed"
+        - name: OUTBOX_BATCH_SIZE
+          value: "25"
+        - name: OUTBOX_IDLE_SLEEP_MS
+          value: "500"
+        - name: OTEL_ENABLED
+          value: "true"
+        - name: OTEL_SERVICE_NAME
+          value: "inventory-service"
+        - name: OTEL_ENVIRONMENT
+          value: "development"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "otel-collector.observability.svc.cluster.local:4317"

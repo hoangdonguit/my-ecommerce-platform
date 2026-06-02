@@ -18,12 +18,16 @@ spec:
       serviceAccountName: read-model-service-sa
       containers:
       - name: read-model-service
-        image: hoangdonguit/read-model-service:readmodel-limit1000-20260529124717
+        image: hoangdonguit/read-model-service:otel-full-saga-20260603005334
         ports:
         - containerPort: 8085
         env:
+        - name: APP_NAME
+          value: "read-model-service"
         - name: APP_PORT
           value: "8085"
+        - name: APP_ENV
+          value: "development"
         - name: KAFKA_BROKER
           value: "kafka-svc.kafka.svc.cluster.local:9092"
         - name: KAFKA_GROUP_ID
@@ -48,6 +52,14 @@ spec:
           value: "ecommerce_read"
         - name: MONGODB_COLLECTION
           value: "order_read_models"
+        - name: OTEL_ENABLED
+          value: "true"
+        - name: OTEL_SERVICE_NAME
+          value: "read-model-service"
+        - name: OTEL_ENVIRONMENT
+          value: "development"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "otel-collector.observability.svc.cluster.local:4317"
         resources:
           requests:
             cpu: 100m
@@ -55,7 +67,6 @@ spec:
           limits:
             cpu: 500m
             memory: 512Mi
-
 ---
 apiVersion: v1
 kind: Service

@@ -18,7 +18,7 @@ spec:
       serviceAccountName: notification-api-sa
       containers:
       - name: notification-api
-        image: hoangdonguit/notification-service:dlq-retry-20260520020224
+        image: hoangdonguit/notification-service:otel-full-saga-20260603005334
         command: ["/app/notification-api"]
         ports:
         - containerPort: 8084
@@ -46,6 +46,20 @@ spec:
             configMapKeyRef:
               name: ecommerce-runtime-config
               key: KAFKA_BROKER
+        - name: KAFKA_GROUP_ID
+          value: "notification-service-group"
+        - name: KAFKA_TOPIC_PAYMENT_COMPLETED
+          value: "payment.completed"
+        - name: KAFKA_TOPIC_PAYMENT_FAILED
+          value: "payment.failed"
+        - name: OTEL_ENABLED
+          value: "true"
+        - name: OTEL_SERVICE_NAME
+          value: "notification-service"
+        - name: OTEL_ENVIRONMENT
+          value: "development"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "otel-collector.observability.svc.cluster.local:4317"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -67,7 +81,7 @@ spec:
       serviceAccountName: notification-consumer-sa
       containers:
       - name: notification-consumer
-        image: hoangdonguit/notification-service:dlq-retry-20260520020224
+        image: hoangdonguit/notification-service:otel-full-saga-20260603005334
         command: ["/app/notification-consumer"]
         resources:
           limits:
@@ -93,7 +107,20 @@ spec:
             configMapKeyRef:
               name: ecommerce-runtime-config
               key: KAFKA_BROKER
-
+        - name: KAFKA_GROUP_ID
+          value: "notification-service-group"
+        - name: KAFKA_TOPIC_PAYMENT_COMPLETED
+          value: "payment.completed"
+        - name: KAFKA_TOPIC_PAYMENT_FAILED
+          value: "payment.failed"
+        - name: OTEL_ENABLED
+          value: "true"
+        - name: OTEL_SERVICE_NAME
+          value: "notification-service"
+        - name: OTEL_ENVIRONMENT
+          value: "development"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "otel-collector.observability.svc.cluster.local:4317"
 ---
 apiVersion: v1
 kind: Service
