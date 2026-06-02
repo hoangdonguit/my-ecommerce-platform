@@ -16,15 +16,20 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hoangdonguit/my-ecommerce-platform/read-model-service/internal/observability"
 	kafkago "github.com/segmentio/kafka-go"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 type Config struct {
+	AppName         string
 	AppPort         string
+	AppEnv          string
 	KafkaBroker     string
 	KafkaTopic      string
 	KafkaGroupID    string
@@ -35,6 +40,11 @@ type Config struct {
 	MongoAuthSource string
 	MongoDatabase   string
 	MongoCollection string
+
+	OTelEnabled              bool
+	OTelServiceName          string
+	OTelEnvironment          string
+	OTelExporterOTLPEndpoint string
 }
 
 type PaymentCompletedEvent struct {
@@ -77,6 +87,19 @@ func main() {
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+
+	shutdownTracing, err := observability.InitTracing(ctx, observability.TracingConfig{
+		Enabled:     cfg.OTelEnabled,
+		ServiceName: cfg.OTelServiceName,
+		Environment: cfg.OTelEnvironment,
+		Endpoint:    cfg.OTelExporterOTLPEndpoint,
+	})
+	if err != nil {
+		log.Fatalf("failed to init tracing: %v", err)
+	}
+	defer func() {
+		_ = shutdownTracing(context.Background())
+	}()
 
 	mongoClient, err := connectMongo(ctx, cfg)
 	if err != nil {
@@ -123,7 +146,9 @@ func main() {
 
 func loadConfig() Config {
 	cfg := Config{
+		AppName:         getEnv("APP_NAME", "read-model-service"),
 		AppPort:         getEnv("APP_PORT", "8085"),
+		AppEnv:          getEnv("APP_ENV", "development"),
 		KafkaBroker:     getEnv("KAFKA_BROKER", "localhost:9092"),
 		KafkaTopic:      getEnv("KAFKA_TOPIC_PAYMENT_COMPLETED", "payment.completed"),
 		KafkaGroupID:    getEnv("KAFKA_GROUP_ID", "read-model-service-group"),
@@ -134,6 +159,11 @@ func loadConfig() Config {
 		MongoAuthSource: getEnv("MONGODB_AUTH_SOURCE", "admin"),
 		MongoDatabase:   getEnv("MONGODB_DATABASE", "ecommerce_read"),
 		MongoCollection: getEnv("MONGODB_COLLECTION", "order_read_models"),
+
+		OTelEnabled:              getEnvBool("OTEL_ENABLED", false),
+		OTelServiceName:          getEnv("OTEL_SERVICE_NAME", "read-model-service"),
+		OTelEnvironment:          getEnv("OTEL_ENVIRONMENT", getEnv("APP_ENV", "development")),
+		OTelExporterOTLPEndpoint: getEnv("OTEL_EXPORTER_OTLP_ENDPOINT", ""),
 	}
 
 	if cfg.MongoURI == "" && cfg.MongoPassword == "" {
@@ -221,17 +251,38 @@ func (a *App) runConsumer(ctx context.Context) {
 			continue
 		}
 
+		msgCtx := otel.GetTextMapPropagator().Extract(ctx, observability.NewKafkaHeadersCarrier(&msg.Headers))
+		processCtx, span := otel.Tracer(a.cfg.AppName).Start(msgCtx, "kafka consume payment.completed")
+		span.SetAttributes(
+			attribute.String("messaging.system", "kafka"),
+			attribute.String("messaging.destination.name", msg.Topic),
+			attribute.Int("messaging.kafka.partition", msg.Partition),
+			attribute.Int64("messaging.kafka.offset", msg.Offset),
+		)
+
 		var event PaymentCompletedEvent
 		if err := json.Unmarshal(msg.Value, &event); err != nil {
+			span.RecordError(err)
+			span.End()
 			log.Printf("failed to unmarshal payment.completed: %v", err)
 			_ = reader.CommitMessages(ctx, msg)
 			continue
 		}
 
-		if err := a.upsertPaymentCompleted(ctx, event); err != nil {
+		span.SetAttributes(
+			attribute.String("event.type", event.EventType),
+			attribute.String("order.id", event.OrderID),
+			attribute.String("user.id", event.UserID),
+		)
+
+		if err := a.upsertPaymentCompleted(processCtx, event); err != nil {
+			span.RecordError(err)
+			span.End()
 			log.Printf("failed to upsert read model order_id=%s err=%v", event.OrderID, err)
 			continue
 		}
+
+		span.End()
 
 		if err := reader.CommitMessages(ctx, msg); err != nil {
 			log.Printf("failed to commit kafka message order_id=%s err=%v", event.OrderID, err)
@@ -466,4 +517,20 @@ func clampInt(value int, min int, max int) int {
 		return max
 	}
 	return value
+}
+
+func getEnvBool(key string, fallback bool) bool {
+	value := strings.TrimSpace(strings.ToLower(os.Getenv(key)))
+	if value == "" {
+		return fallback
+	}
+
+	switch value {
+	case "1", "true", "yes", "on":
+		return true
+	case "0", "false", "no", "off":
+		return false
+	default:
+		return fallback
+	}
 }
