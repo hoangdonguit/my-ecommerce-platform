@@ -42,6 +42,7 @@ func (r *InventoryRepository) CreateOutboxEvent(ctx context.Context, tx pgx.Tx, 
 		event.Topic,
 		event.MessageKey,
 		event.Payload,
+		defaultJSON(event.Headers),
 	)
 
 	return err
