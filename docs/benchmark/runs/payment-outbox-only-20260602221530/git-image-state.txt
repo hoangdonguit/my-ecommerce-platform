@@ -1,0 +1,15 @@
+----- Git / image state -----
+f84e156 refactor(payment): use outbox-only event publishing
+?? docs/benchmark/runs/payment-outbox-only-20260602221530/
+
+NAME                 SYNC STATUS   HEALTH STATUS
+ecommerce-platform   Synced        Healthy
+
+NAME               IMAGE                                                     READY   AVAILABLE
+payment-api        hoangdonguit/payment-service:outbox-only-20260602012451   1       1
+payment-consumer   hoangdonguit/payment-service:outbox-only-20260602012451   1       1
+
+NAME                          READY   STATUS    RESTARTS   AGE   IP            NODE       NOMINATED NODE   READINESS GATES
+payment-api-d789d97fd-wlwhp   1/1     Running   0          15m   10.42.1.166   vm2-mesh   <none>           <none>
+NAME                                READY   STATUS    RESTARTS   AGE   IP            NODE       NOMINATED NODE   READINESS GATES
+payment-consumer-656f57bf9f-q7w6n   1/1     Running   0          15m   10.42.1.165   vm2-mesh   <none>           <none>
