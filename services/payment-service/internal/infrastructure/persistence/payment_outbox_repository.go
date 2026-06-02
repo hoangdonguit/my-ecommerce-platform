@@ -36,6 +36,7 @@ func (r *PaymentRepository) FetchPendingOutboxEvents(ctx context.Context, limit 
 			topic,
 			message_key,
 			payload,
+			headers::text,
 			status,
 			attempts,
 			COALESCE(last_error, ''),
@@ -56,6 +57,8 @@ func (r *PaymentRepository) FetchPendingOutboxEvents(ctx context.Context, limit 
 	for rows.Next() {
 		var event domainpayment.OutboxEvent
 
+		var headersRaw string
+
 		if err := rows.Scan(
 			&event.ID,
 			&event.AggregateID,
@@ -63,6 +66,7 @@ func (r *PaymentRepository) FetchPendingOutboxEvents(ctx context.Context, limit 
 			&event.Topic,
 			&event.MessageKey,
 			&event.Payload,
+			&headersRaw,
 			&event.Status,
 			&event.Attempts,
 			&event.LastError,
@@ -74,6 +78,7 @@ func (r *PaymentRepository) FetchPendingOutboxEvents(ctx context.Context, limit 
 			return nil, err
 		}
 
+		event.Headers = []byte(headersRaw)
 		events = append(events, event)
 	}
 

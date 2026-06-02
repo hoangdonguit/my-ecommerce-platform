@@ -43,6 +43,7 @@ func (r *PaymentRepository) Create(ctx context.Context, p *domainpayment.Payment
 		p.TransactionID,
 		p.IdempotencyKey,
 		p.PaidAt,
+		defaultJSON(p.TraceHeaders),
 		p.CreatedAt,
 		p.UpdatedAt,
 	)
@@ -54,7 +55,7 @@ func (r *PaymentRepository) FindByID(ctx context.Context, id string) (*domainpay
 	return r.findOne(ctx, `
         SELECT id, order_id, user_id, amount, currency, payment_method,
                status, failure_code, failure_reason, transaction_id,
-               idempotency_key, paid_at, created_at, updated_at
+               idempotency_key, paid_at, trace_headers::text, created_at, updated_at
         FROM payments
         WHERE id = $1
     `, id)
@@ -64,7 +65,7 @@ func (r *PaymentRepository) FindByOrderID(ctx context.Context, orderID string) (
 	return r.findOne(ctx, `
         SELECT id, order_id, user_id, amount, currency, payment_method,
                status, failure_code, failure_reason, transaction_id,
-               idempotency_key, paid_at, created_at, updated_at
+               idempotency_key, paid_at, trace_headers::text, created_at, updated_at
         FROM payments
         WHERE order_id = $1
     `, orderID)
@@ -74,7 +75,7 @@ func (r *PaymentRepository) FindByIdempotencyKey(ctx context.Context, key string
 	return r.findOne(ctx, `
         SELECT id, order_id, user_id, amount, currency, payment_method,
                status, failure_code, failure_reason, transaction_id,
-               idempotency_key, paid_at, created_at, updated_at
+               idempotency_key, paid_at, trace_headers::text, created_at, updated_at
         FROM payments
         WHERE idempotency_key = $1
     `, key)
@@ -82,6 +83,7 @@ func (r *PaymentRepository) FindByIdempotencyKey(ctx context.Context, key string
 
 func (r *PaymentRepository) findOne(ctx context.Context, query string, arg string) (*domainpayment.Payment, error) {
 	var p domainpayment.Payment
+	var traceHeadersRaw string
 
 	err := r.db.QueryRow(ctx, query, arg).Scan(
 		&p.ID,
@@ -96,12 +98,15 @@ func (r *PaymentRepository) findOne(ctx context.Context, query string, arg strin
 		&p.TransactionID,
 		&p.IdempotencyKey,
 		&p.PaidAt,
+		&traceHeadersRaw,
 		&p.CreatedAt,
 		&p.UpdatedAt,
 	)
 	if err != nil {
 		return nil, err
 	}
+
+	p.TraceHeaders = []byte(traceHeadersRaw)
 
 	return &p, nil
 }
@@ -185,4 +190,11 @@ func (r *PaymentRepository) CreateAttempt(ctx context.Context, attempt *domainpa
 
 func IsNotFound(err error) bool {
 	return errors.Is(err, pgx.ErrNoRows)
+}
+
+func defaultJSON(raw []byte) string {
+	if len(raw) == 0 {
+		return "{}"
+	}
+	return string(raw)
 }

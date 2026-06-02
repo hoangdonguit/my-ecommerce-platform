@@ -14,7 +14,10 @@ import (
 	"github.com/hoangdonguit/my-ecommerce-platform/payment-service/internal/infrastructure/db"
 	"github.com/hoangdonguit/my-ecommerce-platform/payment-service/internal/infrastructure/messaging"
 	"github.com/hoangdonguit/my-ecommerce-platform/payment-service/internal/infrastructure/persistence"
+	"github.com/hoangdonguit/my-ecommerce-platform/payment-service/internal/observability"
 	kafkago "github.com/segmentio/kafka-go"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 const maxProcessAttempts = 3
@@ -33,6 +36,19 @@ type DLQPayload struct {
 func main() {
 	cfg := config.Load()
 	ctx := context.Background()
+
+	shutdownTracing, err := observability.InitTracing(ctx, observability.TracingConfig{
+		Enabled:     cfg.OTelEnabled,
+		ServiceName: cfg.OTelServiceName,
+		Environment: cfg.OTelEnvironment,
+		Endpoint:    cfg.OTelExporterOTLPEndpoint,
+	})
+	if err != nil {
+		log.Fatalf("failed to init tracing: %v", err)
+	}
+	defer func() {
+		_ = shutdownTracing(context.Background())
+	}()
 
 	pool, err := db.NewPostgres(cfg.DBURL)
 	if err != nil {
@@ -83,7 +99,7 @@ func main() {
 			continue
 		}
 
-		if err := processPaymentMessage(ctx, service, msg); err != nil {
+		if err := processPaymentMessage(ctx, cfg.AppName, service, msg); err != nil {
 			log.Printf("payment consumer failed topic=%s partition=%d offset=%d err=%v",
 				msg.Topic,
 				msg.Partition,
@@ -194,7 +210,7 @@ func getEnvInt(key string, fallback int) int {
 	return value
 }
 
-func processPaymentMessage(ctx context.Context, service *paymentapp.Service, msg kafkago.Message) error {
+func processPaymentMessage(ctx context.Context, serviceName string, service *paymentapp.Service, msg kafkago.Message) error {
 	var event paymentapp.InventoryReservedEvent
 	if err := json.Unmarshal(msg.Value, &event); err != nil {
 		return fmt.Errorf("unmarshal inventory.reserved event: %w", err)
@@ -206,9 +222,20 @@ func processPaymentMessage(ctx context.Context, service *paymentapp.Service, msg
 		event.PaymentMethod,
 	)
 
+	msgCtx := otel.GetTextMapPropagator().Extract(ctx, observability.NewKafkaHeadersCarrier(&msg.Headers))
+	processCtx, span := otel.Tracer(serviceName).Start(msgCtx, "kafka consume inventory.reserved")
+	span.SetAttributes(
+		attribute.String("messaging.system", "kafka"),
+		attribute.String("messaging.destination.name", msg.Topic),
+		attribute.Int("messaging.kafka.partition", msg.Partition),
+		attribute.Int64("messaging.kafka.offset", msg.Offset),
+		attribute.String("order.id", event.OrderID),
+	)
+	defer span.End()
+
 	var lastErr error
 	for attempt := 1; attempt <= maxProcessAttempts; attempt++ {
-		attemptCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
+		attemptCtx, cancel := context.WithTimeout(processCtx, 20*time.Second)
 		err := service.HandleInventoryReserved(attemptCtx, event)
 		cancel()
 
@@ -231,11 +258,13 @@ func processPaymentMessage(ctx context.Context, service *paymentapp.Service, msg
 		time.Sleep(time.Duration(attempt) * 300 * time.Millisecond)
 	}
 
-	return fmt.Errorf("handle inventory.reserved order_id=%s after %d attempts: %w",
+	finalErr := fmt.Errorf("handle inventory.reserved order_id=%s after %d attempts: %w",
 		event.OrderID,
 		maxProcessAttempts,
 		lastErr,
 	)
+	span.RecordError(finalErr)
+	return finalErr
 }
 
 func newDLQWriter(broker string, topic string) *kafkago.Writer {

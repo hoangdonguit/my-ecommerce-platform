@@ -15,6 +15,7 @@ type Payment struct {
 	TransactionID  string
 	IdempotencyKey string
 	PaidAt         *time.Time
+	TraceHeaders   []byte
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	domainpayment "github.com/hoangdonguit/my-ecommerce-platform/payment-service/internal/domain/payment"
 	"github.com/hoangdonguit/my-ecommerce-platform/payment-service/internal/infrastructure/persistence"
+	"github.com/hoangdonguit/my-ecommerce-platform/payment-service/internal/observability"
 	"github.com/hoangdonguit/my-ecommerce-platform/payment-service/internal/shared/errs"
 )
 
@@ -84,6 +85,7 @@ func (s *Service) HandleInventoryReserved(ctx context.Context, event InventoryRe
 		TransactionID:  "",
 		IdempotencyKey: "payment:" + event.OrderID,
 		PaidAt:         nil,
+		TraceHeaders:   observability.MarshalTraceHeaders(observability.InjectTraceHeaders(ctx)),
 		CreatedAt:      now,
 		UpdatedAt:      now,
 	}

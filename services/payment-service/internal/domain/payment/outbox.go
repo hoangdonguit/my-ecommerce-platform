@@ -16,6 +16,7 @@ type OutboxEvent struct {
 	Topic         string
 	MessageKey    string
 	Payload       []byte
+	Headers       []byte
 	Status        string
 	Attempts      int
 	LastError     string
