@@ -1,6 +1,5 @@
 ----- Git / image state -----
 f84e156 refactor(payment): use outbox-only event publishing
-?? docs/benchmark/runs/payment-outbox-only-20260602221530/
 
 NAME                 SYNC STATUS   HEALTH STATUS
 ecommerce-platform   Synced        Healthy
