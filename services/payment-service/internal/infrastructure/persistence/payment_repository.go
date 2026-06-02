@@ -20,13 +20,13 @@ func NewPaymentRepository(db *pgxpool.Pool) *PaymentRepository {
 
 func (r *PaymentRepository) Create(ctx context.Context, p *domainpayment.Payment) error {
 	query := `
-        INSERT INTO payments (
-            id, order_id, user_id, amount, currency, payment_method,
-            status, failure_code, failure_reason, transaction_id,
-            idempotency_key, paid_at, created_at, updated_at
-        )
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
-    `
+		INSERT INTO payments (
+			id, order_id, user_id, amount, currency, payment_method,
+			status, failure_code, failure_reason, transaction_id,
+			idempotency_key, paid_at, trace_headers, created_at, updated_at
+		)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb,$14,$15)
+	`
 
 	_, err := r.db.Exec(
 		ctx,
