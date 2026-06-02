@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -18,6 +19,11 @@ type Config struct {
 
 	PaymentCompletedTopic string
 	PaymentFailedTopic    string
+
+	OTelEnabled              bool
+	OTelServiceName          string
+	OTelEnvironment          string
+	OTelExporterOTLPEndpoint string
 }
 
 func Load() Config {
@@ -34,6 +40,11 @@ func Load() Config {
 
 		PaymentCompletedTopic: getEnv("KAFKA_TOPIC_PAYMENT_COMPLETED", "payment.completed"),
 		PaymentFailedTopic:    getEnv("KAFKA_TOPIC_PAYMENT_FAILED", "payment.failed"),
+
+		OTelEnabled:              getEnvBool("OTEL_ENABLED", false),
+		OTelServiceName:          getEnv("OTEL_SERVICE_NAME", "notification-service"),
+		OTelEnvironment:          getEnv("OTEL_ENVIRONMENT", getEnv("APP_ENV", "development")),
+		OTelExporterOTLPEndpoint: getEnv("OTEL_EXPORTER_OTLP_ENDPOINT", ""),
 	}
 
 	validate(cfg)
@@ -56,4 +67,20 @@ func getEnv(key string, fallback string) string {
 		return fallback
 	}
 	return value
+}
+
+func getEnvBool(key string, fallback bool) bool {
+	value := strings.TrimSpace(strings.ToLower(os.Getenv(key)))
+	if value == "" {
+		return fallback
+	}
+
+	switch value {
+	case "1", "true", "yes", "on":
+		return true
+	case "0", "false", "no", "off":
+		return false
+	default:
+		return fallback
+	}
 }

@@ -12,7 +12,10 @@ import (
 	"github.com/hoangdonguit/my-ecommerce-platform/notification-service/internal/domain/notification"
 	"github.com/hoangdonguit/my-ecommerce-platform/notification-service/internal/infrastructure/db"
 	"github.com/hoangdonguit/my-ecommerce-platform/notification-service/internal/infrastructure/persistence"
+	"github.com/hoangdonguit/my-ecommerce-platform/notification-service/internal/observability"
 	kafkago "github.com/segmentio/kafka-go"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 const maxProcessAttempts = 3
@@ -35,6 +38,19 @@ type DLQPayload struct {
 func main() {
 	cfg := config.Load()
 	ctx := context.Background()
+
+	shutdownTracing, err := observability.InitTracing(ctx, observability.TracingConfig{
+		Enabled:     cfg.OTelEnabled,
+		ServiceName: cfg.OTelServiceName,
+		Environment: cfg.OTelEnvironment,
+		Endpoint:    cfg.OTelExporterOTLPEndpoint,
+	})
+	if err != nil {
+		log.Fatalf("failed to init tracing: %v", err)
+	}
+	defer func() {
+		_ = shutdownTracing(context.Background())
+	}()
 
 	pool, err := db.NewPostgres(cfg.DBURL)
 	if err != nil {
@@ -85,7 +101,7 @@ func main() {
 			continue
 		}
 
-		if err := processNotificationMessage(ctx, service, msg); err != nil {
+		if err := processNotificationMessage(ctx, cfg.AppName, service, msg); err != nil {
 			log.Printf("notification consumer failed topic=%s partition=%d offset=%d err=%v",
 				msg.Topic,
 				msg.Partition,
@@ -129,7 +145,22 @@ func main() {
 	}
 }
 
-func processNotificationMessage(ctx context.Context, service *notificationapp.Service, msg kafkago.Message) error {
+func processNotificationMessage(ctx context.Context, serviceName string, service *notificationapp.Service, msg kafkago.Message) (err error) {
+	msgCtx := otel.GetTextMapPropagator().Extract(ctx, observability.NewKafkaHeadersCarrier(&msg.Headers))
+	processCtx, span := otel.Tracer(serviceName).Start(msgCtx, "kafka consume "+msg.Topic)
+	span.SetAttributes(
+		attribute.String("messaging.system", "kafka"),
+		attribute.String("messaging.destination.name", msg.Topic),
+		attribute.Int("messaging.kafka.partition", msg.Partition),
+		attribute.Int64("messaging.kafka.offset", msg.Offset),
+	)
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+		}
+		span.End()
+	}()
+
 	var base BaseEvent
 	if err := json.Unmarshal(msg.Value, &base); err != nil {
 		return fmt.Errorf("unmarshal base event: %w", err)
@@ -143,8 +174,13 @@ func processNotificationMessage(ctx context.Context, service *notificationapp.Se
 		}
 
 		log.Printf("received payment.completed order_id=%s user_id=%s", event.OrderID, event.UserID)
+		span.SetAttributes(
+			attribute.String("event.type", event.EventType),
+			attribute.String("order.id", event.OrderID),
+			attribute.String("user.id", event.UserID),
+		)
 
-		return retry(ctx, "payment.completed", event.OrderID, func(attemptCtx context.Context) error {
+		return retry(processCtx, "payment.completed", event.OrderID, func(attemptCtx context.Context) error {
 			return service.HandlePaymentCompleted(attemptCtx, event)
 		})
 
@@ -155,8 +191,13 @@ func processNotificationMessage(ctx context.Context, service *notificationapp.Se
 		}
 
 		log.Printf("received payment.failed order_id=%s user_id=%s", event.OrderID, event.UserID)
+		span.SetAttributes(
+			attribute.String("event.type", event.EventType),
+			attribute.String("order.id", event.OrderID),
+			attribute.String("user.id", event.UserID),
+		)
 
-		return retry(ctx, "payment.failed", event.OrderID, func(attemptCtx context.Context) error {
+		return retry(processCtx, "payment.failed", event.OrderID, func(attemptCtx context.Context) error {
 			return service.HandlePaymentFailed(attemptCtx, event)
 		})
 
