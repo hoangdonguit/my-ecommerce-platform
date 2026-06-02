@@ -1,0 +1,8 @@
+----- Validate traceparent exists in all outbox hops -----
+ORDER_ID=25c883a7-1bab-471a-9431-ae7094037801
+ORDER_COMPLETED=1
+ORDER_OUTBOX_HAS_TRACEPARENT=1
+INVENTORY_OUTBOX_HAS_TRACEPARENT=1
+PAYMENT_TRACE_HEADERS_HAS_TRACEPARENT=1
+PAYMENT_OUTBOX_HAS_TRACEPARENT=1
+VALIDATION_PASSED: full OTel saga smoke completed and traceparent persisted across order/inventory/payment outbox flow

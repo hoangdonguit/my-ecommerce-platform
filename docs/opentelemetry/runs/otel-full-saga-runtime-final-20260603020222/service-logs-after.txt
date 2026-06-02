@@ -1,0 +1,23 @@
+----- Recent service logs after final smoke -----
+
+### order-service
+2026/06/02 19:03:54 [OrderOutboxWorker] batch published count=1 first_order_id=25c883a7-1bab-471a-9431-ae7094037801 last_order_id=25c883a7-1bab-471a-9431-ae7094037801
+
+### inventory-consumer
+2026/06/02 19:03:54 fetched order.created partition=3 offset=2429 key=25c883a7-1bab-471a-9431-ae7094037801 bytes=308
+2026/06/02 19:03:54 received order.created order_id=25c883a7-1bab-471a-9431-ae7094037801 user_id=smoke-user-002 items=1
+2026/06/02 19:03:54 processed and committed order.created order_id=25c883a7-1bab-471a-9431-ae7094037801 offset=2429
+2026/06/02 19:03:56 inventory outbox batch published count=1 first_aggregate_id=25c883a7-1bab-471a-9431-ae7094037801 last_aggregate_id=25c883a7-1bab-471a-9431-ae7094037801
+
+### payment-consumer
+2026/06/02 19:03:56 received inventory.reserved order_id=25c883a7-1bab-471a-9431-ae7094037801 amount=24000000.00 method=COD
+2026/06/02 19:03:56 processed inventory.reserved successfully order_id=25c883a7-1bab-471a-9431-ae7094037801 attempt=1
+2026/06/02 19:03:56 payment outbox batch published count=1 first_aggregate_id=884794d6-dae6-467f-935a-2f47fff4fc4d last_aggregate_id=884794d6-dae6-467f-935a-2f47fff4fc4d
+
+### notification-consumer
+2026/06/02 19:03:56 received payment.completed order_id=25c883a7-1bab-471a-9431-ae7094037801 user_id=smoke-user-002
+[NOTIFICATION SENT] user=smoke-user-002 order=25c883a7-1bab-471a-9431-ae7094037801 event=payment.completed title=Thanh toán thành công message=Đơn hàng 25c883a7-1bab-471a-9431-ae7094037801 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:03:56 processed payment.completed successfully order_id=25c883a7-1bab-471a-9431-ae7094037801 attempt=1
+
+### read-model-service
+2026/06/02 19:03:56 upserted order read model order_id=25c883a7-1bab-471a-9431-ae7094037801 payment_id=884794d6-dae6-467f-935a-2f47fff4fc4d

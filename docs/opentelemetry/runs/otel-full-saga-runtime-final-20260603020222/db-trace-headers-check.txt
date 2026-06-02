@@ -1,0 +1,83 @@
+----- DB trace headers verification, no password output -----
+Using secret=postgresql key=postgres-password password=[REDACTED]
+
+--- order ---
+-[ RECORD 1 ]---+-------------------------------------
+id              | 25c883a7-1bab-471a-9431-ae7094037801
+status          | COMPLETED
+idempotency_key | smoke-price-20260603020224
+created_at      | 2026-06-02 19:03:54.729076
+updated_at      | 2026-06-02 19:03:56.173075
+
+
+--- order outbox headers ---
+-[ RECORD 1 ]---+---------------------------------------------------------------------------
+event_type      | order.created
+aggregate_id    | 25c883a7-1bab-471a-9431-ae7094037801
+status          | PUBLISHED
+headers         | {"traceparent": "00-6edd400067dc7ec21bac356babd538a5-ccf91ae827374790-01"}
+has_traceparent | t
+published_at    | 2026-06-02 19:03:54.802424
+
+
+--- inventory outbox headers ---
+-[ RECORD 1 ]---+---------------------------------------------------------------------------
+event_type      | inventory.reserved
+aggregate_id    | 25c883a7-1bab-471a-9431-ae7094037801
+topic           | inventory.reserved
+status          | PUBLISHED
+headers         | {"traceparent": "00-6edd400067dc7ec21bac356babd538a5-a561d3e2a5ff7e42-01"}
+has_traceparent | t
+published_at    | 2026-06-02 19:03:56.105833
+
+
+--- payment trace headers ---
+-[ RECORD 1 ]---+---------------------------------------------------------------------------
+id              | 884794d6-dae6-467f-935a-2f47fff4fc4d
+order_id        | 25c883a7-1bab-471a-9431-ae7094037801
+status          | COMPLETED
+trace_headers   | {"traceparent": "00-6edd400067dc7ec21bac356babd538a5-f6558d0910a50e49-01"}
+has_traceparent | t
+created_at      | 2026-06-02 19:03:56.11174
+updated_at      | 2026-06-02 19:03:56.128702
+
+
+--- payment outbox headers ---
+-[ RECORD 1 ]---+---------------------------------------------------------------------------
+aggregate_id    | 884794d6-dae6-467f-935a-2f47fff4fc4d
+event_type      | payment.completed
+topic           | payment.completed
+status          | PUBLISHED
+headers         | {"traceparent": "00-6edd400067dc7ec21bac356babd538a5-f6558d0910a50e49-01"}
+has_traceparent | t
+published_at    | 2026-06-02 19:03:56.174113
+
+
+--- notification ---
+-[ RECORD 1 ]------------------------------------
+id         | 89a54d79-7c67-467d-b24a-2d59a13a582c
+user_id    | smoke-user-002
+order_id   | 25c883a7-1bab-471a-9431-ae7094037801
+event_type | payment.completed
+channel    | IN_APP
+title      | Thanh toán thành công
+status     | SENT
+sent_at    | 2026-06-02 19:03:56
+created_at | 2026-06-02 19:03:56.368394
+
+
+--- outbox status sanity ---
+  status   | count
+-----------+-------
+ PUBLISHED | 14290
+(1 row)
+
+  status   | count
+-----------+-------
+ PUBLISHED |  9554
+(1 row)
+
+  status   | count
+-----------+-------
+ PUBLISHED |  7125
+(1 row)

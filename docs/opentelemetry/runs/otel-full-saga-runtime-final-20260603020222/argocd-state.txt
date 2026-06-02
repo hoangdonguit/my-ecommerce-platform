@@ -1,0 +1,3 @@
+----- ArgoCD state -----
+NAME                 SYNC STATUS   HEALTH STATUS
+ecommerce-platform   Synced        Healthy

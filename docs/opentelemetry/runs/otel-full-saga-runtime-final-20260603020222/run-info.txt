@@ -1,0 +1,7 @@
+RUN_DIR=docs/opentelemetry/runs/otel-full-saga-runtime-final-20260603020222
+SUMMARY=docs/opentelemetry/otel-full-saga-runtime-summary.md
+GATEWAY_URL=http://localhost:18090
+FULL_IMAGE_TAG=otel-full-saga-20260603005334
+INVENTORY_HOTFIX_IMAGE=otel-full-saga-inventory-hotfix-20260603013722
+PAYMENT_HOTFIX_IMAGE=otel-full-saga-payment-hotfix-20260603015846
+API_KEY=[REDACTED]
