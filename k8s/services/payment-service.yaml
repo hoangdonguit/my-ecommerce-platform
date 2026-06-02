@@ -18,7 +18,7 @@ spec:
       serviceAccountName: payment-api-sa
       containers:
       - name: payment-api
-        image: hoangdonguit/payment-service:otel-full-saga-20260603005334
+        image: hoangdonguit/payment-service:otel-full-saga-payment-hotfix-20260603015846
         command: ["/app/payment-api"]
         ports:
         - containerPort: 8083
@@ -83,7 +83,7 @@ spec:
       serviceAccountName: payment-consumer-sa
       containers:
       - name: payment-consumer
-        image: hoangdonguit/payment-service:otel-full-saga-20260603005334
+        image: hoangdonguit/payment-service:otel-full-saga-payment-hotfix-20260603015846
         command: ["/app/payment-consumer"]
         resources:
           limits:
