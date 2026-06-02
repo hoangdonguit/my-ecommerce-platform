@@ -1,0 +1,2 @@
+----- Wait for saga completion from DB -----
+attempt=1 status=COMPLETED

@@ -1,0 +1,4 @@
+RUN_DIR=docs/dynamic-filter/runs/dynamic-filter-fresh-proof-20260602230529
+SUMMARY=docs/dynamic-filter/dynamic-filter-fresh-proof-summary.md
+GATEWAY_URL=http://localhost:18090
+API_KEY=[REDACTED]

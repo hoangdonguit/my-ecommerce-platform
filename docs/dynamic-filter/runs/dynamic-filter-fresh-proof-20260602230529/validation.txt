@@ -1,0 +1,6 @@
+----- Validate dynamic output -----
+ORDER_ID=c511889f-98dd-427e-a087-d35150dbad7a
+DYNAMIC_HAS_PENDING=1
+DYNAMIC_HAS_COMPLETED=0
+FLAT_HAS_COMPLETED=1
+VALIDATION_PASSED: dynamic topic contains PENDING and blocks COMPLETED

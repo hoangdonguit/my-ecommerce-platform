@@ -1,0 +1,14 @@
+{
+  "user_id": "dynamic-filter-proof-user",
+  "items": [
+    {
+      "product_id": "prod-123",
+      "quantity": 1
+    }
+  ],
+  "currency": "VND",
+  "payment_method": "COD",
+  "shipping_address": "UIT Thu Duc",
+  "note": "dynamic-filter-proof-20260602230529",
+  "idempotency_key": "dynamic-filter-proof-20260602230529"
+}
