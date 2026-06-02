@@ -1,0 +1,23 @@
+--- order_db before ---
+  status   | count
+-----------+-------
+ COMPLETED | 14286
+ FAILED    |     4
+(2 rows)
+
+  status   | count
+-----------+-------
+ PUBLISHED | 14290
+(1 row)
+
+--- inventory_db before ---
+  status   | count
+-----------+-------
+ PUBLISHED |  9554
+(1 row)
+
+--- payment_db before ---
+  status   | count
+-----------+-------
+ PUBLISHED |  7125
+(1 row)

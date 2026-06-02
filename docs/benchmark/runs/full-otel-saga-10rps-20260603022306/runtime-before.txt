@@ -1,0 +1,32 @@
+----- Git -----
+a6e54a9 docs: record full otel saga runtime proof
+?? docs/benchmark/runs/full-otel-saga-10rps-20260603022306/
+
+----- ArgoCD -----
+NAME                 SYNC STATUS   HEALTH STATUS
+ecommerce-platform   Synced        Healthy
+
+----- Deployments -----
+NAME                    IMAGE                                                                           READY   AVAILABLE
+inventory-api           hoangdonguit/inventory-service:otel-full-saga-inventory-hotfix-20260603013722   1       1
+inventory-consumer      hoangdonguit/inventory-service:otel-full-saga-inventory-hotfix-20260603013722   1       1
+notification-api        hoangdonguit/notification-service:otel-full-saga-20260603005334                 1       1
+notification-consumer   hoangdonguit/notification-service:otel-full-saga-20260603005334                 1       1
+order-service           hoangdonguit/order-service:otel-full-saga-20260603005334                        2       2
+payment-api             hoangdonguit/payment-service:otel-full-saga-payment-hotfix-20260603015846       1       1
+payment-consumer        hoangdonguit/payment-service:otel-full-saga-payment-hotfix-20260603015846       1       1
+read-model-service      hoangdonguit/read-model-service:otel-full-saga-20260603005334                   1       1
+web-gateway             hoangdonguit/web-gateway:otel-webgateway-20260601213658                         2       2
+
+----- Pods -----
+inventory-api-5775d846db-nsbpn          1/1     Running   0          44m
+inventory-consumer-969fd8d8b-pc5kf      1/1     Running   0          44m
+notification-api-f94cbb596-hzd2r        1/1     Running   0          70m
+notification-consumer-b98d455ff-7b4fl   1/1     Running   0          70m
+order-service-574c4466b9-qsxg2          1/1     Running   0          70m
+order-service-574c4466b9-r7dn8          1/1     Running   0          70m
+payment-api-5684c47b55-mgrbs            1/1     Running   0          22m
+payment-consumer-5847fdf4d8-rlvpc       1/1     Running   0          22m
+read-model-service-8bb5794b4-c2flb      1/1     Running   0          70m
+web-gateway-8f9984b46-r7gk5             1/1     Running   0          28h
+web-gateway-8f9984b46-tt7q6             1/1     Running   0          28h

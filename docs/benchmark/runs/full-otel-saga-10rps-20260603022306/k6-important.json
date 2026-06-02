@@ -1,0 +1,44 @@
+{
+  "http_reqs": {
+    "count": 600,
+    "rate": 9.98366993588484
+  },
+  "iterations": {
+    "count": 600,
+    "rate": 9.98366993588484
+  },
+  "dropped_iterations": {
+    "count": 0
+  },
+  "accepted_orders": {
+    "count": 600,
+    "rate": 9.98366993588484
+  },
+  "rejected_orders": {
+    "count": 0,
+    "rate": 0
+  },
+  "http_req_failed": {
+    "value": 0,
+    "thresholds": {
+      "rate<0.01": false
+    }
+  },
+  "unexpected_error_rate": {
+    "value": 0,
+    "thresholds": {
+      "rate<0.01": false
+    }
+  },
+  "http_req_duration": {
+    "avg": 103.93881688833329,
+    "min": 85.317868,
+    "med": 95.0980625,
+    "p(90)": 106.9196407,
+    "p(95)": 115.31035684999996,
+    "max": 891.718644,
+    "thresholds": {
+      "p(95)<1500": false
+    }
+  }
+}

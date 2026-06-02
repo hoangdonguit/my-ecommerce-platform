@@ -1,0 +1,332 @@
+
+### web-gateway
+
+### order-service
+
+### inventory-consumer
+2026/06/02 19:25:28 received order.created order_id=df0dcaa7-4896-4180-b2aa-0535bd2626ae user_id=full-otel-saga-10rps-20260603022306-user-15-21 items=1
+2026/06/02 19:25:28 received order.created order_id=1635f1da-3e8a-418c-a0b9-2a4c72d2159d user_id=full-otel-saga-10rps-20260603022306-user-9-22 items=1
+2026/06/02 19:25:28 received order.created order_id=ea27fc68-f890-4cf6-bd88-7030610adf84 user_id=full-otel-saga-10rps-20260603022306-user-12-22 items=1
+2026/06/02 19:25:28 received order.created order_id=c555d561-be2f-45cd-8d35-4c6f91d62742 user_id=full-otel-saga-10rps-20260603022306-user-2-22 items=1
+2026/06/02 19:25:28 received order.created order_id=200b7857-05ef-40db-9a8c-fb2c580b5b69 user_id=full-otel-saga-10rps-20260603022306-user-8-22 items=1
+2026/06/02 19:25:28 received order.created order_id=016afe37-40e8-45b5-9f83-7b31d85815e2 user_id=full-otel-saga-10rps-20260603022306-user-1-22 items=1
+2026/06/02 19:25:29 received order.created order_id=4e84815d-919b-432e-abf2-b870cdcc449e user_id=full-otel-saga-10rps-20260603022306-user-11-22 items=1
+2026/06/02 19:25:29 received order.created order_id=065842c2-7669-4706-8100-094a422ddedb user_id=full-otel-saga-10rps-20260603022306-user-3-22 items=1
+2026/06/02 19:25:29 received order.created order_id=cc06f279-e6f1-4221-9339-18719a88cff2 user_id=full-otel-saga-10rps-20260603022306-user-6-22 items=1
+2026/06/02 19:25:29 received order.created order_id=ad424403-d890-4390-bd6a-f1680acbcc79 user_id=full-otel-saga-10rps-20260603022306-user-7-22 items=1
+2026/06/02 19:25:29 received order.created order_id=4f730524-0aaa-4517-832f-6024485934a7 user_id=full-otel-saga-10rps-20260603022306-user-5-22 items=1
+2026/06/02 19:25:29 received order.created order_id=4224ca7d-04d1-4e4e-ad61-51216a67740f user_id=full-otel-saga-10rps-20260603022306-user-18-22 items=1
+2026/06/02 19:25:29 received order.created order_id=157e120a-0b16-468b-b5ed-189edf84e5b0 user_id=full-otel-saga-10rps-20260603022306-user-16-22 items=1
+2026/06/02 19:25:29 received order.created order_id=660d48a0-7e7f-42df-a82b-695fff0916ec user_id=full-otel-saga-10rps-20260603022306-user-17-22 items=1
+2026/06/02 19:25:29 received order.created order_id=c5a4940d-0f09-475a-b6bc-34cd61eab3b4 user_id=full-otel-saga-10rps-20260603022306-user-19-22 items=1
+2026/06/02 19:25:29 received order.created order_id=c998762d-1cf9-41e9-9125-da3ca011f0dc user_id=full-otel-saga-10rps-20260603022306-user-20-22 items=1
+2026/06/02 19:25:30 received order.created order_id=7fba6aaa-6665-4fe7-82ac-de6d9f5f2186 user_id=full-otel-saga-10rps-20260603022306-user-4-22 items=1
+2026/06/02 19:25:30 received order.created order_id=28b2b99c-4948-481c-bc0b-7e3f29216085 user_id=full-otel-saga-10rps-20260603022306-user-13-22 items=1
+2026/06/02 19:25:30 received order.created order_id=e1a6ad65-f2db-4dd6-bc84-93a19799a1e2 user_id=full-otel-saga-10rps-20260603022306-user-14-22 items=1
+2026/06/02 19:25:30 received order.created order_id=6665f819-df9c-4adb-b9e3-41e1896fae19 user_id=full-otel-saga-10rps-20260603022306-user-10-23 items=1
+2026/06/02 19:25:30 received order.created order_id=391446ce-7b64-4ad0-a97a-2917bc33025e user_id=full-otel-saga-10rps-20260603022306-user-15-22 items=1
+2026/06/02 19:25:30 received order.created order_id=972a4e1a-4a5e-420f-900c-a23ac13a4557 user_id=full-otel-saga-10rps-20260603022306-user-9-23 items=1
+2026/06/02 19:25:30 received order.created order_id=8f922f4c-3f79-44d6-9c6d-702833905d83 user_id=full-otel-saga-10rps-20260603022306-user-12-23 items=1
+2026/06/02 19:25:30 received order.created order_id=f56bebae-8e22-4123-a7e9-7979f519aad1 user_id=full-otel-saga-10rps-20260603022306-user-2-23 items=1
+2026/06/02 19:25:30 received order.created order_id=d7fb2a08-0333-4a37-a1f0-f774a05f21f9 user_id=full-otel-saga-10rps-20260603022306-user-8-23 items=1
+2026/06/02 19:25:30 received order.created order_id=e02484d7-a18b-4f0c-aadf-0174d107d95f user_id=full-otel-saga-10rps-20260603022306-user-1-23 items=1
+2026/06/02 19:25:31 received order.created order_id=57022e9e-e105-4901-933b-e54c11bdc15f user_id=full-otel-saga-10rps-20260603022306-user-11-23 items=1
+2026/06/02 19:25:31 received order.created order_id=6fd2a221-1e2d-4657-83e7-b8bc82bc1d7d user_id=full-otel-saga-10rps-20260603022306-user-3-23 items=1
+2026/06/02 19:25:31 received order.created order_id=4cfdf575-7304-458b-aa9f-e0615b1bb615 user_id=full-otel-saga-10rps-20260603022306-user-6-23 items=1
+2026/06/02 19:25:31 received order.created order_id=42e4a0e1-d606-4d25-a2ed-2012fe3b1ab3 user_id=full-otel-saga-10rps-20260603022306-user-7-23 items=1
+2026/06/02 19:25:31 received order.created order_id=892ddc41-2e4c-4326-9798-65dc9e25fe76 user_id=full-otel-saga-10rps-20260603022306-user-5-23 items=1
+2026/06/02 19:25:31 received order.created order_id=5d26cea1-11cf-43b5-95a4-4e3b8a63a825 user_id=full-otel-saga-10rps-20260603022306-user-18-23 items=1
+2026/06/02 19:25:31 received order.created order_id=2a91629e-6dd7-46d1-b92f-f43f70fd9a96 user_id=full-otel-saga-10rps-20260603022306-user-16-23 items=1
+2026/06/02 19:25:31 received order.created order_id=f9020b32-7fd2-43ec-8163-6c41c54a023d user_id=full-otel-saga-10rps-20260603022306-user-17-23 items=1
+2026/06/02 19:25:31 received order.created order_id=d464f463-c9ba-4bee-a377-7b5e5d042edb user_id=full-otel-saga-10rps-20260603022306-user-19-23 items=1
+2026/06/02 19:25:31 received order.created order_id=84f2723f-7654-4095-a4b9-56e1383d8fb6 user_id=full-otel-saga-10rps-20260603022306-user-20-23 items=1
+2026/06/02 19:25:32 received order.created order_id=7b63dbc3-3b5f-4abe-aa70-2b098ac59999 user_id=full-otel-saga-10rps-20260603022306-user-4-23 items=1
+2026/06/02 19:25:32 received order.created order_id=ade43aa9-f38a-4057-93f8-6ce2beb81706 user_id=full-otel-saga-10rps-20260603022306-user-13-23 items=1
+2026/06/02 19:25:32 received order.created order_id=606fe756-4c19-4ab7-a13a-e0da2c25b74d user_id=full-otel-saga-10rps-20260603022306-user-14-23 items=1
+2026/06/02 19:25:32 received order.created order_id=996e0dd0-556f-4840-b3a0-84c7da1fa8ea user_id=full-otel-saga-10rps-20260603022306-user-10-24 items=1
+2026/06/02 19:25:32 received order.created order_id=a999bd8e-ed4a-4a59-9292-9888149882e6 user_id=full-otel-saga-10rps-20260603022306-user-15-23 items=1
+2026/06/02 19:25:32 received order.created order_id=cf00c9b1-4020-4f04-a62b-4f620e4db4ed user_id=full-otel-saga-10rps-20260603022306-user-9-24 items=1
+2026/06/02 19:25:32 received order.created order_id=828dcd76-5874-4326-b2b7-98ff7211ffb5 user_id=full-otel-saga-10rps-20260603022306-user-12-24 items=1
+2026/06/02 19:25:32 received order.created order_id=9c67cadc-a614-4041-9227-340d3ec82b63 user_id=full-otel-saga-10rps-20260603022306-user-2-24 items=1
+2026/06/02 19:25:32 received order.created order_id=9a5750c9-3604-4038-9434-9e4b8914cf53 user_id=full-otel-saga-10rps-20260603022306-user-8-24 items=1
+2026/06/02 19:25:32 received order.created order_id=1a5a2677-7278-4f6d-995d-48d3d5a856fc user_id=full-otel-saga-10rps-20260603022306-user-1-24 items=1
+2026/06/02 19:25:33 received order.created order_id=80ea623a-c827-40f3-a773-66b6cc1e828d user_id=full-otel-saga-10rps-20260603022306-user-11-24 items=1
+2026/06/02 19:25:33 received order.created order_id=faadeb3f-4ea7-4aef-b41d-a783be1fb00d user_id=full-otel-saga-10rps-20260603022306-user-3-24 items=1
+2026/06/02 19:25:33 received order.created order_id=6308a58a-3a7c-4f3a-ac2c-852f221fe76f user_id=full-otel-saga-10rps-20260603022306-user-6-24 items=1
+2026/06/02 19:25:33 received order.created order_id=0392c443-d01e-4156-a20f-17012d8c804c user_id=full-otel-saga-10rps-20260603022306-user-7-24 items=1
+2026/06/02 19:25:33 received order.created order_id=aae60881-e72d-44b8-8ce7-a39bf918fbab user_id=full-otel-saga-10rps-20260603022306-user-5-24 items=1
+2026/06/02 19:25:33 received order.created order_id=95b1fe7a-df16-40f1-8fba-52199f2d25fc user_id=full-otel-saga-10rps-20260603022306-user-18-24 items=1
+2026/06/02 19:25:33 received order.created order_id=57541a17-2ca0-430d-801c-b9b05dc5810b user_id=full-otel-saga-10rps-20260603022306-user-16-24 items=1
+2026/06/02 19:25:33 received order.created order_id=e40126fb-2064-463c-9cea-320116ee83d5 user_id=full-otel-saga-10rps-20260603022306-user-17-24 items=1
+2026/06/02 19:25:33 received order.created order_id=268e55f2-c674-4ff5-bb06-0f0075aabbde user_id=full-otel-saga-10rps-20260603022306-user-19-24 items=1
+2026/06/02 19:25:33 received order.created order_id=1722c103-f259-48e5-b16c-19bdc4bf5f55 user_id=full-otel-saga-10rps-20260603022306-user-20-24 items=1
+2026/06/02 19:25:34 received order.created order_id=d09c0bcb-fab6-4e8c-adef-9474161ec9cd user_id=full-otel-saga-10rps-20260603022306-user-4-24 items=1
+2026/06/02 19:25:34 received order.created order_id=d792abac-6af1-4abc-9d6c-6dbd3830d887 user_id=full-otel-saga-10rps-20260603022306-user-13-24 items=1
+2026/06/02 19:25:34 received order.created order_id=a91128fe-45c6-4acd-83d0-15dfc3ea5c91 user_id=full-otel-saga-10rps-20260603022306-user-14-24 items=1
+2026/06/02 19:25:34 received order.created order_id=fd522479-f823-4769-a014-fbf7a1ebcfee user_id=full-otel-saga-10rps-20260603022306-user-10-25 items=1
+2026/06/02 19:25:34 received order.created order_id=54e1bd10-3119-4546-8d61-e29ab4b3c809 user_id=full-otel-saga-10rps-20260603022306-user-15-24 items=1
+2026/06/02 19:25:34 received order.created order_id=0d5e7084-d100-4efc-8cda-c7ec692d0e61 user_id=full-otel-saga-10rps-20260603022306-user-9-25 items=1
+2026/06/02 19:25:34 received order.created order_id=5b111aeb-6ebd-4cf2-817f-ef7886d21966 user_id=full-otel-saga-10rps-20260603022306-user-12-25 items=1
+2026/06/02 19:25:34 received order.created order_id=ceb4497e-39bd-4764-8312-e9a17ca81692 user_id=full-otel-saga-10rps-20260603022306-user-2-25 items=1
+2026/06/02 19:25:34 received order.created order_id=6b852fbc-fdc6-46d8-8ce5-e9db7b21b766 user_id=full-otel-saga-10rps-20260603022306-user-8-25 items=1
+2026/06/02 19:25:34 received order.created order_id=92b72a8f-3baf-445b-a5c6-01b284980742 user_id=full-otel-saga-10rps-20260603022306-user-1-25 items=1
+2026/06/02 19:25:35 received order.created order_id=ec92fb0c-f16e-4a58-8858-bd09cb8f8189 user_id=full-otel-saga-10rps-20260603022306-user-11-25 items=1
+2026/06/02 19:25:35 received order.created order_id=5c84b5ed-437e-478c-b85c-136131de6086 user_id=full-otel-saga-10rps-20260603022306-user-3-25 items=1
+2026/06/02 19:25:35 received order.created order_id=62936e50-ee10-4539-802e-79cf072bea20 user_id=full-otel-saga-10rps-20260603022306-user-6-25 items=1
+2026/06/02 19:25:35 received order.created order_id=5d86065a-2bf3-4b19-9753-28ddb5e3e9ab user_id=full-otel-saga-10rps-20260603022306-user-7-25 items=1
+2026/06/02 19:25:35 received order.created order_id=c85aee57-b547-4eb5-b908-73c06875550a user_id=full-otel-saga-10rps-20260603022306-user-5-25 items=1
+2026/06/02 19:25:35 received order.created order_id=baa1c68e-2f62-4895-812e-fe49ed0dcec0 user_id=full-otel-saga-10rps-20260603022306-user-18-25 items=1
+2026/06/02 19:25:35 received order.created order_id=f8369288-857e-4fc5-8ef7-b74eff90844a user_id=full-otel-saga-10rps-20260603022306-user-16-25 items=1
+2026/06/02 19:25:35 received order.created order_id=1b986e8a-851c-488a-b0ab-fd6721fca013 user_id=full-otel-saga-10rps-20260603022306-user-17-25 items=1
+2026/06/02 19:25:35 received order.created order_id=ec2ac100-d76a-46d7-868c-aefe86a0af1b user_id=full-otel-saga-10rps-20260603022306-user-19-25 items=1
+2026/06/02 19:25:35 received order.created order_id=85610012-5996-4ff7-9e1f-e168d500c35d user_id=full-otel-saga-10rps-20260603022306-user-20-25 items=1
+2026/06/02 19:25:36 received order.created order_id=db2aa3ee-f792-4af0-b213-01d49c78fe43 user_id=full-otel-saga-10rps-20260603022306-user-4-25 items=1
+2026/06/02 19:25:36 received order.created order_id=1a0c6382-5ec5-4b6b-94c9-9c22c797f8a1 user_id=full-otel-saga-10rps-20260603022306-user-13-25 items=1
+2026/06/02 19:25:36 received order.created order_id=a5944686-1150-4607-aa9a-1f32dc98fd15 user_id=full-otel-saga-10rps-20260603022306-user-14-25 items=1
+2026/06/02 19:25:36 received order.created order_id=7e502bcd-9a39-42c2-af18-e1d349756b76 user_id=full-otel-saga-10rps-20260603022306-user-10-26 items=1
+2026/06/02 19:25:36 received order.created order_id=c32c6f67-d8ec-4304-a63f-c914bcbc589a user_id=full-otel-saga-10rps-20260603022306-user-15-25 items=1
+2026/06/02 19:25:36 received order.created order_id=ae36d3f9-5f00-44bc-85b0-c070ddd54230 user_id=full-otel-saga-10rps-20260603022306-user-9-26 items=1
+2026/06/02 19:25:36 received order.created order_id=336d0374-8272-467d-99d2-dbf1ceae52d4 user_id=full-otel-saga-10rps-20260603022306-user-12-26 items=1
+2026/06/02 19:25:36 received order.created order_id=c933c70c-1848-4b50-ae3d-525bb9df47a1 user_id=full-otel-saga-10rps-20260603022306-user-2-26 items=1
+2026/06/02 19:25:36 received order.created order_id=0a48bfd1-3d59-411c-91cf-6818a45e4e68 user_id=full-otel-saga-10rps-20260603022306-user-8-26 items=1
+2026/06/02 19:25:36 received order.created order_id=dcc92367-51f7-4e29-887f-0b667ecc8967 user_id=full-otel-saga-10rps-20260603022306-user-1-26 items=1
+2026/06/02 19:25:37 received order.created order_id=38a1444d-5a4e-4c3e-9268-5ac525ab9708 user_id=full-otel-saga-10rps-20260603022306-user-11-26 items=1
+2026/06/02 19:25:37 received order.created order_id=990c9f63-364a-4016-9d2e-f7039ef230f4 user_id=full-otel-saga-10rps-20260603022306-user-3-26 items=1
+2026/06/02 19:25:37 received order.created order_id=67b6682f-f30d-4f66-b0be-7728be340887 user_id=full-otel-saga-10rps-20260603022306-user-6-26 items=1
+2026/06/02 19:25:37 received order.created order_id=8090640d-98bf-4be9-9b3e-65af767776a7 user_id=full-otel-saga-10rps-20260603022306-user-7-26 items=1
+2026/06/02 19:25:37 received order.created order_id=979ee157-cdbe-4d59-b7b4-9edea3d4aef5 user_id=full-otel-saga-10rps-20260603022306-user-5-26 items=1
+2026/06/02 19:25:37 received order.created order_id=912626c4-c7e1-40f3-a55e-c99f8e723ac7 user_id=full-otel-saga-10rps-20260603022306-user-18-26 items=1
+2026/06/02 19:25:37 received order.created order_id=1f3d52f7-82ed-4845-bc6b-107155586952 user_id=full-otel-saga-10rps-20260603022306-user-16-26 items=1
+2026/06/02 19:25:37 received order.created order_id=acb4f580-fea4-4866-83e9-a9d24cdbe90e user_id=full-otel-saga-10rps-20260603022306-user-17-26 items=1
+2026/06/02 19:25:37 received order.created order_id=d5b46673-d986-450d-9424-c1e830ff092d user_id=full-otel-saga-10rps-20260603022306-user-19-26 items=1
+2026/06/02 19:25:37 received order.created order_id=b8f41508-2c42-4e2f-abf0-1d1f295c9c47 user_id=full-otel-saga-10rps-20260603022306-user-20-26 items=1
+2026/06/02 19:25:38 received order.created order_id=b04e8c97-a82d-4279-a1fa-4b6d5f59c776 user_id=full-otel-saga-10rps-20260603022306-user-4-26 items=1
+2026/06/02 19:25:38 received order.created order_id=3fc26063-ae33-46fa-b6d5-1e19859f81ae user_id=full-otel-saga-10rps-20260603022306-user-13-26 items=1
+2026/06/02 19:25:38 received order.created order_id=4017db98-a90f-4146-ab1f-72d6be186d49 user_id=full-otel-saga-10rps-20260603022306-user-14-26 items=1
+2026/06/02 19:25:38 received order.created order_id=04f1fc3a-982b-47fc-a665-bfaca122de9b user_id=full-otel-saga-10rps-20260603022306-user-10-27 items=1
+2026/06/02 19:25:38 received order.created order_id=426dcb9e-4e7b-4a9f-ae8d-22364397be3e user_id=full-otel-saga-10rps-20260603022306-user-15-26 items=1
+2026/06/02 19:25:38 received order.created order_id=f25acfe1-5c3d-4fb7-821a-ba502f2e81ca user_id=full-otel-saga-10rps-20260603022306-user-9-27 items=1
+2026/06/02 19:25:38 received order.created order_id=0c68de2c-66c3-414f-b921-9291974b305c user_id=full-otel-saga-10rps-20260603022306-user-12-27 items=1
+2026/06/02 19:25:38 received order.created order_id=cb0057da-9433-40c0-bf2d-82bf7bbfe0a7 user_id=full-otel-saga-10rps-20260603022306-user-2-27 items=1
+2026/06/02 19:25:38 received order.created order_id=5f294ca0-d356-4446-9056-33990443da42 user_id=full-otel-saga-10rps-20260603022306-user-8-27 items=1
+2026/06/02 19:25:38 received order.created order_id=5ef7841b-915e-4838-9058-0e7810c342ca user_id=full-otel-saga-10rps-20260603022306-user-1-27 items=1
+2026/06/02 19:25:39 received order.created order_id=184c2011-9b33-4851-8f1d-c04101b50bcf user_id=full-otel-saga-10rps-20260603022306-user-11-27 items=1
+2026/06/02 19:25:39 received order.created order_id=f98758ae-077d-4dca-9959-4e33cb330c04 user_id=full-otel-saga-10rps-20260603022306-user-3-27 items=1
+2026/06/02 19:25:39 received order.created order_id=e311169b-b70a-4599-a532-9e5a46fc2d0c user_id=full-otel-saga-10rps-20260603022306-user-6-27 items=1
+2026/06/02 19:25:39 received order.created order_id=118385a1-322d-499a-a671-b15854320576 user_id=full-otel-saga-10rps-20260603022306-user-7-27 items=1
+2026/06/02 19:25:39 received order.created order_id=f554bd98-56b3-49b3-856e-eadcc578fcc5 user_id=full-otel-saga-10rps-20260603022306-user-5-27 items=1
+2026/06/02 19:25:39 received order.created order_id=fcb6b9a5-0157-40b9-982b-ec974ad52a38 user_id=full-otel-saga-10rps-20260603022306-user-18-27 items=1
+2026/06/02 19:25:39 received order.created order_id=a9423364-8111-4c7e-9a68-026fd8063ccf user_id=full-otel-saga-10rps-20260603022306-user-16-27 items=1
+2026/06/02 19:25:39 received order.created order_id=886cffd4-24ca-4052-b75b-ed9227f0becf user_id=full-otel-saga-10rps-20260603022306-user-17-27 items=1
+2026/06/02 19:25:39 received order.created order_id=24f69cdf-9b45-453f-8c1f-15b31f433a0a user_id=full-otel-saga-10rps-20260603022306-user-19-27 items=1
+2026/06/02 19:25:39 received order.created order_id=61272816-8d24-47b7-b636-4c7ccf458c07 user_id=full-otel-saga-10rps-20260603022306-user-20-27 items=1
+2026/06/02 19:25:40 received order.created order_id=02f389ee-eed0-481e-89cd-6d7909361ab6 user_id=full-otel-saga-10rps-20260603022306-user-4-27 items=1
+2026/06/02 19:25:40 received order.created order_id=a8df431e-6f65-4734-8853-fff4481d3a48 user_id=full-otel-saga-10rps-20260603022306-user-13-27 items=1
+2026/06/02 19:25:40 received order.created order_id=2eac7ccd-bf9b-49bf-8d8a-9a2473032505 user_id=full-otel-saga-10rps-20260603022306-user-14-27 items=1
+2026/06/02 19:25:40 received order.created order_id=c716fd04-f8fd-4e47-a8e4-3e5290ccc1dc user_id=full-otel-saga-10rps-20260603022306-user-10-28 items=1
+2026/06/02 19:25:40 received order.created order_id=3b0ace33-86e8-4e90-abde-0a06bd90de28 user_id=full-otel-saga-10rps-20260603022306-user-15-27 items=1
+2026/06/02 19:25:40 received order.created order_id=27cfff1f-d169-4ebb-9552-eb4012e2a322 user_id=full-otel-saga-10rps-20260603022306-user-9-28 items=1
+2026/06/02 19:25:40 received order.created order_id=c9d44764-ede7-427e-8016-f8fbcb51ee12 user_id=full-otel-saga-10rps-20260603022306-user-12-28 items=1
+2026/06/02 19:25:40 received order.created order_id=8bcf79b8-cbe9-4303-985c-f9233d8d7080 user_id=full-otel-saga-10rps-20260603022306-user-2-28 items=1
+2026/06/02 19:25:40 received order.created order_id=aeea5f58-5063-4415-9549-c40e148cf2f1 user_id=full-otel-saga-10rps-20260603022306-user-8-28 items=1
+2026/06/02 19:25:40 received order.created order_id=80c99386-163d-4ff1-bb86-50481cffc82f user_id=full-otel-saga-10rps-20260603022306-user-1-28 items=1
+2026/06/02 19:25:41 received order.created order_id=ab663b92-93f1-4268-939f-de42f789d0aa user_id=full-otel-saga-10rps-20260603022306-user-11-28 items=1
+2026/06/02 19:25:41 received order.created order_id=b28db56c-eb5a-4f20-9364-d2c2e1df802d user_id=full-otel-saga-10rps-20260603022306-user-3-28 items=1
+2026/06/02 19:25:41 received order.created order_id=b8168430-1594-454d-b1a1-36df4aff17a7 user_id=full-otel-saga-10rps-20260603022306-user-6-28 items=1
+2026/06/02 19:25:41 received order.created order_id=7448d27f-1a01-4c93-b329-776a35c0ac61 user_id=full-otel-saga-10rps-20260603022306-user-7-28 items=1
+2026/06/02 19:25:41 received order.created order_id=27ba43da-3b66-4dfc-b2af-10ca66a571b7 user_id=full-otel-saga-10rps-20260603022306-user-5-28 items=1
+2026/06/02 19:25:41 received order.created order_id=91e60683-ae81-467e-a749-ddfef1b80695 user_id=full-otel-saga-10rps-20260603022306-user-18-28 items=1
+2026/06/02 19:25:41 received order.created order_id=d05c4ac9-1832-4ef5-b409-884358f01a17 user_id=full-otel-saga-10rps-20260603022306-user-16-28 items=1
+2026/06/02 19:25:41 received order.created order_id=58f5b749-0382-448f-a770-82f7c64df5f7 user_id=full-otel-saga-10rps-20260603022306-user-17-28 items=1
+2026/06/02 19:25:41 received order.created order_id=c19b5633-c3e1-46ac-b98c-d7e9aa7f1009 user_id=full-otel-saga-10rps-20260603022306-user-19-28 items=1
+2026/06/02 19:25:41 received order.created order_id=31fa374a-d54d-45a9-9952-39279cccf2bc user_id=full-otel-saga-10rps-20260603022306-user-20-28 items=1
+2026/06/02 19:25:42 received order.created order_id=6ba877ae-f186-4884-985d-dea3aecd2089 user_id=full-otel-saga-10rps-20260603022306-user-4-28 items=1
+2026/06/02 19:25:42 received order.created order_id=a1b97055-881b-4b86-8521-09a2af61d80e user_id=full-otel-saga-10rps-20260603022306-user-13-28 items=1
+2026/06/02 19:25:42 received order.created order_id=3813ea66-d6b5-4eec-afa3-8e37fb806087 user_id=full-otel-saga-10rps-20260603022306-user-14-28 items=1
+2026/06/02 19:25:42 received order.created order_id=1d4fccdf-95bc-4a2d-8216-87e0b1bd6cfa user_id=full-otel-saga-10rps-20260603022306-user-10-29 items=1
+2026/06/02 19:25:42 received order.created order_id=4935a200-1edf-4f61-9f04-afcc21d10365 user_id=full-otel-saga-10rps-20260603022306-user-15-28 items=1
+2026/06/02 19:25:42 received order.created order_id=97a9c20d-da1c-49eb-b202-1c5a39212fa7 user_id=full-otel-saga-10rps-20260603022306-user-9-29 items=1
+2026/06/02 19:25:42 received order.created order_id=a1cc1e3d-e393-4110-a757-ed796c3c2b9a user_id=full-otel-saga-10rps-20260603022306-user-12-29 items=1
+2026/06/02 19:25:42 received order.created order_id=9a23d3bf-d2fa-4699-aedb-818900ab1e9f user_id=full-otel-saga-10rps-20260603022306-user-2-29 items=1
+2026/06/02 19:25:42 received order.created order_id=1ebff15c-17aa-47a6-9322-90af502d801a user_id=full-otel-saga-10rps-20260603022306-user-8-29 items=1
+2026/06/02 19:25:42 received order.created order_id=cb927d60-0d0c-43ea-95a9-675075de0870 user_id=full-otel-saga-10rps-20260603022306-user-1-29 items=1
+2026/06/02 19:25:43 received order.created order_id=60824618-e0ce-427a-b9de-6a77f7841a60 user_id=full-otel-saga-10rps-20260603022306-user-11-29 items=1
+2026/06/02 19:25:43 received order.created order_id=21a2bd1c-262f-4cda-9d75-fd0824d17f4c user_id=full-otel-saga-10rps-20260603022306-user-3-29 items=1
+2026/06/02 19:25:43 received order.created order_id=b6db6474-fe40-4623-b64c-876ad4302360 user_id=full-otel-saga-10rps-20260603022306-user-6-29 items=1
+2026/06/02 19:25:43 received order.created order_id=353437f1-3a17-45fd-9589-e317fe7673bd user_id=full-otel-saga-10rps-20260603022306-user-7-29 items=1
+2026/06/02 19:25:43 received order.created order_id=0ccb65b5-4e1b-4e7a-a138-3cd60856e910 user_id=full-otel-saga-10rps-20260603022306-user-5-29 items=1
+2026/06/02 19:25:43 received order.created order_id=927cacf8-6bae-45fe-843d-9d9b601fadcc user_id=full-otel-saga-10rps-20260603022306-user-18-29 items=1
+2026/06/02 19:25:43 received order.created order_id=374b9f21-a1b9-4ac6-bc43-ab01c4ea72b0 user_id=full-otel-saga-10rps-20260603022306-user-16-29 items=1
+2026/06/02 19:25:43 received order.created order_id=f03e721a-2e11-40d6-8605-682dc782357f user_id=full-otel-saga-10rps-20260603022306-user-17-29 items=1
+2026/06/02 19:25:43 received order.created order_id=5f0c708f-2551-4e14-8451-e1c4f4d03b23 user_id=full-otel-saga-10rps-20260603022306-user-19-29 items=1
+2026/06/02 19:25:43 received order.created order_id=407b7e0e-5cbc-4267-9445-ca6215617603 user_id=full-otel-saga-10rps-20260603022306-user-20-29 items=1
+2026/06/02 19:25:44 received order.created order_id=c89b4487-0a98-4288-8d57-f5baf2f93b9e user_id=full-otel-saga-10rps-20260603022306-user-4-29 items=1
+2026/06/02 19:25:44 received order.created order_id=fa3ea06a-d9d1-4711-a50e-27a4cf48a187 user_id=full-otel-saga-10rps-20260603022306-user-13-29 items=1
+2026/06/02 19:25:44 received order.created order_id=c9c5339b-c717-482f-ba95-642097e47a54 user_id=full-otel-saga-10rps-20260603022306-user-14-29 items=1
+2026/06/02 19:25:44 received order.created order_id=ab18e10b-660c-4ad2-9423-679ef4e5814f user_id=full-otel-saga-10rps-20260603022306-user-10-30 items=1
+
+### payment-consumer
+
+### notification-consumer
+2026/06/02 19:25:38 received payment.completed order_id=38a1444d-5a4e-4c3e-9268-5ac525ab9708 user_id=full-otel-saga-10rps-20260603022306-user-11-26
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-11-26 order=38a1444d-5a4e-4c3e-9268-5ac525ab9708 event=payment.completed title=Thanh toán thành công message=Đơn hàng 38a1444d-5a4e-4c3e-9268-5ac525ab9708 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:38 received payment.completed order_id=dcc92367-51f7-4e29-887f-0b667ecc8967 user_id=full-otel-saga-10rps-20260603022306-user-1-26
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-1-26 order=dcc92367-51f7-4e29-887f-0b667ecc8967 event=payment.completed title=Thanh toán thành công message=Đơn hàng dcc92367-51f7-4e29-887f-0b667ecc8967 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:38 received payment.completed order_id=990c9f63-364a-4016-9d2e-f7039ef230f4 user_id=full-otel-saga-10rps-20260603022306-user-3-26
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-3-26 order=990c9f63-364a-4016-9d2e-f7039ef230f4 event=payment.completed title=Thanh toán thành công message=Đơn hàng 990c9f63-364a-4016-9d2e-f7039ef230f4 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:38 received payment.completed order_id=a5944686-1150-4607-aa9a-1f32dc98fd15 user_id=full-otel-saga-10rps-20260603022306-user-14-25
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-14-25 order=a5944686-1150-4607-aa9a-1f32dc98fd15 event=payment.completed title=Thanh toán thành công message=Đơn hàng a5944686-1150-4607-aa9a-1f32dc98fd15 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:38 received payment.completed order_id=c32c6f67-d8ec-4304-a63f-c914bcbc589a user_id=full-otel-saga-10rps-20260603022306-user-15-25
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-15-25 order=c32c6f67-d8ec-4304-a63f-c914bcbc589a event=payment.completed title=Thanh toán thành công message=Đơn hàng c32c6f67-d8ec-4304-a63f-c914bcbc589a đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:38 received payment.completed order_id=c933c70c-1848-4b50-ae3d-525bb9df47a1 user_id=full-otel-saga-10rps-20260603022306-user-2-26
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-2-26 order=c933c70c-1848-4b50-ae3d-525bb9df47a1 event=payment.completed title=Thanh toán thành công message=Đơn hàng c933c70c-1848-4b50-ae3d-525bb9df47a1 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:38 received payment.completed order_id=336d0374-8272-467d-99d2-dbf1ceae52d4 user_id=full-otel-saga-10rps-20260603022306-user-12-26
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-12-26 order=336d0374-8272-467d-99d2-dbf1ceae52d4 event=payment.completed title=Thanh toán thành công message=Đơn hàng 336d0374-8272-467d-99d2-dbf1ceae52d4 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:38 received payment.completed order_id=ae36d3f9-5f00-44bc-85b0-c070ddd54230 user_id=full-otel-saga-10rps-20260603022306-user-9-26
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-9-26 order=ae36d3f9-5f00-44bc-85b0-c070ddd54230 event=payment.completed title=Thanh toán thành công message=Đơn hàng ae36d3f9-5f00-44bc-85b0-c070ddd54230 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:39 received payment.completed order_id=acb4f580-fea4-4866-83e9-a9d24cdbe90e user_id=full-otel-saga-10rps-20260603022306-user-17-26
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-17-26 order=acb4f580-fea4-4866-83e9-a9d24cdbe90e event=payment.completed title=Thanh toán thành công message=Đơn hàng acb4f580-fea4-4866-83e9-a9d24cdbe90e đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:39 received payment.completed order_id=979ee157-cdbe-4d59-b7b4-9edea3d4aef5 user_id=full-otel-saga-10rps-20260603022306-user-5-26
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-5-26 order=979ee157-cdbe-4d59-b7b4-9edea3d4aef5 event=payment.completed title=Thanh toán thành công message=Đơn hàng 979ee157-cdbe-4d59-b7b4-9edea3d4aef5 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:39 received payment.completed order_id=1f3d52f7-82ed-4845-bc6b-107155586952 user_id=full-otel-saga-10rps-20260603022306-user-16-26
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-16-26 order=1f3d52f7-82ed-4845-bc6b-107155586952 event=payment.completed title=Thanh toán thành công message=Đơn hàng 1f3d52f7-82ed-4845-bc6b-107155586952 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:39 received payment.completed order_id=3fc26063-ae33-46fa-b6d5-1e19859f81ae user_id=full-otel-saga-10rps-20260603022306-user-13-26
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-13-26 order=3fc26063-ae33-46fa-b6d5-1e19859f81ae event=payment.completed title=Thanh toán thành công message=Đơn hàng 3fc26063-ae33-46fa-b6d5-1e19859f81ae đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:39 received payment.completed order_id=b04e8c97-a82d-4279-a1fa-4b6d5f59c776 user_id=full-otel-saga-10rps-20260603022306-user-4-26
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-4-26 order=b04e8c97-a82d-4279-a1fa-4b6d5f59c776 event=payment.completed title=Thanh toán thành công message=Đơn hàng b04e8c97-a82d-4279-a1fa-4b6d5f59c776 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:39 received payment.completed order_id=67b6682f-f30d-4f66-b0be-7728be340887 user_id=full-otel-saga-10rps-20260603022306-user-6-26
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-6-26 order=67b6682f-f30d-4f66-b0be-7728be340887 event=payment.completed title=Thanh toán thành công message=Đơn hàng 67b6682f-f30d-4f66-b0be-7728be340887 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:39 received payment.completed order_id=912626c4-c7e1-40f3-a55e-c99f8e723ac7 user_id=full-otel-saga-10rps-20260603022306-user-18-26
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-18-26 order=912626c4-c7e1-40f3-a55e-c99f8e723ac7 event=payment.completed title=Thanh toán thành công message=Đơn hàng 912626c4-c7e1-40f3-a55e-c99f8e723ac7 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:39 received payment.completed order_id=8090640d-98bf-4be9-9b3e-65af767776a7 user_id=full-otel-saga-10rps-20260603022306-user-7-26
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-7-26 order=8090640d-98bf-4be9-9b3e-65af767776a7 event=payment.completed title=Thanh toán thành công message=Đơn hàng 8090640d-98bf-4be9-9b3e-65af767776a7 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:39 received payment.completed order_id=d5b46673-d986-450d-9424-c1e830ff092d user_id=full-otel-saga-10rps-20260603022306-user-19-26
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-19-26 order=d5b46673-d986-450d-9424-c1e830ff092d event=payment.completed title=Thanh toán thành công message=Đơn hàng d5b46673-d986-450d-9424-c1e830ff092d đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:39 received payment.completed order_id=b8f41508-2c42-4e2f-abf0-1d1f295c9c47 user_id=full-otel-saga-10rps-20260603022306-user-20-26
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-20-26 order=b8f41508-2c42-4e2f-abf0-1d1f295c9c47 event=payment.completed title=Thanh toán thành công message=Đơn hàng b8f41508-2c42-4e2f-abf0-1d1f295c9c47 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:40 received payment.completed order_id=426dcb9e-4e7b-4a9f-ae8d-22364397be3e user_id=full-otel-saga-10rps-20260603022306-user-15-26
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-15-26 order=426dcb9e-4e7b-4a9f-ae8d-22364397be3e event=payment.completed title=Thanh toán thành công message=Đơn hàng 426dcb9e-4e7b-4a9f-ae8d-22364397be3e đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:40 received payment.completed order_id=f98758ae-077d-4dca-9959-4e33cb330c04 user_id=full-otel-saga-10rps-20260603022306-user-3-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-3-27 order=f98758ae-077d-4dca-9959-4e33cb330c04 event=payment.completed title=Thanh toán thành công message=Đơn hàng f98758ae-077d-4dca-9959-4e33cb330c04 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:40 received payment.completed order_id=184c2011-9b33-4851-8f1d-c04101b50bcf user_id=full-otel-saga-10rps-20260603022306-user-11-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-11-27 order=184c2011-9b33-4851-8f1d-c04101b50bcf event=payment.completed title=Thanh toán thành công message=Đơn hàng 184c2011-9b33-4851-8f1d-c04101b50bcf đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:40 received payment.completed order_id=5ef7841b-915e-4838-9058-0e7810c342ca user_id=full-otel-saga-10rps-20260603022306-user-1-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-1-27 order=5ef7841b-915e-4838-9058-0e7810c342ca event=payment.completed title=Thanh toán thành công message=Đơn hàng 5ef7841b-915e-4838-9058-0e7810c342ca đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:40 received payment.completed order_id=5f294ca0-d356-4446-9056-33990443da42 user_id=full-otel-saga-10rps-20260603022306-user-8-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-8-27 order=5f294ca0-d356-4446-9056-33990443da42 event=payment.completed title=Thanh toán thành công message=Đơn hàng 5f294ca0-d356-4446-9056-33990443da42 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:40 received payment.completed order_id=0c68de2c-66c3-414f-b921-9291974b305c user_id=full-otel-saga-10rps-20260603022306-user-12-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-12-27 order=0c68de2c-66c3-414f-b921-9291974b305c event=payment.completed title=Thanh toán thành công message=Đơn hàng 0c68de2c-66c3-414f-b921-9291974b305c đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:40 received payment.completed order_id=f25acfe1-5c3d-4fb7-821a-ba502f2e81ca user_id=full-otel-saga-10rps-20260603022306-user-9-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-9-27 order=f25acfe1-5c3d-4fb7-821a-ba502f2e81ca event=payment.completed title=Thanh toán thành công message=Đơn hàng f25acfe1-5c3d-4fb7-821a-ba502f2e81ca đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:40 received payment.completed order_id=04f1fc3a-982b-47fc-a665-bfaca122de9b user_id=full-otel-saga-10rps-20260603022306-user-10-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-10-27 order=04f1fc3a-982b-47fc-a665-bfaca122de9b event=payment.completed title=Thanh toán thành công message=Đơn hàng 04f1fc3a-982b-47fc-a665-bfaca122de9b đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:40 received payment.completed order_id=cb0057da-9433-40c0-bf2d-82bf7bbfe0a7 user_id=full-otel-saga-10rps-20260603022306-user-2-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-2-27 order=cb0057da-9433-40c0-bf2d-82bf7bbfe0a7 event=payment.completed title=Thanh toán thành công message=Đơn hàng cb0057da-9433-40c0-bf2d-82bf7bbfe0a7 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:40 received payment.completed order_id=4017db98-a90f-4146-ab1f-72d6be186d49 user_id=full-otel-saga-10rps-20260603022306-user-14-26
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-14-26 order=4017db98-a90f-4146-ab1f-72d6be186d49 event=payment.completed title=Thanh toán thành công message=Đơn hàng 4017db98-a90f-4146-ab1f-72d6be186d49 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:41 received payment.completed order_id=02f389ee-eed0-481e-89cd-6d7909361ab6 user_id=full-otel-saga-10rps-20260603022306-user-4-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-4-27 order=02f389ee-eed0-481e-89cd-6d7909361ab6 event=payment.completed title=Thanh toán thành công message=Đơn hàng 02f389ee-eed0-481e-89cd-6d7909361ab6 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:41 received payment.completed order_id=f554bd98-56b3-49b3-856e-eadcc578fcc5 user_id=full-otel-saga-10rps-20260603022306-user-5-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-5-27 order=f554bd98-56b3-49b3-856e-eadcc578fcc5 event=payment.completed title=Thanh toán thành công message=Đơn hàng f554bd98-56b3-49b3-856e-eadcc578fcc5 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:41 received payment.completed order_id=24f69cdf-9b45-453f-8c1f-15b31f433a0a user_id=full-otel-saga-10rps-20260603022306-user-19-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-19-27 order=24f69cdf-9b45-453f-8c1f-15b31f433a0a event=payment.completed title=Thanh toán thành công message=Đơn hàng 24f69cdf-9b45-453f-8c1f-15b31f433a0a đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:41 received payment.completed order_id=2eac7ccd-bf9b-49bf-8d8a-9a2473032505 user_id=full-otel-saga-10rps-20260603022306-user-14-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-14-27 order=2eac7ccd-bf9b-49bf-8d8a-9a2473032505 event=payment.completed title=Thanh toán thành công message=Đơn hàng 2eac7ccd-bf9b-49bf-8d8a-9a2473032505 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:41 received payment.completed order_id=a8df431e-6f65-4734-8853-fff4481d3a48 user_id=full-otel-saga-10rps-20260603022306-user-13-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-13-27 order=a8df431e-6f65-4734-8853-fff4481d3a48 event=payment.completed title=Thanh toán thành công message=Đơn hàng a8df431e-6f65-4734-8853-fff4481d3a48 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:41 received payment.completed order_id=886cffd4-24ca-4052-b75b-ed9227f0becf user_id=full-otel-saga-10rps-20260603022306-user-17-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-17-27 order=886cffd4-24ca-4052-b75b-ed9227f0becf event=payment.completed title=Thanh toán thành công message=Đơn hàng 886cffd4-24ca-4052-b75b-ed9227f0becf đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:41 received payment.completed order_id=61272816-8d24-47b7-b636-4c7ccf458c07 user_id=full-otel-saga-10rps-20260603022306-user-20-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-20-27 order=61272816-8d24-47b7-b636-4c7ccf458c07 event=payment.completed title=Thanh toán thành công message=Đơn hàng 61272816-8d24-47b7-b636-4c7ccf458c07 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:41 received payment.completed order_id=fcb6b9a5-0157-40b9-982b-ec974ad52a38 user_id=full-otel-saga-10rps-20260603022306-user-18-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-18-27 order=fcb6b9a5-0157-40b9-982b-ec974ad52a38 event=payment.completed title=Thanh toán thành công message=Đơn hàng fcb6b9a5-0157-40b9-982b-ec974ad52a38 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:41 received payment.completed order_id=118385a1-322d-499a-a671-b15854320576 user_id=full-otel-saga-10rps-20260603022306-user-7-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-7-27 order=118385a1-322d-499a-a671-b15854320576 event=payment.completed title=Thanh toán thành công message=Đơn hàng 118385a1-322d-499a-a671-b15854320576 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:41 received payment.completed order_id=a9423364-8111-4c7e-9a68-026fd8063ccf user_id=full-otel-saga-10rps-20260603022306-user-16-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-16-27 order=a9423364-8111-4c7e-9a68-026fd8063ccf event=payment.completed title=Thanh toán thành công message=Đơn hàng a9423364-8111-4c7e-9a68-026fd8063ccf đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:41 received payment.completed order_id=e311169b-b70a-4599-a532-9e5a46fc2d0c user_id=full-otel-saga-10rps-20260603022306-user-6-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-6-27 order=e311169b-b70a-4599-a532-9e5a46fc2d0c event=payment.completed title=Thanh toán thành công message=Đơn hàng e311169b-b70a-4599-a532-9e5a46fc2d0c đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:42 received payment.completed order_id=b28db56c-eb5a-4f20-9364-d2c2e1df802d user_id=full-otel-saga-10rps-20260603022306-user-3-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-3-28 order=b28db56c-eb5a-4f20-9364-d2c2e1df802d event=payment.completed title=Thanh toán thành công message=Đơn hàng b28db56c-eb5a-4f20-9364-d2c2e1df802d đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:42 received payment.completed order_id=8bcf79b8-cbe9-4303-985c-f9233d8d7080 user_id=full-otel-saga-10rps-20260603022306-user-2-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-2-28 order=8bcf79b8-cbe9-4303-985c-f9233d8d7080 event=payment.completed title=Thanh toán thành công message=Đơn hàng 8bcf79b8-cbe9-4303-985c-f9233d8d7080 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:42 received payment.completed order_id=b8168430-1594-454d-b1a1-36df4aff17a7 user_id=full-otel-saga-10rps-20260603022306-user-6-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-6-28 order=b8168430-1594-454d-b1a1-36df4aff17a7 event=payment.completed title=Thanh toán thành công message=Đơn hàng b8168430-1594-454d-b1a1-36df4aff17a7 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:42 received payment.completed order_id=3b0ace33-86e8-4e90-abde-0a06bd90de28 user_id=full-otel-saga-10rps-20260603022306-user-15-27
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-15-27 order=3b0ace33-86e8-4e90-abde-0a06bd90de28 event=payment.completed title=Thanh toán thành công message=Đơn hàng 3b0ace33-86e8-4e90-abde-0a06bd90de28 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:42 received payment.completed order_id=ab663b92-93f1-4268-939f-de42f789d0aa user_id=full-otel-saga-10rps-20260603022306-user-11-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-11-28 order=ab663b92-93f1-4268-939f-de42f789d0aa event=payment.completed title=Thanh toán thành công message=Đơn hàng ab663b92-93f1-4268-939f-de42f789d0aa đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:42 received payment.completed order_id=80c99386-163d-4ff1-bb86-50481cffc82f user_id=full-otel-saga-10rps-20260603022306-user-1-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-1-28 order=80c99386-163d-4ff1-bb86-50481cffc82f event=payment.completed title=Thanh toán thành công message=Đơn hàng 80c99386-163d-4ff1-bb86-50481cffc82f đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:42 received payment.completed order_id=c9d44764-ede7-427e-8016-f8fbcb51ee12 user_id=full-otel-saga-10rps-20260603022306-user-12-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-12-28 order=c9d44764-ede7-427e-8016-f8fbcb51ee12 event=payment.completed title=Thanh toán thành công message=Đơn hàng c9d44764-ede7-427e-8016-f8fbcb51ee12 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:42 received payment.completed order_id=27cfff1f-d169-4ebb-9552-eb4012e2a322 user_id=full-otel-saga-10rps-20260603022306-user-9-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-9-28 order=27cfff1f-d169-4ebb-9552-eb4012e2a322 event=payment.completed title=Thanh toán thành công message=Đơn hàng 27cfff1f-d169-4ebb-9552-eb4012e2a322 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:42 received payment.completed order_id=c716fd04-f8fd-4e47-a8e4-3e5290ccc1dc user_id=full-otel-saga-10rps-20260603022306-user-10-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-10-28 order=c716fd04-f8fd-4e47-a8e4-3e5290ccc1dc event=payment.completed title=Thanh toán thành công message=Đơn hàng c716fd04-f8fd-4e47-a8e4-3e5290ccc1dc đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:42 received payment.completed order_id=aeea5f58-5063-4415-9549-c40e148cf2f1 user_id=full-otel-saga-10rps-20260603022306-user-8-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-8-28 order=aeea5f58-5063-4415-9549-c40e148cf2f1 event=payment.completed title=Thanh toán thành công message=Đơn hàng aeea5f58-5063-4415-9549-c40e148cf2f1 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:43 received payment.completed order_id=31fa374a-d54d-45a9-9952-39279cccf2bc user_id=full-otel-saga-10rps-20260603022306-user-20-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-20-28 order=31fa374a-d54d-45a9-9952-39279cccf2bc event=payment.completed title=Thanh toán thành công message=Đơn hàng 31fa374a-d54d-45a9-9952-39279cccf2bc đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:43 received payment.completed order_id=27ba43da-3b66-4dfc-b2af-10ca66a571b7 user_id=full-otel-saga-10rps-20260603022306-user-5-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-5-28 order=27ba43da-3b66-4dfc-b2af-10ca66a571b7 event=payment.completed title=Thanh toán thành công message=Đơn hàng 27ba43da-3b66-4dfc-b2af-10ca66a571b7 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:43 received payment.completed order_id=58f5b749-0382-448f-a770-82f7c64df5f7 user_id=full-otel-saga-10rps-20260603022306-user-17-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-17-28 order=58f5b749-0382-448f-a770-82f7c64df5f7 event=payment.completed title=Thanh toán thành công message=Đơn hàng 58f5b749-0382-448f-a770-82f7c64df5f7 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:43 received payment.completed order_id=6ba877ae-f186-4884-985d-dea3aecd2089 user_id=full-otel-saga-10rps-20260603022306-user-4-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-4-28 order=6ba877ae-f186-4884-985d-dea3aecd2089 event=payment.completed title=Thanh toán thành công message=Đơn hàng 6ba877ae-f186-4884-985d-dea3aecd2089 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:43 received payment.completed order_id=7448d27f-1a01-4c93-b329-776a35c0ac61 user_id=full-otel-saga-10rps-20260603022306-user-7-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-7-28 order=7448d27f-1a01-4c93-b329-776a35c0ac61 event=payment.completed title=Thanh toán thành công message=Đơn hàng 7448d27f-1a01-4c93-b329-776a35c0ac61 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:43 received payment.completed order_id=d05c4ac9-1832-4ef5-b409-884358f01a17 user_id=full-otel-saga-10rps-20260603022306-user-16-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-16-28 order=d05c4ac9-1832-4ef5-b409-884358f01a17 event=payment.completed title=Thanh toán thành công message=Đơn hàng d05c4ac9-1832-4ef5-b409-884358f01a17 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:43 received payment.completed order_id=91e60683-ae81-467e-a749-ddfef1b80695 user_id=full-otel-saga-10rps-20260603022306-user-18-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-18-28 order=91e60683-ae81-467e-a749-ddfef1b80695 event=payment.completed title=Thanh toán thành công message=Đơn hàng 91e60683-ae81-467e-a749-ddfef1b80695 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:43 received payment.completed order_id=3813ea66-d6b5-4eec-afa3-8e37fb806087 user_id=full-otel-saga-10rps-20260603022306-user-14-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-14-28 order=3813ea66-d6b5-4eec-afa3-8e37fb806087 event=payment.completed title=Thanh toán thành công message=Đơn hàng 3813ea66-d6b5-4eec-afa3-8e37fb806087 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:43 received payment.completed order_id=c19b5633-c3e1-46ac-b98c-d7e9aa7f1009 user_id=full-otel-saga-10rps-20260603022306-user-19-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-19-28 order=c19b5633-c3e1-46ac-b98c-d7e9aa7f1009 event=payment.completed title=Thanh toán thành công message=Đơn hàng c19b5633-c3e1-46ac-b98c-d7e9aa7f1009 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:43 received payment.completed order_id=a1b97055-881b-4b86-8521-09a2af61d80e user_id=full-otel-saga-10rps-20260603022306-user-13-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-13-28 order=a1b97055-881b-4b86-8521-09a2af61d80e event=payment.completed title=Thanh toán thành công message=Đơn hàng a1b97055-881b-4b86-8521-09a2af61d80e đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:44 received payment.completed order_id=21a2bd1c-262f-4cda-9d75-fd0824d17f4c user_id=full-otel-saga-10rps-20260603022306-user-3-29
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-3-29 order=21a2bd1c-262f-4cda-9d75-fd0824d17f4c event=payment.completed title=Thanh toán thành công message=Đơn hàng 21a2bd1c-262f-4cda-9d75-fd0824d17f4c đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:44 received payment.completed order_id=1d4fccdf-95bc-4a2d-8216-87e0b1bd6cfa user_id=full-otel-saga-10rps-20260603022306-user-10-29
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-10-29 order=1d4fccdf-95bc-4a2d-8216-87e0b1bd6cfa event=payment.completed title=Thanh toán thành công message=Đơn hàng 1d4fccdf-95bc-4a2d-8216-87e0b1bd6cfa đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:44 received payment.completed order_id=b6db6474-fe40-4623-b64c-876ad4302360 user_id=full-otel-saga-10rps-20260603022306-user-6-29
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-6-29 order=b6db6474-fe40-4623-b64c-876ad4302360 event=payment.completed title=Thanh toán thành công message=Đơn hàng b6db6474-fe40-4623-b64c-876ad4302360 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:44 received payment.completed order_id=60824618-e0ce-427a-b9de-6a77f7841a60 user_id=full-otel-saga-10rps-20260603022306-user-11-29
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-11-29 order=60824618-e0ce-427a-b9de-6a77f7841a60 event=payment.completed title=Thanh toán thành công message=Đơn hàng 60824618-e0ce-427a-b9de-6a77f7841a60 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:44 received payment.completed order_id=9a23d3bf-d2fa-4699-aedb-818900ab1e9f user_id=full-otel-saga-10rps-20260603022306-user-2-29
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-2-29 order=9a23d3bf-d2fa-4699-aedb-818900ab1e9f event=payment.completed title=Thanh toán thành công message=Đơn hàng 9a23d3bf-d2fa-4699-aedb-818900ab1e9f đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:44 received payment.completed order_id=cb927d60-0d0c-43ea-95a9-675075de0870 user_id=full-otel-saga-10rps-20260603022306-user-1-29
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-1-29 order=cb927d60-0d0c-43ea-95a9-675075de0870 event=payment.completed title=Thanh toán thành công message=Đơn hàng cb927d60-0d0c-43ea-95a9-675075de0870 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:44 received payment.completed order_id=4935a200-1edf-4f61-9f04-afcc21d10365 user_id=full-otel-saga-10rps-20260603022306-user-15-28
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-15-28 order=4935a200-1edf-4f61-9f04-afcc21d10365 event=payment.completed title=Thanh toán thành công message=Đơn hàng 4935a200-1edf-4f61-9f04-afcc21d10365 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:44 received payment.completed order_id=97a9c20d-da1c-49eb-b202-1c5a39212fa7 user_id=full-otel-saga-10rps-20260603022306-user-9-29
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-9-29 order=97a9c20d-da1c-49eb-b202-1c5a39212fa7 event=payment.completed title=Thanh toán thành công message=Đơn hàng 97a9c20d-da1c-49eb-b202-1c5a39212fa7 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:44 received payment.completed order_id=a1cc1e3d-e393-4110-a757-ed796c3c2b9a user_id=full-otel-saga-10rps-20260603022306-user-12-29
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-12-29 order=a1cc1e3d-e393-4110-a757-ed796c3c2b9a event=payment.completed title=Thanh toán thành công message=Đơn hàng a1cc1e3d-e393-4110-a757-ed796c3c2b9a đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:44 received payment.completed order_id=1ebff15c-17aa-47a6-9322-90af502d801a user_id=full-otel-saga-10rps-20260603022306-user-8-29
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-8-29 order=1ebff15c-17aa-47a6-9322-90af502d801a event=payment.completed title=Thanh toán thành công message=Đơn hàng 1ebff15c-17aa-47a6-9322-90af502d801a đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:45 received payment.completed order_id=407b7e0e-5cbc-4267-9445-ca6215617603 user_id=full-otel-saga-10rps-20260603022306-user-20-29
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-20-29 order=407b7e0e-5cbc-4267-9445-ca6215617603 event=payment.completed title=Thanh toán thành công message=Đơn hàng 407b7e0e-5cbc-4267-9445-ca6215617603 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:45 received payment.completed order_id=c89b4487-0a98-4288-8d57-f5baf2f93b9e user_id=full-otel-saga-10rps-20260603022306-user-4-29
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-4-29 order=c89b4487-0a98-4288-8d57-f5baf2f93b9e event=payment.completed title=Thanh toán thành công message=Đơn hàng c89b4487-0a98-4288-8d57-f5baf2f93b9e đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:45 received payment.completed order_id=5f0c708f-2551-4e14-8451-e1c4f4d03b23 user_id=full-otel-saga-10rps-20260603022306-user-19-29
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-19-29 order=5f0c708f-2551-4e14-8451-e1c4f4d03b23 event=payment.completed title=Thanh toán thành công message=Đơn hàng 5f0c708f-2551-4e14-8451-e1c4f4d03b23 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:45 received payment.completed order_id=c9c5339b-c717-482f-ba95-642097e47a54 user_id=full-otel-saga-10rps-20260603022306-user-14-29
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-14-29 order=c9c5339b-c717-482f-ba95-642097e47a54 event=payment.completed title=Thanh toán thành công message=Đơn hàng c9c5339b-c717-482f-ba95-642097e47a54 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:45 received payment.completed order_id=f03e721a-2e11-40d6-8605-682dc782357f user_id=full-otel-saga-10rps-20260603022306-user-17-29
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-17-29 order=f03e721a-2e11-40d6-8605-682dc782357f event=payment.completed title=Thanh toán thành công message=Đơn hàng f03e721a-2e11-40d6-8605-682dc782357f đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:45 received payment.completed order_id=374b9f21-a1b9-4ac6-bc43-ab01c4ea72b0 user_id=full-otel-saga-10rps-20260603022306-user-16-29
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-16-29 order=374b9f21-a1b9-4ac6-bc43-ab01c4ea72b0 event=payment.completed title=Thanh toán thành công message=Đơn hàng 374b9f21-a1b9-4ac6-bc43-ab01c4ea72b0 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:45 received payment.completed order_id=fa3ea06a-d9d1-4711-a50e-27a4cf48a187 user_id=full-otel-saga-10rps-20260603022306-user-13-29
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-13-29 order=fa3ea06a-d9d1-4711-a50e-27a4cf48a187 event=payment.completed title=Thanh toán thành công message=Đơn hàng fa3ea06a-d9d1-4711-a50e-27a4cf48a187 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:45 received payment.completed order_id=0ccb65b5-4e1b-4e7a-a138-3cd60856e910 user_id=full-otel-saga-10rps-20260603022306-user-5-29
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-5-29 order=0ccb65b5-4e1b-4e7a-a138-3cd60856e910 event=payment.completed title=Thanh toán thành công message=Đơn hàng 0ccb65b5-4e1b-4e7a-a138-3cd60856e910 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:45 received payment.completed order_id=927cacf8-6bae-45fe-843d-9d9b601fadcc user_id=full-otel-saga-10rps-20260603022306-user-18-29
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-18-29 order=927cacf8-6bae-45fe-843d-9d9b601fadcc event=payment.completed title=Thanh toán thành công message=Đơn hàng 927cacf8-6bae-45fe-843d-9d9b601fadcc đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:45 received payment.completed order_id=353437f1-3a17-45fd-9589-e317fe7673bd user_id=full-otel-saga-10rps-20260603022306-user-7-29
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-7-29 order=353437f1-3a17-45fd-9589-e317fe7673bd event=payment.completed title=Thanh toán thành công message=Đơn hàng 353437f1-3a17-45fd-9589-e317fe7673bd đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/02 19:25:46 received payment.completed order_id=ab18e10b-660c-4ad2-9423-679ef4e5814f user_id=full-otel-saga-10rps-20260603022306-user-10-30
+[NOTIFICATION SENT] user=full-otel-saga-10rps-20260603022306-user-10-30 order=ab18e10b-660c-4ad2-9423-679ef4e5814f event=payment.completed title=Thanh toán thành công message=Đơn hàng ab18e10b-660c-4ad2-9423-679ef4e5814f đã thanh toán thành công 24000000 VND bằng COD.
+
+### read-model-service

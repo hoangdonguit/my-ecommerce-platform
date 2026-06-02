@@ -1,0 +1,24 @@
+----- drain check 1 at 2026-06-03T02:24:15+07:00 -----
+--- orders for run ---
+  status   | count
+-----------+-------
+ COMPLETED |   599
+ PENDING   |     1
+(2 rows)
+
+--- open outbox all services ---
+ status | count
+--------+-------
+(0 rows)
+
+   status   | count
+------------+-------
+ PROCESSING |     1
+(1 row)
+
+ status | count
+--------+-------
+(0 rows)
+
+PENDING_COUNT=0 OPEN_OUTBOX_COUNT=0
+DRAIN_OK
