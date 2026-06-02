@@ -11,22 +11,15 @@ import (
 	"github.com/hoangdonguit/my-ecommerce-platform/payment-service/internal/shared/errs"
 )
 
-type EventPublisher interface {
-	PublishCompleted(ctx context.Context, event PaymentCompletedEvent) error
-	PublishFailed(ctx context.Context, event PaymentFailedEvent) error
-}
-
 type Service struct {
-	repo      domainpayment.Repository
-	publisher EventPublisher
-	gateway   PaymentGateway
+	repo    domainpayment.Repository
+	gateway PaymentGateway
 }
 
-func NewService(repo domainpayment.Repository, publisher EventPublisher, gateway PaymentGateway) *Service {
+func NewService(repo domainpayment.Repository, gateway PaymentGateway) *Service {
 	return &Service{
-		repo:      repo,
-		publisher: publisher,
-		gateway:   gateway,
+		repo:    repo,
+		gateway: gateway,
 	}
 }
 
@@ -152,49 +145,11 @@ func (s *Service) finalizePayment(ctx context.Context, payment *domainpayment.Pa
 			return errs.WrapInternal(err, "failed to update payment completed")
 		}
 
-		if s.publisher != nil {
-			completedEvent := PaymentCompletedEvent{
-				EventType:     "payment.completed",
-				OrderID:       payment.OrderID,
-				UserID:        payment.UserID,
-				PaymentID:     payment.ID,
-				Amount:        payment.Amount,
-				Currency:      strings.ToUpper(payment.Currency),
-				PaymentMethod: strings.ToUpper(payment.PaymentMethod),
-				Status:        domainpayment.StatusCompleted,
-				TransactionID: result.TransactionID,
-				PaidAt:        paidAt,
-			}
-
-			if err := s.publisher.PublishCompleted(ctx, completedEvent); err != nil {
-				return errs.WrapInternal(err, "failed to publish payment.completed")
-			}
-		}
-
 		return nil
 	}
 
 	if err := s.repo.UpdateFailed(ctx, payment.ID, result.FailureCode, result.FailureReason); err != nil {
 		return errs.WrapInternal(err, "failed to update payment failed")
-	}
-
-	if s.publisher != nil {
-		failedEvent := PaymentFailedEvent{
-			EventType:     "payment.failed",
-			OrderID:       payment.OrderID,
-			UserID:        payment.UserID,
-			PaymentID:     payment.ID,
-			Amount:        payment.Amount,
-			Currency:      strings.ToUpper(payment.Currency),
-			PaymentMethod: strings.ToUpper(payment.PaymentMethod),
-			Status:        domainpayment.StatusFailed,
-			FailureCode:   result.FailureCode,
-			Reason:        result.FailureReason,
-		}
-
-		if err := s.publisher.PublishFailed(ctx, failedEvent); err != nil {
-			return errs.WrapInternal(err, "failed to publish payment.failed")
-		}
 	}
 
 	return nil

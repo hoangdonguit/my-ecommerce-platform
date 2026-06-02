@@ -44,13 +44,6 @@ func main() {
 
 	repo := persistence.NewPaymentRepository(pool)
 
-	eventPublisher := messaging.NewPaymentPublisher(
-		cfg.KafkaBroker,
-		cfg.PaymentCompletedTopic,
-		cfg.PaymentFailedTopic,
-	)
-	defer eventPublisher.Close()
-
 	outboxPublisher := messaging.NewPaymentOutboxPublisher(cfg.KafkaBroker)
 	defer outboxPublisher.Close()
 
@@ -60,7 +53,7 @@ func main() {
 
 	// Payment terminal events are now published by payment_outbox_events.
 	// Keep direct publisher disabled in the business service to avoid duplicate events.
-	service := paymentapp.NewService(repo, nil, gateway)
+	service := paymentapp.NewService(repo, gateway)
 
 	reader := kafkago.NewReader(kafkago.ReaderConfig{
 		Brokers: []string{cfg.KafkaBroker},

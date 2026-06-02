@@ -32,7 +32,7 @@ func main() {
 	gateway := paymentapp.NewSimulatedPaymentGateway()
 
 	// Payment terminal events are emitted via payment_outbox_events.
-	service := paymentapp.NewService(repo, nil, gateway)
+	service := paymentapp.NewService(repo, gateway)
 	handler := httpapi.NewPaymentHandler(service)
 
 	router := httpapi.SetupRouter(handler)

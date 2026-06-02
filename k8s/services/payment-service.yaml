@@ -18,7 +18,7 @@ spec:
       serviceAccountName: payment-api-sa
       containers:
       - name: payment-api
-        image: hoangdonguit/payment-service:payment-outbox-20260530171950
+        image: hoangdonguit/payment-service:outbox-only-20260602012451
         command: ["/app/payment-api"]
         ports:
         - containerPort: 8083
@@ -67,7 +67,7 @@ spec:
       serviceAccountName: payment-consumer-sa
       containers:
       - name: payment-consumer
-        image: hoangdonguit/payment-service:payment-outbox-20260530171950
+        image: hoangdonguit/payment-service:outbox-only-20260602012451
         command: ["/app/payment-consumer"]
         resources:
           limits:
