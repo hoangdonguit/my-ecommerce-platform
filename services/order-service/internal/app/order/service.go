@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	domainorder "github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/domain/order"
 	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/infrastructure/persistence"
+	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/observability"
 	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/shared/errs"
 	"github.com/redis/go-redis/v9"
 )
@@ -18,6 +19,7 @@ import (
 type EventPublisher interface {
 	PublishOrderCreated(ctx context.Context, event OrderCreatedEvent) error
 	PublishOrderCreatedBatch(ctx context.Context, events []OrderCreatedEvent) error
+	PublishOrderCreatedBatchWithHeaders(ctx context.Context, events []OrderCreatedEvent, headersByOrderID map[string]map[string]string) error
 }
 
 type Service struct {
@@ -260,9 +262,10 @@ func (s *Service) CreateOrder(ctx context.Context, req CreateOrderRequest, idemK
 	// --- 4. TẠO PAYLOAD OUTBOX TRƯỚC KHI GỌI DB ---
 	event := buildOrderCreatedEvent(ord)
 	outboxPayload, _ := json.Marshal(event)
+	outboxHeaders := observability.MarshalTraceHeaders(observability.InjectTraceHeaders(ctx))
 
-	// Gọi hàm Create với Payload Outbox (Nó sẽ ghi cục này vào DB chung với đơn hàng)
-	if err := s.repo.Create(ctx, ord, "order.created", outboxPayload); err != nil {
+	// Gọi hàm Create với Payload + trace headers Outbox (ghi chung transaction với đơn hàng)
+	if err := s.repo.Create(ctx, ord, "order.created", outboxPayload, outboxHeaders); err != nil {
 		s.releaseFlashSaleStock(ctx, flashSaleReservations)
 		return nil, false, errs.WrapInternal(err, "failed to create order")
 	}

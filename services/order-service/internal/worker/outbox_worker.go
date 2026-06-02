@@ -9,6 +9,7 @@ import (
 	"time"
 
 	orderapp "github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/app/order"
+	"github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/observability"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -88,7 +89,7 @@ func (w *OutboxWorker) processBatch(ctx context.Context) {
 			LIMIT $1
 			FOR UPDATE SKIP LOCKED
 		)
-		RETURNING id::text, payload::text
+		RETURNING id::text, payload::text, headers::text
 	`, w.batchSize, w.staleProcessingAfter)
 	if err != nil {
 		log.Printf("[OrderOutboxWorker] fetch events failed err=%v", err)
@@ -98,16 +99,19 @@ func (w *OutboxWorker) processBatch(ctx context.Context) {
 	type record struct {
 		ID      string
 		Payload string
+		Headers map[string]string
 	}
 
 	records := make([]record, 0, w.batchSize)
 
 	for rows.Next() {
 		var rec record
-		if err := rows.Scan(&rec.ID, &rec.Payload); err != nil {
+		var headersRaw string
+		if err := rows.Scan(&rec.ID, &rec.Payload, &headersRaw); err != nil {
 			log.Printf("[OrderOutboxWorker] scan failed err=%v", err)
 			continue
 		}
+		rec.Headers = observability.UnmarshalTraceHeaders(headersRaw)
 		records = append(records, rec)
 	}
 
@@ -123,6 +127,7 @@ func (w *OutboxWorker) processBatch(ctx context.Context) {
 	}
 
 	events := make([]orderapp.OrderCreatedEvent, 0, len(records))
+	headersByOrderID := make(map[string]map[string]string, len(records))
 	ids := make([]string, 0, len(records))
 	parseFailedIDs := make([]string, 0)
 
@@ -135,6 +140,7 @@ func (w *OutboxWorker) processBatch(ctx context.Context) {
 		}
 
 		events = append(events, event)
+		headersByOrderID[event.OrderID] = rec.Headers
 		ids = append(ids, rec.ID)
 	}
 
@@ -153,7 +159,7 @@ func (w *OutboxWorker) processBatch(ctx context.Context) {
 	}
 
 	publishCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
-	err = w.publisher.PublishOrderCreatedBatch(publishCtx, events)
+	err = w.publisher.PublishOrderCreatedBatchWithHeaders(publishCtx, events, headersByOrderID)
 	cancel()
 
 	if err != nil {

@@ -18,7 +18,7 @@ func NewOrderRepository(db *pgxpool.Pool) *OrderRepository {
 	return &OrderRepository{db: db}
 }
 
-func (r *OrderRepository) Create(ctx context.Context, ord *domainorder.Order, outboxEventType string, outboxPayload []byte) error {
+func (r *OrderRepository) Create(ctx context.Context, ord *domainorder.Order, outboxEventType string, outboxPayload []byte, outboxHeaders []byte) error {
 	// 1. Mở Transaction
 	tx, err := r.db.Begin(ctx)
 	if err != nil {
@@ -53,11 +53,15 @@ func (r *OrderRepository) Create(ctx context.Context, ord *domainorder.Order, ou
 	}
 
 	// 4. GHI BẢNG OUTBOX (TRONG CÙNG TRANSACTION)
+	if len(outboxHeaders) == 0 {
+		outboxHeaders = []byte("{}")
+	}
+
 	outboxQuery := `
-		INSERT INTO outbox (id, event_type, aggregate_id, payload, status, created_at)
-		VALUES ($1, $2, $3, $4::jsonb, 'PENDING', NOW())
+		INSERT INTO outbox (id, event_type, aggregate_id, payload, headers, status, created_at)
+		VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, 'PENDING', NOW())
 	`
-	_, err = tx.Exec(ctx, outboxQuery, uuid.NewString(), outboxEventType, ord.ID, string(outboxPayload))
+	_, err = tx.Exec(ctx, outboxQuery, uuid.NewString(), outboxEventType, ord.ID, string(outboxPayload), string(outboxHeaders))
 	if err != nil {
 		return err
 	}

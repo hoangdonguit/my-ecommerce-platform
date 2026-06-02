@@ -3,6 +3,7 @@ package messaging
 import (
 	"context"
 	"encoding/json"
+	"sort"
 	"time"
 
 	orderapp "github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/app/order"
@@ -39,6 +40,16 @@ func (p *OrderPublisher) PublishOrderCreated(ctx context.Context, event orderapp
 
 // Gửi BATCH - dùng WriteMessages 1 lần cho toàn bộ
 func (p *OrderPublisher) PublishOrderCreatedBatch(ctx context.Context, events []orderapp.OrderCreatedEvent) error {
+	return p.PublishOrderCreatedBatchWithHeaders(ctx, events, nil)
+}
+
+// Gửi BATCH kèm trace headers đã được persist trong outbox.
+// Nếu một event không có persisted headers, publisher fallback sang context hiện tại.
+func (p *OrderPublisher) PublishOrderCreatedBatchWithHeaders(
+	ctx context.Context,
+	events []orderapp.OrderCreatedEvent,
+	headersByOrderID map[string]map[string]string,
+) error {
 	ctx, span := otel.Tracer("order-service").Start(ctx, "kafka publish order.created")
 	defer span.End()
 
@@ -54,8 +65,12 @@ func (p *OrderPublisher) PublishOrderCreatedBatch(ctx context.Context, events []
 		if err != nil {
 			continue
 		}
-		headers := make([]kafkago.Header, 0)
-		otel.GetTextMapPropagator().Inject(ctx, observability.NewKafkaHeadersCarrier(&headers))
+
+		headers := kafkaHeadersFromMap(headersByOrderID[event.OrderID])
+		if len(headers) == 0 {
+			headers = make([]kafkago.Header, 0)
+			otel.GetTextMapPropagator().Inject(ctx, observability.NewKafkaHeadersCarrier(&headers))
+		}
 
 		msgs = append(msgs, kafkago.Message{
 			Key:     []byte(event.OrderID),
@@ -74,6 +89,35 @@ func (p *OrderPublisher) PublishOrderCreatedBatch(ctx context.Context, events []
 	}
 
 	return nil
+}
+
+func kafkaHeadersFromMap(headers map[string]string) []kafkago.Header {
+	if len(headers) == 0 {
+		return nil
+	}
+
+	keys := make([]string, 0, len(headers))
+	for key := range headers {
+		if key != "" {
+			keys = append(keys, key)
+		}
+	}
+
+	sort.Strings(keys)
+
+	result := make([]kafkago.Header, 0, len(keys))
+	for _, key := range keys {
+		value := headers[key]
+		if value == "" {
+			continue
+		}
+		result = append(result, kafkago.Header{
+			Key:   key,
+			Value: []byte(value),
+		})
+	}
+
+	return result
 }
 
 func (p *OrderPublisher) Close() error {
