@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -17,6 +18,11 @@ type Config struct {
 	OrderCreatedTopic      string
 	InventoryReservedTopic string
 	InventoryFailedTopic   string
+
+	OTelEnabled              bool
+	OTelServiceName          string
+	OTelEnvironment          string
+	OTelExporterOTLPEndpoint string
 }
 
 func Load() Config {
@@ -32,6 +38,11 @@ func Load() Config {
 		OrderCreatedTopic:      getEnv("KAFKA_TOPIC_ORDER_CREATED", "order.created"),
 		InventoryReservedTopic: getEnv("KAFKA_TOPIC_INVENTORY_RESERVED", "inventory.reserved"),
 		InventoryFailedTopic:   getEnv("KAFKA_TOPIC_INVENTORY_FAILED", "inventory.failed"),
+
+		OTelEnabled:              getEnvBool("OTEL_ENABLED", false),
+		OTelServiceName:          getEnv("OTEL_SERVICE_NAME", "inventory-service"),
+		OTelEnvironment:          getEnv("OTEL_ENVIRONMENT", getEnv("APP_ENV", "development")),
+		OTelExporterOTLPEndpoint: getEnv("OTEL_EXPORTER_OTLP_ENDPOINT", ""),
 	}
 
 	validate(cfg)
@@ -53,4 +64,20 @@ func getEnv(key, fallback string) string {
 		return fallback
 	}
 	return val
+}
+
+func getEnvBool(key string, fallback bool) bool {
+	value := strings.TrimSpace(strings.ToLower(os.Getenv(key)))
+	if value == "" {
+		return fallback
+	}
+
+	switch value {
+	case "1", "true", "yes", "on":
+		return true
+	case "0", "false", "no", "off":
+		return false
+	default:
+		return fallback
+	}
 }

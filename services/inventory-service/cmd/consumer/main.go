@@ -13,11 +13,28 @@ import (
 	"github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/infrastructure/db"
 	"github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/infrastructure/messaging"
 	"github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/infrastructure/persistence"
+	"github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/observability"
 	kafkago "github.com/segmentio/kafka-go"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 func main() {
 	cfg := config.Load()
+	ctx := context.Background()
+
+	shutdownTracing, err := observability.InitTracing(ctx, observability.TracingConfig{
+		Enabled:     cfg.OTelEnabled,
+		ServiceName: cfg.OTelServiceName,
+		Environment: cfg.OTelEnvironment,
+		Endpoint:    cfg.OTelExporterOTLPEndpoint,
+	})
+	if err != nil {
+		log.Fatalf("failed to init tracing: %v", err)
+	}
+	defer func() {
+		_ = shutdownTracing(context.Background())
+	}()
 
 	pool, err := db.NewPostgres(cfg.DBURL)
 	if err != nil {
@@ -40,8 +57,6 @@ func main() {
 	defer outboxPublisher.Close()
 
 	service := inventoryapp.NewService(repo, publisher)
-
-	ctx := context.Background()
 
 	go startOutboxPublisherLoop(ctx, repo, outboxPublisher)
 
@@ -96,11 +111,24 @@ func main() {
 
 		log.Printf("received order.created order_id=%s user_id=%s items=%d", event.OrderID, event.UserID, len(event.Items))
 
-		if err := service.HandleOrderCreated(ctx, event); err != nil {
+		msgCtx := otel.GetTextMapPropagator().Extract(ctx, observability.NewKafkaHeadersCarrier(&msg.Headers))
+		processCtx, span := otel.Tracer(cfg.AppName).Start(msgCtx, "kafka consume order.created")
+		span.SetAttributes(
+			attribute.String("messaging.system", "kafka"),
+			attribute.String("messaging.destination.name", msg.Topic),
+			attribute.Int("messaging.kafka.partition", msg.Partition),
+			attribute.Int64("messaging.kafka.offset", msg.Offset),
+			attribute.String("order.id", event.OrderID),
+		)
+
+		if err := service.HandleOrderCreated(processCtx, event); err != nil {
+			span.RecordError(err)
+			span.End()
 			log.Printf("failed to handle order.created order_id=%s err=%v", event.OrderID, err)
 			time.Sleep(1 * time.Second)
 			continue
 		}
+		span.End()
 
 		if err := reader.CommitMessages(ctx, msg); err != nil {
 			log.Printf("failed to commit order.created order_id=%s offset=%d err=%v", event.OrderID, msg.Offset, err)

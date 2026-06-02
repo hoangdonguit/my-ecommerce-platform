@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	domaininventory "github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/domain/inventory"
 	"github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/infrastructure/persistence"
+	"github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/observability"
 	"github.com/hoangdonguit/my-ecommerce-platform/inventory-service/internal/shared/errs"
 	"github.com/jackc/pgx/v5"
 )
@@ -234,6 +235,7 @@ func (s *Service) enqueueOutboxEvent(ctx context.Context, tx pgx.Tx, aggregateID
 		Topic:       topic,
 		MessageKey:  key,
 		Payload:     payload,
+		Headers:     observability.MarshalTraceHeaders(observability.InjectTraceHeaders(ctx)),
 	}
 
 	if err := s.repo.CreateOutboxEvent(ctx, tx, outboxEvent); err != nil {

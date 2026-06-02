@@ -10,15 +10,16 @@ import (
 func (r *InventoryRepository) CreateOutboxEvent(ctx context.Context, tx pgx.Tx, event *domaininventory.OutboxEvent) error {
 	query := `
 		INSERT INTO inventory_outbox_events (
-			id, aggregate_id, event_type, topic, message_key, payload,
+			id, aggregate_id, event_type, topic, message_key, payload, headers,
 			status, attempts, next_attempt_at, created_at, updated_at
 		)
-		VALUES ($1, $2, $3, $4, $5, $6::jsonb, 'PENDING', 0, NOW(), NOW(), NOW())
+		VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7::jsonb, 'PENDING', 0, NOW(), NOW(), NOW())
 		ON CONFLICT (aggregate_id, event_type)
 		DO UPDATE SET
 			topic = EXCLUDED.topic,
 			message_key = EXCLUDED.message_key,
 			payload = EXCLUDED.payload,
+			headers = EXCLUDED.headers,
 			status = CASE
 				WHEN inventory_outbox_events.status = 'PUBLISHED'
 				THEN inventory_outbox_events.status
@@ -76,6 +77,7 @@ func (r *InventoryRepository) FetchPendingOutboxEvents(ctx context.Context, limi
 			topic,
 			message_key,
 			payload,
+			headers::text,
 			status,
 			attempts,
 			COALESCE(last_error, ''),
@@ -96,6 +98,8 @@ func (r *InventoryRepository) FetchPendingOutboxEvents(ctx context.Context, limi
 	for rows.Next() {
 		var event domaininventory.OutboxEvent
 
+		var headersRaw string
+
 		if err := rows.Scan(
 			&event.ID,
 			&event.AggregateID,
@@ -103,6 +107,7 @@ func (r *InventoryRepository) FetchPendingOutboxEvents(ctx context.Context, limi
 			&event.Topic,
 			&event.MessageKey,
 			&event.Payload,
+			&headersRaw,
 			&event.Status,
 			&event.Attempts,
 			&event.LastError,
@@ -114,6 +119,7 @@ func (r *InventoryRepository) FetchPendingOutboxEvents(ctx context.Context, limi
 			return nil, err
 		}
 
+		event.Headers = []byte(headersRaw)
 		events = append(events, event)
 	}
 
@@ -168,4 +174,11 @@ func (r *InventoryRepository) MarkOutboxEventPublished(ctx context.Context, id s
 
 func (r *InventoryRepository) MarkOutboxEventFailed(ctx context.Context, id string, lastError string) error {
 	return r.MarkOutboxEventsFailed(ctx, []string{id}, lastError)
+}
+
+func defaultJSON(raw []byte) string {
+	if len(raw) == 0 {
+		return "{}"
+	}
+	return string(raw)
 }
