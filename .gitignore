@@ -34,3 +34,10 @@ services/*/api
 backups/
 services/ecommerce-dashboard/.env
 docs/security/*.log
+# Local environment files
+.env
+.env.*
+!.env.example
+services/**/.env
+services/**/.env.*
+!services/**/.env.example
