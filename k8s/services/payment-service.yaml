@@ -12,9 +12,11 @@ spec:
     metadata:
       labels:
         app: payment-api
+        sidecar.istio.io/inject: 'true'
       annotations:
         sidecar.istio.io/inject: 'true'
         traffic.sidecar.istio.io/excludeOutboundPorts: 5432,6379,9092,27017,4317,4318
+        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
     spec:
       nodeSelector:
         kubernetes.io/hostname: vm2-mesh
