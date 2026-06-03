@@ -1,0 +1,62 @@
+----- Allowlisted DoneGitOps access check -----
+
+### http://100.65.255.2:30517
+HTTP/1.1 200 OK
+server: istio-envoy
+date: Wed, 03 Jun 2026 12:15:31 GMT
+content-type: text/html
+content-length: 469
+last-modified: Fri, 29 May 2026 07:27:12 GMT
+etag: "6a193fd0-1d5"
+accept-ranges: bytes
+x-envoy-upstream-service-time: 1
+x-envoy-decorator-operation: ecommerce-dashboard.default.svc.cluster.local:80/*
+
+
+### http://100.65.255.2:31000
+HTTP/1.1 302 Found
+Cache-Control: no-store
+Content-Type: text/html; charset=utf-8
+Location: /login
+X-Content-Type-Options: nosniff
+X-Frame-Options: deny
+X-Xss-Protection: 1; mode=block
+Date: Wed, 03 Jun 2026 12:15:31 GMT
+
+
+### http://100.65.255.2:30090/kafdrop/
+HTTP/1.1 200 OK
+Access-Control-Allow-Headers: Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Authorization
+Date: Wed, 03 Jun 2026 12:15:32 GMT
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+Transfer-Encoding: chunked
+Content-Type: application/json
+Access-Control-Allow-Methods: GET,POST,PUT,DELETE
+Access-Control-Max-Age: 3600
+
+
+### http://100.65.255.2:31333
+HTTP/1.1 200 OK
+Accept-Ranges: bytes
+Content-Length: 731
+Content-Type: text/html; charset=utf-8
+Last-Modified: Wed, 25 Mar 2026 03:31:16 GMT
+Date: Wed, 03 Jun 2026 12:15:32 GMT
+
+
+### https://100.65.255.2:30443
+HTTP/1.1 200 OK
+Accept-Ranges: bytes
+Content-Length: 788
+Content-Security-Policy: frame-ancestors 'self';
+Content-Type: text/html; charset=utf-8
+Vary: Accept-Encoding
+X-Frame-Options: sameorigin
+X-Xss-Protection: 1
+Date: Wed, 03 Jun 2026 12:15:32 GMT
+
+
+### old direct web-gateway NodePort 32193 should be closed
+OK - 32193 closed

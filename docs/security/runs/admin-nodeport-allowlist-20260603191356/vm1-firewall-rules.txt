@@ -1,0 +1,20 @@
+----- VM1 firewall rule state -----
+● dacn-admin-nodeports-allowlist.service - DACN admin NodePort allowlist for Tailscale
+     Loaded: loaded (/etc/systemd/system/dacn-admin-nodeports-allowlist.service; enabled; vendor preset: enabled)
+     Active: active (exited) since Wed 2026-06-03 12:15:21 UTC; 9s ago
+    Process: 2508409 ExecStart=/usr/local/sbin/dacn-admin-nodeports-allowlist.sh (code=exited, status=0/SUCCESS)
+   Main PID: 2508409 (code=exited, status=0/SUCCESS)
+        CPU: 28ms
+
+Jun 03 12:15:21 vm1-gateway systemd[1]: Starting DACN admin NodePort allowlist for Tailscale...
+Jun 03 12:15:21 vm1-gateway dacn-admin-nodeports-allowlist.sh[2508414]: DACN_ADMIN_NODEPORTS  tcp opt -- in tailscale0 out *  0.0.0.0/0  -> 0.0.0.0/0   multiport dports 30080,30443,31000,31333,30930,30090
+Jun 03 12:15:21 vm1-gateway dacn-admin-nodeports-allowlist.sh[2508416]: -A PREROUTING -i tailscale0 -p tcp -m multiport --dports 30080,30443,31000,31333,30930,30090 -j DACN_ADMIN_NODEPORTS
+Jun 03 12:15:21 vm1-gateway dacn-admin-nodeports-allowlist.sh[2508417]: -N DACN_ADMIN_NODEPORTS
+Jun 03 12:15:21 vm1-gateway dacn-admin-nodeports-allowlist.sh[2508417]: -A DACN_ADMIN_NODEPORTS -s 100.126.121.19/32 -j RETURN
+Jun 03 12:15:21 vm1-gateway dacn-admin-nodeports-allowlist.sh[2508417]: -A DACN_ADMIN_NODEPORTS -j DROP
+Jun 03 12:15:21 vm1-gateway systemd[1]: Finished DACN admin NodePort allowlist for Tailscale.
+
+-A PREROUTING -i tailscale0 -p tcp -m multiport --dports 30080,30443,31000,31333,30930,30090 -j DACN_ADMIN_NODEPORTS
+-N DACN_ADMIN_NODEPORTS
+-A DACN_ADMIN_NODEPORTS -s 100.126.121.19/32 -j RETURN
+-A DACN_ADMIN_NODEPORTS -j DROP

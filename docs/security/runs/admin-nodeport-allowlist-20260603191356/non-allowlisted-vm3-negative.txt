@@ -1,0 +1,26 @@
+----- Non-allowlisted VM3 negative check -----
+source:
+vm3-gitops
+192.168.100.24 10.42.2.0 10.42.2.1 100.126.17.65 fd7a:115c:a1e0::f901:11aa 
+
+demo path 30517 may stay reachable:
+HTTP/1.1 200 OK
+server: istio-envoy
+date: Wed, 03 Jun 2026 12:15:34 GMT
+content-type: text/html
+content-length: 469
+last-modified: Fri, 29 May 2026 07:27:12 GMT
+etag: "6a193fd0-1d5"
+accept-ranges: bytes
+
+### should be blocked: http://100.65.255.2:31000
+
+### should be blocked: http://100.65.255.2:30090/kafdrop/
+curl: (28) Connection timed out after 5001 milliseconds
+curl: (28)
+### should be blocked: http://100.65.255.2:31333
+ Connection timed out after 5001 milliseconds
+
+### should be blocked: https://100.65.255.2:30443
+curl: (28) Connection timed out after 5001 milliseconds
+curl: (28) Connection timed out after 5000 milliseconds

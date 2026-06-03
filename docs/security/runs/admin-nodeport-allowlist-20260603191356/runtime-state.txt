@@ -1,0 +1,35 @@
+----- Runtime and service exposure -----
+?? docs/security/runs/admin-nodeport-allowlist-20260603191356/
+71fb7a0 security: keep kafdrop admin URL behind allowlist
+e817cae security: restrict gateway debug and kafdrop exposure
+3e40c0c chore: ignore local private notes
+ab09cde docs: clean security context evidence formatting
+0ebc6be docs: record security context and probes proof
+18d4cf0 security: harden API workloads with health probes
+2a65b30 docs: clean istio authorization evidence formatting
+5f2858e docs: record istio internal API authorization proof
+9f52eb7 security: restrict internal APIs with istio policies
+a2b0858 security: remove committed frontend API key
+b6e2521 observability: fix istio sidecar injection labels
+3058f40 observability: enable istio mesh metrics dashboards
+
+NAME                       SYNC STATUS   HEALTH STATUS
+analytics-layer            Synced        Healthy
+cdc-layer                  Synced        Healthy
+ecommerce-infrastructure   Synced        Healthy
+ecommerce-platform         Synced        Healthy
+infrastructure-layer       Synced        Healthy
+monitoring-addons          Synced        Healthy
+observability-layer        Synced        Healthy
+security-layer             Synced        Healthy
+
+NAMESPACE       NAME                                             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                                 AGE     SELECTOR
+argocd          argocd-server                                    NodePort    10.43.33.172    <none>        80:30080/TCP,443:30443/TCP              5d22h   app.kubernetes.io/name=argocd-server
+argocd          argocd-server-metrics                            ClusterIP   10.43.13.1      <none>        8083/TCP                                5d22h   app.kubernetes.io/name=argocd-server
+chaos-mesh      chaos-dashboard                                  NodePort    10.43.225.110   <none>        2333:31333/TCP,2334:30930/TCP           5d18h   app.kubernetes.io/component=chaos-dashboard,app.kubernetes.io/instance=chaos-mesh,app.kubernetes.io/name=chaos-mesh
+default         ecommerce-dashboard                              NodePort    10.43.157.112   <none>        80:30517/TCP                            5d18h   app=ecommerce-dashboard
+default         web-gateway                                      ClusterIP   10.43.153.192   <none>        8090/TCP                                5d21h   app=web-gateway
+kafka           kafdrop                                          NodePort    10.43.9.198     <none>        9000:30090/TCP                          5d21h   app=kafdrop
+monitoring      kube-prometheus-stack-grafana                    NodePort    10.43.211.207   <none>        80:31000/TCP                            5d18h   app.kubernetes.io/instance=kube-prometheus-stack,app.kubernetes.io/name=grafana
+
+OK - no non-running pods
