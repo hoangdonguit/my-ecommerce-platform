@@ -12,28 +12,31 @@ spec:
     metadata:
       labels:
         app: ecommerce-dashboard
+      annotations:
+        sidecar.istio.io/inject: 'true'
+        traffic.sidecar.istio.io/excludeOutboundPorts: 5432,6379,9092,27017,4317,4318
     spec:
       nodeSelector:
         kubernetes.io/hostname: vm1-gateway
       containers:
-        - name: ecommerce-dashboard
-          image: hoangdonguit/ecommerce-dashboard:dashboard-ui-polish-20260529142705
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: WEB_GATEWAY_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: ecommerce-runtime-secrets
-                  key: WEB_GATEWAY_API_KEY
-          ports:
-            - containerPort: 80
-          resources:
-            requests:
-              cpu: 50m
-              memory: 64Mi
-            limits:
-              cpu: 300m
-              memory: 256Mi
+      - name: ecommerce-dashboard
+        image: hoangdonguit/ecommerce-dashboard:dashboard-ui-polish-20260529142705
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: WEB_GATEWAY_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ecommerce-runtime-secrets
+              key: WEB_GATEWAY_API_KEY
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 300m
+            memory: 256Mi
 ---
 apiVersion: v1
 kind: Service
@@ -45,7 +48,9 @@ spec:
   selector:
     app: ecommerce-dashboard
   ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-      nodePort: 30517
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    nodePort: 30517
+    name: http
+    appProtocol: http

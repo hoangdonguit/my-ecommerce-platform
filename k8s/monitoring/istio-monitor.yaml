@@ -4,14 +4,14 @@ metadata:
   name: istio-proxies-monitor
   namespace: monitoring
   labels:
-    release: monitoring # Đã khớp với kết quả kiểm tra của ông
+    release: kube-prometheus-stack
 spec:
   selector:
     matchLabels:
-      security.istio.io/tlsMode: istio # Nhãn này tự động có khi Pod được inject Istio
+      security.istio.io/tlsMode: istio
   namespaceSelector:
     any: true
   podMetricsEndpoints:
   - path: /stats/prometheus
-    port: http-envoy-prom # Cổng mặc định của Istio proxy (15020)
+    port: http-envoy-prom
     interval: 15s

@@ -12,6 +12,9 @@ spec:
     metadata:
       labels:
         app: notification-api
+      annotations:
+        sidecar.istio.io/inject: 'true'
+        traffic.sidecar.istio.io/excludeOutboundPorts: 5432,6379,9092,27017,4317,4318
     spec:
       nodeSelector:
         kubernetes.io/hostname: vm2-mesh
@@ -19,23 +22,24 @@ spec:
       containers:
       - name: notification-api
         image: hoangdonguit/notification-service:otel-full-saga-20260603005334
-        command: ["/app/notification-api"]
+        command:
+        - /app/notification-api
         ports:
         - containerPort: 8084
         resources:
           limits:
-            cpu: "500m"
-            memory: "512Mi"
+            cpu: 500m
+            memory: 512Mi
           requests:
-            cpu: "200m"
-            memory: "256Mi"
+            cpu: 200m
+            memory: 256Mi
         env:
         - name: APP_NAME
-          value: "notification-service"
+          value: notification-service
         - name: APP_PORT
-          value: "8084"
+          value: '8084'
         - name: APP_ENV
-          value: "development"
+          value: development
         - name: DB_URL
           valueFrom:
             secretKeyRef:
@@ -47,19 +51,19 @@ spec:
               name: ecommerce-runtime-config
               key: KAFKA_BROKER
         - name: KAFKA_GROUP_ID
-          value: "notification-service-group"
+          value: notification-service-group
         - name: KAFKA_TOPIC_PAYMENT_COMPLETED
-          value: "payment.completed"
+          value: payment.completed
         - name: KAFKA_TOPIC_PAYMENT_FAILED
-          value: "payment.failed"
+          value: payment.failed
         - name: OTEL_ENABLED
-          value: "true"
+          value: 'true'
         - name: OTEL_SERVICE_NAME
-          value: "notification-service"
+          value: notification-service
         - name: OTEL_ENVIRONMENT
-          value: "development"
+          value: development
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "otel-collector.observability.svc.cluster.local:4317"
+          value: otel-collector.observability.svc.cluster.local:4317
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -82,21 +86,22 @@ spec:
       containers:
       - name: notification-consumer
         image: hoangdonguit/notification-service:otel-full-saga-20260603005334
-        command: ["/app/notification-consumer"]
+        command:
+        - /app/notification-consumer
         resources:
           limits:
-            cpu: "500m"
-            memory: "512Mi"
+            cpu: 500m
+            memory: 512Mi
           requests:
-            cpu: "200m"
-            memory: "256Mi"
+            cpu: 200m
+            memory: 256Mi
         env:
         - name: APP_NAME
-          value: "notification-service"
+          value: notification-service
         - name: APP_PORT
-          value: "8084"
+          value: '8084'
         - name: APP_ENV
-          value: "development"
+          value: development
         - name: DB_URL
           valueFrom:
             secretKeyRef:
@@ -108,19 +113,19 @@ spec:
               name: ecommerce-runtime-config
               key: KAFKA_BROKER
         - name: KAFKA_GROUP_ID
-          value: "notification-service-group"
+          value: notification-service-group
         - name: KAFKA_TOPIC_PAYMENT_COMPLETED
-          value: "payment.completed"
+          value: payment.completed
         - name: KAFKA_TOPIC_PAYMENT_FAILED
-          value: "payment.failed"
+          value: payment.failed
         - name: OTEL_ENABLED
-          value: "true"
+          value: 'true'
         - name: OTEL_SERVICE_NAME
-          value: "notification-service"
+          value: notification-service
         - name: OTEL_ENVIRONMENT
-          value: "development"
+          value: development
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "otel-collector.observability.svc.cluster.local:4317"
+          value: otel-collector.observability.svc.cluster.local:4317
 ---
 apiVersion: v1
 kind: Service
@@ -131,6 +136,8 @@ spec:
   selector:
     app: notification-api
   ports:
-    - protocol: TCP
-      port: 8084
-      targetPort: 8084
+  - protocol: TCP
+    port: 8084
+    targetPort: 8084
+    name: http
+    appProtocol: http

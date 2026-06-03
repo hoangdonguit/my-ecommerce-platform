@@ -12,6 +12,9 @@ spec:
     metadata:
       labels:
         app: web-gateway
+      annotations:
+        sidecar.istio.io/inject: 'true'
+        traffic.sidecar.istio.io/excludeOutboundPorts: 5432,6379,9092,27017,4317,4318
     spec:
       nodeSelector:
         kubernetes.io/hostname: vm1-gateway
@@ -23,18 +26,18 @@ spec:
         - containerPort: 8090
         resources:
           limits:
-            cpu: "500m"
-            memory: "512Mi"
+            cpu: 500m
+            memory: 512Mi
           requests:
-            cpu: "200m"
-            memory: "256Mi"
+            cpu: 200m
+            memory: 256Mi
         env:
         - name: APP_NAME
-          value: "web-gateway"
+          value: web-gateway
         - name: APP_PORT
-          value: "8090"
+          value: '8090'
         - name: APP_ENV
-          value: "development"
+          value: development
         - name: ORDER_SERVICE_URL
           valueFrom:
             configMapKeyRef:
@@ -71,13 +74,13 @@ spec:
               name: ecommerce-runtime-config
               key: REDIS_ADDR
         - name: OTEL_ENABLED
-          value: "true"
+          value: 'true'
         - name: OTEL_SERVICE_NAME
-          value: "web-gateway"
+          value: web-gateway
         - name: OTEL_ENVIRONMENT
-          value: "development"
+          value: development
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "otel-collector.observability.svc.cluster.local:4317"
+          value: otel-collector.observability.svc.cluster.local:4317
 ---
 apiVersion: v1
 kind: Service
@@ -89,7 +92,9 @@ spec:
   selector:
     app: web-gateway
   ports:
-    - protocol: TCP
-      port: 8090
-      targetPort: 8090
-      nodePort: 32193
+  - protocol: TCP
+    port: 8090
+    targetPort: 8090
+    nodePort: 32193
+    name: http
+    appProtocol: http

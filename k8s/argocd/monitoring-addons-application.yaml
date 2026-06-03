@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-addons
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/hoangdonguit/my-ecommerce-platform
+    targetRevision: main
+    path: k8s/monitoring
+    directory:
+      recurse: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

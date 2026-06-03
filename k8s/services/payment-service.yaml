@@ -12,6 +12,9 @@ spec:
     metadata:
       labels:
         app: payment-api
+      annotations:
+        sidecar.istio.io/inject: 'true'
+        traffic.sidecar.istio.io/excludeOutboundPorts: 5432,6379,9092,27017,4317,4318
     spec:
       nodeSelector:
         kubernetes.io/hostname: vm2-mesh
@@ -19,23 +22,24 @@ spec:
       containers:
       - name: payment-api
         image: hoangdonguit/payment-service:otel-full-saga-payment-hotfix-20260603015846
-        command: ["/app/payment-api"]
+        command:
+        - /app/payment-api
         ports:
         - containerPort: 8083
         resources:
           limits:
-            cpu: "500m"
-            memory: "512Mi"
+            cpu: 500m
+            memory: 512Mi
           requests:
-            cpu: "200m"
-            memory: "256Mi"
+            cpu: 200m
+            memory: 256Mi
         env:
         - name: APP_NAME
-          value: "payment-service"
+          value: payment-service
         - name: APP_PORT
-          value: "8083"
+          value: '8083'
         - name: APP_ENV
-          value: "development"
+          value: development
         - name: DB_URL
           valueFrom:
             secretKeyRef:
@@ -47,21 +51,21 @@ spec:
               name: ecommerce-runtime-config
               key: KAFKA_BROKER
         - name: KAFKA_GROUP_ID
-          value: "payment-service-group"
+          value: payment-service-group
         - name: KAFKA_TOPIC_INVENTORY_RESERVED
-          value: "inventory.reserved"
+          value: inventory.reserved
         - name: KAFKA_TOPIC_PAYMENT_COMPLETED
-          value: "payment.completed"
+          value: payment.completed
         - name: KAFKA_TOPIC_PAYMENT_FAILED
-          value: "payment.failed"
+          value: payment.failed
         - name: OTEL_ENABLED
-          value: "true"
+          value: 'true'
         - name: OTEL_SERVICE_NAME
-          value: "payment-service"
+          value: payment-service
         - name: OTEL_ENVIRONMENT
-          value: "development"
+          value: development
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "otel-collector.observability.svc.cluster.local:4317"
+          value: otel-collector.observability.svc.cluster.local:4317
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -84,21 +88,22 @@ spec:
       containers:
       - name: payment-consumer
         image: hoangdonguit/payment-service:otel-full-saga-payment-hotfix-20260603015846
-        command: ["/app/payment-consumer"]
+        command:
+        - /app/payment-consumer
         resources:
           limits:
-            cpu: "500m"
-            memory: "512Mi"
+            cpu: 500m
+            memory: 512Mi
           requests:
-            cpu: "200m"
-            memory: "256Mi"
+            cpu: 200m
+            memory: 256Mi
         env:
         - name: APP_NAME
-          value: "payment-service"
+          value: payment-service
         - name: APP_PORT
-          value: "8083"
+          value: '8083'
         - name: APP_ENV
-          value: "development"
+          value: development
         - name: DB_URL
           valueFrom:
             secretKeyRef:
@@ -110,25 +115,25 @@ spec:
               name: ecommerce-runtime-config
               key: KAFKA_BROKER
         - name: KAFKA_GROUP_ID
-          value: "payment-service-group"
+          value: payment-service-group
         - name: KAFKA_TOPIC_INVENTORY_RESERVED
-          value: "inventory.reserved"
+          value: inventory.reserved
         - name: KAFKA_TOPIC_PAYMENT_COMPLETED
-          value: "payment.completed"
+          value: payment.completed
         - name: KAFKA_TOPIC_PAYMENT_FAILED
-          value: "payment.failed"
+          value: payment.failed
         - name: PAYMENT_OUTBOX_BATCH_SIZE
-          value: "200"
+          value: '200'
         - name: PAYMENT_OUTBOX_IDLE_SLEEP_MS
-          value: "200"
+          value: '200'
         - name: OTEL_ENABLED
-          value: "true"
+          value: 'true'
         - name: OTEL_SERVICE_NAME
-          value: "payment-service"
+          value: payment-service
         - name: OTEL_ENVIRONMENT
-          value: "development"
+          value: development
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "otel-collector.observability.svc.cluster.local:4317"
+          value: otel-collector.observability.svc.cluster.local:4317
 ---
 apiVersion: v1
 kind: Service
@@ -139,6 +144,8 @@ spec:
   selector:
     app: payment-api
   ports:
-    - protocol: TCP
-      port: 8083
-      targetPort: 8083
+  - protocol: TCP
+    port: 8083
+    targetPort: 8083
+    name: http
+    appProtocol: http

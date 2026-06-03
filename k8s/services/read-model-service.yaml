@@ -12,6 +12,9 @@ spec:
     metadata:
       labels:
         app: read-model-service
+      annotations:
+        sidecar.istio.io/inject: 'true'
+        traffic.sidecar.istio.io/excludeOutboundPorts: 5432,6379,9092,27017,4317,4318
     spec:
       nodeSelector:
         kubernetes.io/hostname: vm2-mesh
@@ -23,19 +26,19 @@ spec:
         - containerPort: 8085
         env:
         - name: APP_NAME
-          value: "read-model-service"
+          value: read-model-service
         - name: APP_PORT
-          value: "8085"
+          value: '8085'
         - name: APP_ENV
-          value: "development"
+          value: development
         - name: KAFKA_BROKER
-          value: "kafka-svc.kafka.svc.cluster.local:9092"
+          value: kafka-svc.kafka.svc.cluster.local:9092
         - name: KAFKA_GROUP_ID
-          value: "read-model-service-group"
+          value: read-model-service-group
         - name: KAFKA_TOPIC_PAYMENT_COMPLETED
-          value: "payment.completed"
+          value: payment.completed
         - name: MONGODB_HOST
-          value: "mongodb.default.svc.cluster.local:27017"
+          value: mongodb.default.svc.cluster.local:27017
         - name: MONGODB_USERNAME
           valueFrom:
             secretKeyRef:
@@ -47,19 +50,19 @@ spec:
               name: mongodb-secret
               key: MONGO_INITDB_ROOT_PASSWORD
         - name: MONGODB_AUTH_SOURCE
-          value: "admin"
+          value: admin
         - name: MONGODB_DATABASE
-          value: "ecommerce_read"
+          value: ecommerce_read
         - name: MONGODB_COLLECTION
-          value: "order_read_models"
+          value: order_read_models
         - name: OTEL_ENABLED
-          value: "true"
+          value: 'true'
         - name: OTEL_SERVICE_NAME
-          value: "read-model-service"
+          value: read-model-service
         - name: OTEL_ENVIRONMENT
-          value: "development"
+          value: development
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "otel-collector.observability.svc.cluster.local:4317"
+          value: otel-collector.observability.svc.cluster.local:4317
         resources:
           requests:
             cpu: 100m
@@ -81,3 +84,4 @@ spec:
   - name: http
     port: 8085
     targetPort: 8085
+    appProtocol: http
