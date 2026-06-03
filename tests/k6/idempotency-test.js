@@ -10,8 +10,8 @@ export const options = {
   thresholds: { idempotency_correct: ['rate>0.99'] },
 };
 
-const BASE_URL = __ENV.GATEWAY_URL || "http://localhost:8090";
-const HEADERS = { 'Content-Type': 'application/json', 'X-API-Key': (__ENV.API_KEY || '') };
+const BASE_URL = __ENV.GATEWAY_URL || "http://100.65.255.2:30517";
+const HEADERS = { 'Content-Type': 'application/json', 'X-API-Key': (__ENV.API_KEY || ''), 'X-Gateway-API-Key': (__ENV.API_KEY || '') };
 
 export default function () {
   const idempotencyKey = `idem-key-${__VU}-${__ITER}`;

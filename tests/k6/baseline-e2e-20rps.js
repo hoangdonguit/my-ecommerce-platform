@@ -29,6 +29,7 @@ export const options = {
 const BASE_URL = __ENV.GATEWAY_URL || "http://100.65.255.2:30517";
 const PRODUCT_ID = __ENV.PRODUCT_ID || "prod-123";
 const RUN_ID = __ENV.RUN_ID || `baseline-e2e-20rps-${Date.now()}`;
+const API_KEY = __ENV.API_KEY || "";
 
 export default function () {
   const idemKey = `${RUN_ID}-${__VU}-${__ITER}-${Date.now()}`;
@@ -51,6 +52,7 @@ export default function () {
     headers: {
       "Content-Type": "application/json",
       "X-Idempotency-Key": idemKey,
+      ...(API_KEY ? { "X-API-Key": API_KEY, "X-Gateway-API-Key": API_KEY } : {}),
     },
     timeout: "20s",
   });

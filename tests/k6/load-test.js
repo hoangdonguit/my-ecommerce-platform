@@ -19,9 +19,9 @@ export const options = {
   },
 };
 
-const BASE_URL = __ENV.GATEWAY_URL || "http://localhost:8090";
+const BASE_URL = __ENV.GATEWAY_URL || "http://100.65.255.2:30517";
 const PRODUCTS = ['prod-123', 'prod-456', 'prod-789'];
-const HEADERS = { 'Content-Type': 'application/json', 'X-API-Key': (__ENV.API_KEY || '') };
+const HEADERS = { 'Content-Type': 'application/json', 'X-API-Key': (__ENV.API_KEY || ''), 'X-Gateway-API-Key': (__ENV.API_KEY || '') };
 
 export default function () {
   const userId = `user-load-${__VU}-${Math.floor(__ITER / 10)}`;

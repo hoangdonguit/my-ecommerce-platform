@@ -29,7 +29,7 @@ export const options = {
   },
 };
 
-const BASE_URL = __ENV.GATEWAY_URL || "http://localhost:8090";
+const BASE_URL = __ENV.GATEWAY_URL || "http://100.65.255.2:30517";
 const API_KEY = __ENV.API_KEY || "";
 const PRODUCT_ID = __ENV.PRODUCT_ID || "prod-123";
 
@@ -56,6 +56,7 @@ export default function () {
     headers: {
       "Content-Type": "application/json",
       "X-API-Key": API_KEY,
+      "X-Gateway-API-Key": API_KEY,
       "X-Idempotency-Key": idemKey,
     },
     timeout: "20s",

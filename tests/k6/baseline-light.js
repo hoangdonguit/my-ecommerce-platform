@@ -24,6 +24,7 @@ export const options = {
 };
 
 const BASE_URL = __ENV.GATEWAY_URL || "http://100.65.255.2:30517";
+const API_KEY = __ENV.API_KEY || "";
 const PRODUCT_ID = __ENV.PRODUCT_ID || "prod-123";
 
 function buildBody() {
@@ -49,6 +50,7 @@ export default function () {
     headers: {
       "Content-Type": "application/json",
       "X-Idempotency-Key": idemKey,
+      ...(API_KEY ? { "X-API-Key": API_KEY, "X-Gateway-API-Key": API_KEY } : {}),
     },
     timeout: "20s",
   });

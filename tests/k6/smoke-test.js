@@ -11,8 +11,8 @@ export const options = {
   },
 };
 
-const BASE_URL = __ENV.GATEWAY_URL || "http://localhost:8090"; 
-const HEADERS = { 'Content-Type': 'application/json', 'X-API-Key': (__ENV.API_KEY || '') };
+const BASE_URL = __ENV.GATEWAY_URL || "http://100.65.255.2:30517";
+const HEADERS = { 'Content-Type': 'application/json', 'X-API-Key': (__ENV.API_KEY || ''), 'X-Gateway-API-Key': (__ENV.API_KEY || '') };
 
 function generateIdempotencyKey() {
   return `smoke-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -41,5 +41,5 @@ export default function () {
   });
   check(orderRes, { 'order created 2xx': (r) => r.status >= 200 && r.status < 300 });
 
-  sleep(1); 
+  sleep(1);
 }
