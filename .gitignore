@@ -41,3 +41,10 @@ docs/security/*.log
 services/**/.env
 services/**/.env.*
 !services/**/.env.example
+
+# Local private notes / lab-only runbooks
+.local-notes/
+docs-local/
+*.local.md
+README.local.md
+**/README.local.md
