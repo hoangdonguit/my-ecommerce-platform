@@ -1,10 +1,10 @@
 ----- Smoke test evidence -----
 
-         /\      Grafana   /‾‾/  
-    /\  /  \     |\  __   /  /   
-   /  \/    \    | |/ /  /   ‾‾\ 
+         /\      Grafana   /‾‾/
+    /\  /  \     |\  __   /  /
+   /  \/    \    | |/ /  /   ‾‾\
   /          \   |   (  |  (‾)  |
- / __________ \  |_|\_\  \_____/ 
+ / __________ \  |_|\_\  \_____/
 
 
      execution: local
@@ -376,7 +376,7 @@ running (2m00.0s), 1/1 VUs, 89 complete and 0 interrupted iterations
 default   [ 100% ] 1 VUs  2m00.0s/2m0s
 
 
-  █ THRESHOLDS 
+  █ THRESHOLDS
 
     http_req_duration
     ✓ 'p(95)<500' p(95)=144.94ms
@@ -385,7 +385,7 @@ default   [ 100% ] 1 VUs  2m00.0s/2m0s
     ✓ 'rate<0.01' rate=0.00%
 
 
-  █ TOTAL RESULTS 
+  █ TOTAL RESULTS
 
     checks_total.......: 270     2.242711/s
     checks_succeeded...: 100.00% 270 out of 270
@@ -402,7 +402,7 @@ default   [ 100% ] 1 VUs  2m00.0s/2m0s
     http_reqs......................: 270    2.242711/s
 
     EXECUTION
-    iteration_duration.............: avg=1.33s    min=1.26s   med=1.31s   max=2.6s  p(90)=1.37s   p(95)=1.44s   
+    iteration_duration.............: avg=1.33s    min=1.26s   med=1.31s   max=2.6s  p(90)=1.37s   p(95)=1.44s
     iterations.....................: 90     0.74757/s
     vus............................: 1      min=1        max=1
     vus_max........................: 1      min=1        max=1
