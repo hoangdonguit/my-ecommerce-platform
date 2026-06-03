@@ -1,7 +1,7 @@
 ----- Non-allowlisted VM3 negative check -----
 source:
 vm3-gitops
-192.168.100.24 10.42.2.0 10.42.2.1 100.126.17.65 fd7a:115c:a1e0::f901:11aa 
+192.168.100.24 10.42.2.0 10.42.2.1 100.126.17.65 fd7a:115c:a1e0::f901:11aa
 
 demo path 30517 may stay reachable:
 HTTP/1.1 200 OK
