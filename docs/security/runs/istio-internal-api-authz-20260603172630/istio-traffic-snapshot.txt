@@ -1,0 +1,96 @@
+----- Prometheus Istio security-related traffic snapshot -----
+### QUERY: sum by (source_workload,destination_workload,response_code) (istio_requests_total{destination_workload=~"order-service|inventory-api|payment-api|notification-api|read-model-service"})
+{
+    "status": "success",
+    "data": {
+        "resultType": "vector",
+        "result": [
+            {
+                "metric": {
+                    "destination_workload": "order-service",
+                    "response_code": "201",
+                    "source_workload": "web-gateway"
+                },
+                "value": [
+                    1780482626.949,
+                    "610"
+                ]
+            },
+            {
+                "metric": {
+                    "destination_workload": "inventory-api",
+                    "response_code": "200",
+                    "source_workload": "web-gateway"
+                },
+                "value": [
+                    1780482626.949,
+                    "617"
+                ]
+            },
+            {
+                "metric": {
+                    "destination_workload": "notification-api",
+                    "response_code": "200",
+                    "source_workload": "web-gateway"
+                },
+                "value": [
+                    1780482626.949,
+                    "607"
+                ]
+            },
+            {
+                "metric": {
+                    "destination_workload": "order-service",
+                    "response_code": "200",
+                    "source_workload": "web-gateway"
+                },
+                "value": [
+                    1780482626.949,
+                    "615"
+                ]
+            },
+            {
+                "metric": {
+                    "destination_workload": "payment-api",
+                    "response_code": "200",
+                    "source_workload": "web-gateway"
+                },
+                "value": [
+                    1780482626.949,
+                    "608"
+                ]
+            },
+            {
+                "metric": {
+                    "destination_workload": "read-model-service",
+                    "response_code": "200",
+                    "source_workload": "web-gateway"
+                },
+                "value": [
+                    1780482626.949,
+                    "613"
+                ]
+            }
+        ]
+    }
+}
+### QUERY: sum by (source_workload,destination_workload,response_code) (istio_requests_total{source_workload="security-curl-injected"})
+{
+    "status": "success",
+    "data": {
+        "resultType": "vector",
+        "result": [
+            {
+                "metric": {
+                    "destination_workload": "unknown",
+                    "response_code": "0",
+                    "source_workload": "security-curl-injected"
+                },
+                "value": [
+                    1780482627.263,
+                    "1"
+                ]
+            }
+        ]
+    }
+}

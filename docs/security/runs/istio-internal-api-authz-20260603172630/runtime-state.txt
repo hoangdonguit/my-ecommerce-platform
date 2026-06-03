@@ -1,0 +1,36 @@
+----- Runtime state -----
+?? docs/security/
+9f52eb7 security: restrict internal APIs with istio policies
+a2b0858 security: remove committed frontend API key
+b6e2521 observability: fix istio sidecar injection labels
+3058f40 observability: enable istio mesh metrics dashboards
+b040e11 test: standardize k6 scripts and reset workflow
+e8fbb22 docs: record full otel saga 20rps benchmark
+4b44397 docs: record full otel saga 10rps benchmark
+a6e54a9 docs: record full otel saga runtime proof
+
+NAME                       SYNC STATUS   HEALTH STATUS
+analytics-layer            Synced        Healthy
+cdc-layer                  Synced        Healthy
+ecommerce-infrastructure   Synced        Healthy
+ecommerce-platform         Synced        Healthy
+infrastructure-layer       Synced        Healthy
+monitoring-addons          Synced        Healthy
+observability-layer        Synced        Healthy
+security-layer             Synced        Healthy
+
+NAME                                                            MODE     AGE
+peerauthentication.security.istio.io/internal-api-mtls-strict   STRICT   23m
+
+NAME                                                                       ACTION   AGE
+authorizationpolicy.security.istio.io/allow-web-gateway-to-internal-apis   ALLOW    23m
+
+POD                                     READY   CONTAINERS              INIT
+inventory-api-6dd9557948-n754d          true    inventory-api           istio-init,istio-proxy
+notification-api-7bdf5c8dd6-ksblb       true    notification-api        istio-init,istio-proxy
+order-service-78446d7d95-4h499          true    order-service           istio-init,istio-proxy
+order-service-78446d7d95-tjk9x          true    order-service           istio-init,istio-proxy
+payment-api-64f9b569d9-smqxm            true    payment-api             istio-init,istio-proxy
+read-model-service-7757d669fd-fqhrv     true    read-model-service      istio-init,istio-proxy
+web-gateway-6cbb95575-k6hkh             true    web-gateway             istio-init,istio-proxy
+web-gateway-6cbb95575-xfhcv             true    web-gateway             istio-init,istio-proxy

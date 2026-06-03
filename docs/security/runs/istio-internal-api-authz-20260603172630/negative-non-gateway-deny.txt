@@ -1,0 +1,6 @@
+----- Negative test: injected non-gateway pod -> order-service should be denied -----
+source serviceAccount: default
+target: http://order-service.default.svc.cluster.local:8080/health
+curl: (28) Operation timed out after 10002 milliseconds with 0 bytes received
+
+curl_exit=0

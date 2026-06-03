@@ -1,0 +1,43 @@
+----- Verify injected curl pod has istio sidecar/init -----
+POD                      READY   CONTAINERS   INIT                     SA
+security-curl-injected   true    app          istio-init,istio-proxy   default
+4:Service Account:  default
+7:Labels:           app=security-curl-injected
+8:                  security.istio.io/tlsMode=istio
+9:                  service.istio.io/canonical-name=security-curl-injected
+10:                  service.istio.io/canonical-revision=latest
+11:                  sidecar.istio.io/inject=true
+12:Annotations:      istio.io/rev: default
+18:                  sidecar.istio.io/status:
+19:                    {"initContainers":["istio-init","istio-proxy"],"containers":null,"volumes":["workload-socket","credential-socket","workload-certs","istio-...
+24:Init Containers:
+25:  istio-init:
+27:    Image:         registry.istio.io/release/proxyv2:1.30.0
+28:    Image ID:      registry.istio.io/release/proxyv2@sha256:180f7cf94fbafc3d49879e48eb180b4bb274d0c8993b7328c93a2e84378d766c
+32:      istio-iptables
+66:  istio-proxy:
+68:    Image:         registry.istio.io/release/proxyv2:1.30.0
+69:    Image ID:      registry.istio.io/release/proxyv2@sha256:180f7cf94fbafc3d49879e48eb180b4bb274d0c8993b7328c93a2e84378d766c
+93:      PILOT_CERT_PROVIDER:           istiod
+94:      CA_ADDR:                       istiod.istio-system.svc:15012
+116:      /etc/istio/pod from istio-podinfo (rw)
+117:      /etc/istio/proxy from istio-envoy (rw)
+118:      /var/lib/istio/data from istio-data (rw)
+120:      /var/run/secrets/istio from istiod-ca-cert (rw)
+121:      /var/run/secrets/istio/crl from istio-ca-crl (rw)
+123:      /var/run/secrets/tokens from istio-token (rw)
+126:Containers:
+164:  istio-envoy:
+168:  istio-data:
+172:  istio-podinfo:
+177:  istio-token:
+180:  istiod-ca-cert:
+182:    Name:      istio-ca-root-cert
+184:  istio-ca-crl:
+186:    Name:      istio-ca-crl
+202:  Normal  Pulled     <invalid>  kubelet            spec.initContainers{istio-init}: Container image "registry.istio.io/release/proxyv2:1.30.0" already present on machine and can be accessed by the pod
+203:  Normal  Created    <invalid>  kubelet            spec.initContainers{istio-init}: Container created
+204:  Normal  Started    <invalid>  kubelet            spec.initContainers{istio-init}: Container started
+205:  Normal  Pulled     <invalid>  kubelet            spec.initContainers{istio-proxy}: Container image "registry.istio.io/release/proxyv2:1.30.0" already present on machine and can be accessed by the pod
+206:  Normal  Created    <invalid>  kubelet            spec.initContainers{istio-proxy}: Container created
+207:  Normal  Started    <invalid>  kubelet            spec.initContainers{istio-proxy}: Container started
