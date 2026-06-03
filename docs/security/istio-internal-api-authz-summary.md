@@ -42,3 +42,7 @@ Expected result:
 - Normal user path through dashboard/web-gateway passes.
 - Direct call from a non-gateway workload is denied or blocked by Istio mTLS/RBAC.
 - ArgoCD apps remain Synced/Healthy.
+
+## Evidence note
+
+The negative test result is considered successful when a non-gateway workload cannot reach the protected internal API. In the recorded run, the direct call from `security-curl-injected` to `order-service` timed out, while the normal path through `web-gateway` continued to pass.

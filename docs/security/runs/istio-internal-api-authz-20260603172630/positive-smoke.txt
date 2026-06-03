@@ -1,10 +1,10 @@
 ----- Positive test: normal public path still passes -----
 
-         /\      Grafana   /‾‾/  
-    /\  /  \     |\  __   /  /   
-   /  \/    \    | |/ /  /   ‾‾\ 
+         /\      Grafana   /‾‾/
+    /\  /  \     |\  __   /  /
+   /  \/    \    | |/ /  /   ‾‾\
   /          \   |   (  |  (‾)  |
- / __________ \  |_|\_\  \_____/ 
+ / __________ \  |_|\_\  \_____/
 
 
      execution: local
@@ -376,7 +376,7 @@ running (2m00.0s), 1/1 VUs, 90 complete and 0 interrupted iterations
 default   [ 100% ] 1 VUs  2m00.0s/2m0s
 
 
-  █ THRESHOLDS 
+  █ THRESHOLDS
 
     http_req_duration
     ✓ 'p(95)<500' p(95)=135.39ms
@@ -385,7 +385,7 @@ default   [ 100% ] 1 VUs  2m00.0s/2m0s
     ✓ 'rate<0.01' rate=0.00%
 
 
-  █ TOTAL RESULTS 
+  █ TOTAL RESULTS
 
     checks_total.......: 273     2.262422/s
     checks_succeeded...: 100.00% 273 out of 273
@@ -402,7 +402,7 @@ default   [ 100% ] 1 VUs  2m00.0s/2m0s
     http_reqs......................: 273    2.262422/s
 
     EXECUTION
-    iteration_duration.............: avg=1.32s    min=1.25s   med=1.29s   max=2.22s   p(90)=1.35s    p(95)=1.47s   
+    iteration_duration.............: avg=1.32s    min=1.25s   med=1.29s   max=2.22s   p(90)=1.35s    p(95)=1.47s
     iterations.....................: 91     0.754141/s
     vus............................: 1      min=1        max=1
     vus_max........................: 1      min=1        max=1
