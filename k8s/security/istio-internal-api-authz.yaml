@@ -1,0 +1,27 @@
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: internal-api-mtls-strict
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      security-tier: internal-api
+  mtls:
+    mode: STRICT
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-web-gateway-to-internal-apis
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      security-tier: internal-api
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/default/sa/web-gateway-sa

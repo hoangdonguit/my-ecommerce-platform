@@ -13,6 +13,7 @@ spec:
       labels:
         app: inventory-api
         sidecar.istio.io/inject: 'true'
+        security-tier: internal-api
       annotations:
         sidecar.istio.io/inject: 'true'
         traffic.sidecar.istio.io/excludeOutboundPorts: 5432,6379,9092,27017,4317,4318
