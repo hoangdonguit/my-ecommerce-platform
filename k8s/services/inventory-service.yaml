@@ -69,6 +69,41 @@ spec:
           value: development
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
           value: otel-collector.observability.svc.cluster.local:4317
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 65532
+          runAsGroup: 65532
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        startupProbe:
+          httpGet:
+            path: /api/v1/health
+            port: 8082
+          timeoutSeconds: 3
+          periodSeconds: 3
+          failureThreshold: 40
+        readinessProbe:
+          httpGet:
+            path: /api/v1/health
+            port: 8082
+          timeoutSeconds: 3
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          failureThreshold: 3
+          successThreshold: 1
+        livenessProbe:
+          httpGet:
+            path: /api/v1/health
+            port: 8082
+          timeoutSeconds: 3
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          failureThreshold: 3
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
 ---
 apiVersion: v1
 kind: Service
