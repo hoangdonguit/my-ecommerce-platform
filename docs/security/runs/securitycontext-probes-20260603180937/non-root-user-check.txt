@@ -1,0 +1,19 @@
+----- Pod runtime user check -----
+
+### app=web-gateway pod=web-gateway-788489467d-j59tz
+uid=65532 gid=65532 groups=65532
+
+### app=order-service pod=order-service-5b78f5bd8-nlfcd
+uid=65532 gid=65532 groups=65532
+
+### app=inventory-api pod=inventory-api-78cc65ff84-gkmqn
+uid=65532 gid=65532 groups=65532
+
+### app=payment-api pod=payment-api-5b94b57d68-p8kfz
+uid=65532 gid=65532 groups=65532
+
+### app=notification-api pod=notification-api-86956d5b84-jnnsc
+uid=65532 gid=65532 groups=65532
+
+### app=read-model-service pod=read-model-service-fb44f96b5-8xqv2
+uid=65532 gid=65532 groups=65532

@@ -1,0 +1,34 @@
+----- Runtime state -----
+?? docs/security/runs/securitycontext-probes-20260603180937/
+18d4cf0 security: harden API workloads with health probes
+2a65b30 docs: clean istio authorization evidence formatting
+5f2858e docs: record istio internal API authorization proof
+9f52eb7 security: restrict internal APIs with istio policies
+a2b0858 security: remove committed frontend API key
+b6e2521 observability: fix istio sidecar injection labels
+3058f40 observability: enable istio mesh metrics dashboards
+b040e11 test: standardize k6 scripts and reset workflow
+e8fbb22 docs: record full otel saga 20rps benchmark
+4b44397 docs: record full otel saga 10rps benchmark
+
+NAME                       SYNC STATUS   HEALTH STATUS
+analytics-layer            Synced        Healthy
+cdc-layer                  Synced        Healthy
+ecommerce-infrastructure   Synced        Healthy
+ecommerce-platform         Synced        Healthy
+infrastructure-layer       Synced        Healthy
+monitoring-addons          Synced        Healthy
+observability-layer        Synced        Healthy
+security-layer             Synced        Healthy
+
+POD                                     READY   CONTAINERS              INIT
+inventory-api-78cc65ff84-gkmqn          true    inventory-api           istio-init,istio-proxy
+notification-api-86956d5b84-jnnsc       true    notification-api        istio-init,istio-proxy
+order-service-5b78f5bd8-nlfcd           true    order-service           istio-init,istio-proxy
+order-service-5b78f5bd8-sn7m5           true    order-service           istio-init,istio-proxy
+payment-api-5b94b57d68-p8kfz            true    payment-api             istio-init,istio-proxy
+read-model-service-fb44f96b5-8xqv2      true    read-model-service      istio-init,istio-proxy
+web-gateway-788489467d-j59tz            true    web-gateway             istio-init,istio-proxy
+web-gateway-788489467d-lf9z8            true    web-gateway             istio-init,istio-proxy
+
+OK - no non-running pods

@@ -1,0 +1,37 @@
+----- Live security context and probes -----
+
+### deploy/web-gateway
+containerSecurityContext={"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"runAsGroup":65532,"runAsNonRoot":true,"runAsUser":65532}
+readinessProbe={"failureThreshold":3,"httpGet":{"path":"/api/health","port":8090,"scheme":"HTTP"},"initialDelaySeconds":5,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":3}
+livenessProbe={"failureThreshold":3,"httpGet":{"path":"/api/health","port":8090,"scheme":"HTTP"},"initialDelaySeconds":30,"periodSeconds":20,"successThreshold":1,"timeoutSeconds":3}
+startupProbe={"failureThreshold":40,"httpGet":{"path":"/api/health","port":8090,"scheme":"HTTP"},"periodSeconds":3,"successThreshold":1,"timeoutSeconds":3}
+
+### deploy/order-service
+containerSecurityContext={"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"runAsGroup":65532,"runAsNonRoot":true,"runAsUser":65532}
+readinessProbe={"failureThreshold":3,"httpGet":{"path":"/api/v1/health","port":8081,"scheme":"HTTP"},"initialDelaySeconds":5,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":3}
+livenessProbe={"failureThreshold":3,"httpGet":{"path":"/api/v1/health","port":8081,"scheme":"HTTP"},"initialDelaySeconds":30,"periodSeconds":20,"successThreshold":1,"timeoutSeconds":3}
+startupProbe={"failureThreshold":40,"httpGet":{"path":"/api/v1/health","port":8081,"scheme":"HTTP"},"periodSeconds":3,"successThreshold":1,"timeoutSeconds":3}
+
+### deploy/inventory-api
+containerSecurityContext={"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"runAsGroup":65532,"runAsNonRoot":true,"runAsUser":65532}
+readinessProbe={"failureThreshold":3,"httpGet":{"path":"/api/v1/health","port":8082,"scheme":"HTTP"},"initialDelaySeconds":5,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":3}
+livenessProbe={"failureThreshold":3,"httpGet":{"path":"/api/v1/health","port":8082,"scheme":"HTTP"},"initialDelaySeconds":30,"periodSeconds":20,"successThreshold":1,"timeoutSeconds":3}
+startupProbe={"failureThreshold":40,"httpGet":{"path":"/api/v1/health","port":8082,"scheme":"HTTP"},"periodSeconds":3,"successThreshold":1,"timeoutSeconds":3}
+
+### deploy/payment-api
+containerSecurityContext={"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"runAsGroup":65532,"runAsNonRoot":true,"runAsUser":65532}
+readinessProbe={"failureThreshold":3,"httpGet":{"path":"/api/v1/health","port":8083,"scheme":"HTTP"},"initialDelaySeconds":5,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":3}
+livenessProbe={"failureThreshold":3,"httpGet":{"path":"/api/v1/health","port":8083,"scheme":"HTTP"},"initialDelaySeconds":30,"periodSeconds":20,"successThreshold":1,"timeoutSeconds":3}
+startupProbe={"failureThreshold":40,"httpGet":{"path":"/api/v1/health","port":8083,"scheme":"HTTP"},"periodSeconds":3,"successThreshold":1,"timeoutSeconds":3}
+
+### deploy/notification-api
+containerSecurityContext={"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"runAsGroup":65532,"runAsNonRoot":true,"runAsUser":65532}
+readinessProbe={"failureThreshold":3,"httpGet":{"path":"/api/v1/health","port":8084,"scheme":"HTTP"},"initialDelaySeconds":5,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":3}
+livenessProbe={"failureThreshold":3,"httpGet":{"path":"/api/v1/health","port":8084,"scheme":"HTTP"},"initialDelaySeconds":30,"periodSeconds":20,"successThreshold":1,"timeoutSeconds":3}
+startupProbe={"failureThreshold":40,"httpGet":{"path":"/api/v1/health","port":8084,"scheme":"HTTP"},"periodSeconds":3,"successThreshold":1,"timeoutSeconds":3}
+
+### deploy/read-model-service
+containerSecurityContext={"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"runAsGroup":65532,"runAsNonRoot":true,"runAsUser":65532}
+readinessProbe={"failureThreshold":3,"httpGet":{"path":"/api/v1/health","port":8085,"scheme":"HTTP"},"initialDelaySeconds":5,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":3}
+livenessProbe={"failureThreshold":3,"httpGet":{"path":"/api/v1/health","port":8085,"scheme":"HTTP"},"initialDelaySeconds":30,"periodSeconds":20,"successThreshold":1,"timeoutSeconds":3}
+startupProbe={"failureThreshold":40,"httpGet":{"path":"/api/v1/health","port":8085,"scheme":"HTTP"},"periodSeconds":3,"successThreshold":1,"timeoutSeconds":3}
