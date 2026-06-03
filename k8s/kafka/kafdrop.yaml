@@ -39,6 +39,7 @@ metadata:
   name: kafdrop
   namespace: kafka
 spec:
+  type: ClusterIP
   selector:
     app: kafdrop
   ports:
