@@ -24,7 +24,7 @@ spec:
       serviceAccountName: order-service-sa
       containers:
       - name: order-service
-        image: hoangdonguit/order-service:otel-full-saga-20260603005334
+        image: hoangdonguit/order-service:redis-fallback-hardening-20260606092113
         ports:
         - containerPort: 8081
         resources:

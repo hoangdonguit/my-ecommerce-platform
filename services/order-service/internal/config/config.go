@@ -35,7 +35,7 @@ func Load() Config {
 		KafkaBroker:       getEnv("KAFKA_BROKER", "localhost:9092"),
 		OrderCreatedTopic: getEnv("KAFKA_TOPIC_ORDER_CREATED", "order.created"),
 		RedisAddr:         getEnv("REDIS_ADDR", "redis-master.cache.svc.cluster.local:6379"),
-		RedisPassword:     getEnv("REDIS_PASSWORD", "redissecret"), // Mật khẩu mặc định của cụm K8s
+		RedisPassword:     getEnv("REDIS_PASSWORD", ""),
 
 		OTelEnabled:     getEnvBool("OTEL_ENABLED", false),
 		OTelServiceName: getEnv("OTEL_SERVICE_NAME", "order-service"),
