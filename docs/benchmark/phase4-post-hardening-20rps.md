@@ -229,3 +229,77 @@ Before increasing to 30 RPS or 50 RPS, inspect scaling status and resource confi
 2. Check order-service replica behavior.
 3. Check consumer lag/drain behavior.
 4. Confirm PgBouncer pool state remains healthy.
+
+## Post-Benchmark Scaling and Resource Check
+
+A scaling/resource inventory was collected after the 20 RPS benchmark.
+
+Raw local evidence:
+
+    .local-notes/benchmark/phase4-post-hardening-20rps-20260606154630/scale-resource-inventory-after-20rps.txt
+
+HPA/KEDA state:
+
+    order-service:
+      scaler: keda-hpa-order-service-scaler
+      trigger: CPU
+      target: 25%
+      minPods: 2
+      maxPods: 8
+      current steady replicas after cooldown: 2
+
+    inventory-api:
+      trigger: CPU
+      minPods: 1
+      maxPods: 8
+
+    payment-api:
+      trigger: CPU
+      minPods: 1
+      maxPods: 8
+
+    notification-api:
+      trigger: CPU
+      minPods: 1
+      maxPods: 8
+
+    inventory-consumer:
+      trigger: Kafka
+      minPods: 1
+      maxPods: 16
+
+    payment-consumer:
+      trigger: Kafka
+      minPods: 1
+      maxPods: 16
+
+    notification-consumer:
+      trigger: Kafka
+      minPods: 1
+      maxPods: 16
+
+Scaling event observed:
+
+    order-service scaled from 2 to 3 replicas during/after the 20 RPS load
+    reason: CPU resource utilization above target
+
+Scale-down event observed:
+
+    order-service scaled from 3 back to 2 replicas after cooldown
+    reason: all metrics below target
+
+Resource state after cooldown:
+
+    order-service pods: about 14m CPU each, about 48-49Mi memory
+    web-gateway pods: about 5m CPU each, about 47Mi memory
+    postgresql: about 19m CPU, 281Mi memory
+    pgbouncer: about 8m CPU, 5Mi memory
+    kafka: about 37m CPU, 1355Mi memory
+
+Scaling/resource verdict:
+
+    PASS
+
+The autoscaling behavior after the 20 RPS benchmark was expected. The temporary third order-service pod was created because CPU utilization exceeded the target and was later removed after the load dropped.
+
+This confirms that it is safe to proceed to a 30 RPS benchmark before attempting 50 RPS.
