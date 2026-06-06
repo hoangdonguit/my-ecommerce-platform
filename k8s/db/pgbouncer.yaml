@@ -32,6 +32,8 @@ spec:
       app: pgbouncer
   template:
     metadata:
+      annotations:
+        rollout-reason: "pgbouncer-admin-stats-20260606123223"
       labels:
         app: pgbouncer
     spec:
