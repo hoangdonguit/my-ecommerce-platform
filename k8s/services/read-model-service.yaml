@@ -19,8 +19,16 @@ spec:
         traffic.sidecar.istio.io/excludeOutboundPorts: 5432,6379,9092,27017,4317,4318
         proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
     spec:
-      nodeSelector:
-        kubernetes.io/hostname: vm2-mesh
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - vm1-gateway
+                - vm2-mesh
       serviceAccountName: read-model-service-sa
       containers:
       - name: read-model-service
