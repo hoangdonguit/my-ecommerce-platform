@@ -36,7 +36,7 @@ spec:
               memory: 1Gi
             limits:
               cpu: 1000m
-              memory: 2Gi1Gi
+              memory: 2Gi
       volumes:
         - name: tempo-config
           configMap:
