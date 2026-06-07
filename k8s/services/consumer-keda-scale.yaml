@@ -8,7 +8,7 @@ spec:
     name: inventory-consumer
   pollingInterval: 15
   cooldownPeriod: 180
-  minReplicaCount: 1
+  minReplicaCount: 2
   maxReplicaCount: 8
   triggers:
   - type: kafka
@@ -16,8 +16,8 @@ spec:
       bootstrapServers: kafka-svc.kafka.svc.cluster.local:9092
       consumerGroup: inventory-service-group
       topic: order.created
-      lagThreshold: "80"
-      activationLagThreshold: "20"
+      lagThreshold: "40"
+      activationLagThreshold: "10"
       offsetResetPolicy: latest
       allowIdleConsumers: "false"
       scaleToZeroOnInvalidOffset: "false"
