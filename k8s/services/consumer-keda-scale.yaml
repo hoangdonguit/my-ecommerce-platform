@@ -7,17 +7,17 @@ spec:
   scaleTargetRef:
     name: inventory-consumer
   pollingInterval: 15
-  cooldownPeriod: 60
+  cooldownPeriod: 180
   minReplicaCount: 1
-  maxReplicaCount: 16
+  maxReplicaCount: 8
   triggers:
   - type: kafka
     metadata:
       bootstrapServers: kafka-svc.kafka.svc.cluster.local:9092
       consumerGroup: inventory-service-group
       topic: order.created
-      lagThreshold: "20"
-      activationLagThreshold: "1"
+      lagThreshold: "80"
+      activationLagThreshold: "20"
       offsetResetPolicy: latest
       allowIdleConsumers: "false"
       scaleToZeroOnInvalidOffset: "false"
@@ -35,17 +35,17 @@ spec:
   scaleTargetRef:
     name: payment-consumer
   pollingInterval: 15
-  cooldownPeriod: 60
+  cooldownPeriod: 180
   minReplicaCount: 1
-  maxReplicaCount: 16
+  maxReplicaCount: 8
   triggers:
   - type: kafka
     metadata:
       bootstrapServers: kafka-svc.kafka.svc.cluster.local:9092
       consumerGroup: payment-service-group
       topic: inventory.reserved
-      lagThreshold: "20"
-      activationLagThreshold: "1"
+      lagThreshold: "80"
+      activationLagThreshold: "20"
       offsetResetPolicy: latest
       allowIdleConsumers: "false"
       scaleToZeroOnInvalidOffset: "false"
@@ -63,17 +63,17 @@ spec:
   scaleTargetRef:
     name: notification-consumer
   pollingInterval: 15
-  cooldownPeriod: 60
+  cooldownPeriod: 180
   minReplicaCount: 1
-  maxReplicaCount: 16
+  maxReplicaCount: 8
   triggers:
   - type: kafka
     metadata:
       bootstrapServers: kafka-svc.kafka.svc.cluster.local:9092
       consumerGroup: notification-service-group
       topic: payment.completed
-      lagThreshold: "20"
-      activationLagThreshold: "1"
+      lagThreshold: "80"
+      activationLagThreshold: "20"
       offsetResetPolicy: latest
       allowIdleConsumers: "false"
       scaleToZeroOnInvalidOffset: "false"
@@ -85,8 +85,8 @@ spec:
       bootstrapServers: kafka-svc.kafka.svc.cluster.local:9092
       consumerGroup: notification-service-group
       topic: payment.failed
-      lagThreshold: "20"
-      activationLagThreshold: "1"
+      lagThreshold: "80"
+      activationLagThreshold: "20"
       offsetResetPolicy: latest
       allowIdleConsumers: "false"
       scaleToZeroOnInvalidOffset: "false"
