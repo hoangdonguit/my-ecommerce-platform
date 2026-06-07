@@ -1,0 +1,107 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: ecommerce-platform-alert-rules
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+    app.kubernetes.io/name: ecommerce-platform-alerts
+    app.kubernetes.io/part-of: my-ecommerce-platform
+spec:
+  groups:
+    - name: ecommerce-platform.phase6.foundation
+      rules:
+        - alert: ECommercePodPendingTooLong
+          expr: |
+            sum by (namespace, pod) (
+              kube_pod_status_phase{
+                namespace=~"default|db|kafka|observability|monitoring|argocd|cdc|analytics",
+                phase="Pending"
+              } == 1
+            ) > 0
+          for: 5m
+          labels:
+            severity: warning
+            phase: phase6
+            area: scheduling
+          annotations:
+            summary: "Pod pending too long: {{ $labels.namespace }}/{{ $labels.pod }}"
+            description: "A pod has stayed Pending for more than 5 minutes. Check node resources, placement rules, PVCs, taints/tolerations, and image pull status."
+
+        - alert: ECommercePodCrashLooping
+          expr: |
+            max_over_time(
+              kube_pod_container_status_waiting_reason{
+                namespace=~"default|db|kafka|observability|monitoring|argocd|cdc|analytics",
+                reason="CrashLoopBackOff"
+              }[5m]
+            ) >= 1
+          for: 5m
+          labels:
+            severity: critical
+            phase: phase6
+            area: runtime
+          annotations:
+            summary: "Pod crash looping: {{ $labels.namespace }}/{{ $labels.pod }}"
+            description: "A container has been in CrashLoopBackOff for at least 5 minutes. Check logs, environment variables, secrets, probes, and dependent services."
+
+        - alert: ECommerceContainerRestarting
+          expr: |
+            sum by (namespace, pod, container) (
+              increase(kube_pod_container_status_restarts_total{
+                namespace=~"default|db|kafka|observability|monitoring|argocd|cdc|analytics",
+                container!="istio-proxy"
+              }[10m])
+            ) > 0
+          for: 0m
+          labels:
+            severity: warning
+            phase: phase6
+            area: runtime
+          annotations:
+            summary: "Container restarted: {{ $labels.namespace }}/{{ $labels.pod }}/{{ $labels.container }}"
+            description: "A container restarted within the last 10 minutes. Check whether this was caused by OOMKilled, probe failure, panic, config error, or manual rollout."
+
+        - alert: ECommerceDeploymentUnavailable
+          expr: |
+            kube_deployment_status_replicas_unavailable{
+              namespace=~"default|db|kafka|observability|monitoring|argocd|cdc|analytics"
+            } > 0
+          for: 5m
+          labels:
+            severity: warning
+            phase: phase6
+            area: availability
+          annotations:
+            summary: "Deployment unavailable: {{ $labels.namespace }}/{{ $labels.deployment }}"
+            description: "A deployment has unavailable replicas for more than 5 minutes. Check rollout status, pod scheduling, readiness probes, image pull, and resource pressure."
+
+        - alert: ECommerceNodePressure
+          expr: |
+            kube_node_status_condition{
+              condition=~"DiskPressure|MemoryPressure|PIDPressure|NetworkUnavailable",
+              status="true"
+            } == 1
+          for: 5m
+          labels:
+            severity: critical
+            phase: phase6
+            area: node
+          annotations:
+            summary: "Node pressure detected: {{ $labels.node }} / {{ $labels.condition }}"
+            description: "A Kubernetes node has reported pressure or network unavailable condition for more than 5 minutes. This can affect scheduling, Kafka, DB, Tempo, and benchmark reliability."
+
+        - alert: ECommerceTempoUnavailable
+          expr: |
+            kube_deployment_status_replicas_unavailable{
+              namespace="observability",
+              deployment="tempo"
+            } > 0
+          for: 3m
+          labels:
+            severity: warning
+            phase: phase6
+            area: observability
+          annotations:
+            summary: "Tempo unavailable"
+            description: "Tempo has unavailable replicas for more than 3 minutes. Since Tempo had OOM issues before, check memory usage, pod restart reason, and /ready endpoint."
