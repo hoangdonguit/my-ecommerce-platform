@@ -32,10 +32,10 @@ spec:
               mountPath: /tmp/tempo
           resources:
             requests:
-              cpu: 100m
-              memory: 512Mi
+              cpu: 200m
+              memory: 2Gi
             limits:
-              cpu: 500m
+              cpu: 1000m
               memory: 1Gi
       volumes:
         - name: tempo-config
