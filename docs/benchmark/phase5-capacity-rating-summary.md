@@ -7,9 +7,10 @@ This document summarizes the Phase 5 capacity-rating result for `my-ecommerce-pl
 The goal is to answer the teacher's capacity planning question:
 
 1. What load level can the system handle under the current fixed lab resources?
-2. What bottlenecks or warnings remain before claiming a higher capacity rating?
+2. What bottlenecks were found and fixed?
+3. What load level is currently safe to claim under the current environment?
 
-This file intentionally summarizes important milestones only. Small sanity checks are not documented separately.
+This file summarizes important milestones only. Small sanity checks are not documented separately.
 
 ## Current Fixed-Resource Environment
 
@@ -25,26 +26,28 @@ Current scaling model:
 - inventory-consumer: KEDA by Kafka lag
 - payment-consumer: KEDA by Kafka lag
 - notification-consumer: KEDA by Kafka lag
-- inventory/payment/notification consumers use reduced resource requests:
-  - requests.cpu: 50m
-  - requests.memory: 128Mi
-  - limits.cpu: 500m
-  - limits.memory: 512Mi
+
+Current consumer resource profile:
+
+    requests.cpu: 50m
+    requests.memory: 128Mi
+    limits.cpu: 500m
+    limits.memory: 512Mi
 
 Important GitOps fix:
 
 - ArgoCD ignores `/spec/replicas` for autoscaled workloads.
 - This prevents ArgoCD from fighting HPA/KEDA over live replica counts.
 
-## Important Phase 5 Fixes Before Final Capacity Runs
+## Important Phase 5 Fixes
 
-### Node Placement Fix
+### 1. Node Placement Fix
 
 Earlier, some stateless workloads were too restricted by placement rules, causing scheduling pressure under high load.
 
-The placement was relaxed so stateless services could run on eligible worker nodes instead of being pinned too narrowly.
+Placement was relaxed so stateless services could run on eligible worker nodes instead of being pinned too narrowly.
 
-### Consumer Resource Request Tuning
+### 2. Consumer Resource Request Tuning
 
 Consumer requests were reduced from:
 
@@ -63,7 +66,7 @@ Limits were intentionally kept unchanged:
 
 This reduced scheduling pressure without reducing runtime headroom.
 
-### KEDA Tuning
+### 3. KEDA Consumer Tuning
 
 General consumer KEDA tuning:
 
@@ -83,8 +86,56 @@ Inventory-specific tuning:
 Reason:
 
 - Inventory is the first Saga consumer stage after `order.created`.
-- Earlier 70 RPS results showed inventory lag as a first-stage bottleneck.
+- Earlier 70 RPS results showed inventory lag as the first-stage bottleneck.
 - Keeping inventory-consumer warm at 2 replicas significantly improved end-to-end completion time.
+
+### 4. ArgoCD Replica Drift Fix
+
+When inventory-consumer minReplicaCount was raised to 2, ArgoCD initially fought KEDA/HPA because Git had `replicas: 1`.
+
+Fix:
+
+- Add `ignoreDifferences` for `/spec/replicas` on autoscaled Deployments.
+- Keep `RespectIgnoreDifferences=true`.
+
+Affected workloads:
+
+- order-service
+- inventory-api
+- inventory-consumer
+- payment-api
+- payment-consumer
+- notification-api
+- notification-consumer
+
+### 5. Tempo Observability Fix
+
+After high-load tests, Tempo showed OOMKilled / CrashLoopBackOff.
+
+Cause:
+
+- Tempo local WAL/traces and compaction were too heavy for the previous resource profile.
+
+Previous Tempo resources:
+
+    requests.cpu: 100m
+    requests.memory: 512Mi
+    limits.cpu: 500m
+    limits.memory: 1Gi
+
+Updated Tempo resources:
+
+    requests.cpu: 200m
+    requests.memory: 1Gi
+    limits.cpu: 1 core
+    limits.memory: 2Gi
+
+Post-fix verification:
+
+    Tempo pod: 1/1 Running
+    restart count: 0
+    /ready: HTTP 200 OK, body = ready
+    observability-layer: Synced / Healthy
 
 ## 70 RPS Confirmed Result
 
@@ -120,18 +171,13 @@ Result:
 
 PASS CONFIRMED.
 
-70 RPS is currently the strongest fixed-resource rated capacity candidate because:
+70 RPS is stable under the current fixed lab resources.
 
-- It passed twice after the final tuning.
-- It had 0% HTTP error rate.
-- All accepted orders reached COMPLETED.
-- Kafka lag drained after cooldown.
-- No FailedScheduling, Insufficient CPU, OOM, BackOff, or ImagePull failure was observed.
-- ArgoCD remained Synced / Healthy.
+## 80 RPS Confirmed Result
 
-## 80 RPS Upper-Bound Run
+80 RPS was also run twice after tuning.
 
-80 RPS was run once as an upper-bound / stress-to-break candidate.
+### 80 RPS Run 1
 
 Result:
 
@@ -139,21 +185,42 @@ Result:
     checks_succeeded: 4801 / 4801
     http_req_failed: 0.00%
     unexpected_error_rate: 0.00%
-    http_req_duration avg: 63.88ms
-    http_req_duration p95: 143.05ms
-    http_req_duration max: 621.62ms
+    http_req_duration p95: about 143.05ms
     orders COMPLETED: 4801
     avg_complete_seconds: about 23.13s
     max_complete_seconds: about 48.06s
     Kafka after cooldown: NO_NONZERO_NUMERIC_LAG
 
-80 RPS showed transient Kafka lag and autoscaling activity, but the system drained successfully after cooldown.
+### 80 RPS Repeat Run
+
+Result:
+
+    accepted_orders: 4801
+    checks_succeeded: 4801 / 4801
+    http_req_failed: 0.00%
+    unexpected_error_rate: 0.00%
+    http_req_duration p95: about 348.13ms
+    orders COMPLETED: 4801
+    avg_complete_seconds: about 28.18s
+    max_complete_seconds: about 48.18s
+    Kafka after cooldown: NO_NONZERO_NUMERIC_LAG
 
 ### 80 RPS Verdict
 
-PASS WITH OBSERVATION / UPPER-BOUND PASS CANDIDATE.
+PASS CONFIRMED WITH OBSERVATION.
 
-80 RPS passed once, but it should not yet replace 70 RPS as the official fixed-resource capacity rating until it is repeated successfully.
+80 RPS passed twice for the business path:
+
+- 0% HTTP error rate.
+- All accepted orders reached COMPLETED.
+- Kafka lag drained after cooldown.
+- No persistent FailedScheduling / Insufficient CPU / OOM / BackOff in the business path.
+- ArgoCD returned to Synced / Healthy after the Tempo fix.
+
+Observation:
+
+- Tempo required resource tuning after high-load tracing.
+- Transient Kafka lag and autoscaling are expected immediately after high-load runs.
 
 ## Operational Observations
 
@@ -165,7 +232,7 @@ The important pass condition is:
 
     Kafka lag must drain to NO_NONZERO_NUMERIC_LAG after cooldown.
 
-This condition passed for the final 70 RPS and 80 RPS runs.
+This condition passed for final 70 RPS and 80 RPS runs.
 
 ### Autoscaling
 
@@ -178,38 +245,53 @@ During high load, HPA/KEDA scaled several workloads up:
 
 Scale-down events appear as normal Kubernetes `Killing` events after the benchmark. These are expected and are not treated as failures when pods return to a healthy baseline.
 
-### Observability Warning
+### Observability
 
-Tempo in the observability layer showed a temporary OOMKilled / BackOff warning during later checks, but the business/data path remained healthy and ArgoCD eventually returned to Healthy.
+Tempo initially failed after high-load trace volume, then was fixed by increasing resources.
 
-This should be tracked as an observability-layer tuning item, not as a business-path benchmark failure.
+After the fix:
+
+    observability-layer: Synced / Healthy
+    tempo: 1/1 Running
+    /ready: 200 OK
 
 ## Current Capacity Statement
 
-Current conservative statement:
+Conservative statement:
 
     Under the current fixed lab resources, the system has confirmed stable behavior at 70 RPS through two repeated runs.
 
-Extended observation:
+Updated stronger statement:
 
-    The system has also passed one 80 RPS upper-bound run, but 80 RPS requires one repeat run before it can be promoted to an official fixed-resource capacity rating.
+    Under the current fixed lab resources and after Phase 5 tuning, the system also passed 80 RPS twice with 0% HTTP error rate, all accepted orders completed, and Kafka lag drained after cooldown.
 
-## Decision Rule
+Recommended wording for report:
 
-If repeat 80 RPS also passes with:
+    The current demonstrated fixed-resource capacity is 80 RPS in the lab environment, with 70 RPS as the conservative safe rating and 80 RPS as the confirmed high-load rating after tuning. Further testing above 80 RPS should be treated as stress-to-break testing, not normal capacity validation.
 
-- 0% HTTP error rate
-- all orders COMPLETED
-- Kafka lag drains after cooldown
-- no FailedScheduling / Insufficient CPU / OOM / BackOff
-- ArgoCD returns to Synced / Healthy
+## Remaining Limitations
 
-then 80 RPS can be promoted to the next fixed-resource capacity candidate.
+The current rating is based on the lab OpenStack cluster and current workload profile.
 
-If repeat 80 RPS fails or shows persistent backlog/resource problems, keep the official fixed-resource rating at 70 RPS and classify 80 RPS as the upper-bound stress boundary.
+It should not be generalized to unlimited production scale because true upper bounds depend on:
 
-## Next Action
+- PostgreSQL write throughput
+- PgBouncer pool settings
+- Kafka partitions and broker capacity
+- Consumer processing throughput
+- HPA/KEDA reaction time
+- Node CPU/memory capacity
+- Observability overhead
+- Network and storage performance
 
-Run one repeat 80 RPS test.
+## Next Actions
 
-Do not proceed to 90 RPS until 80 RPS repeat is analyzed and documented.
+Do not continue normal capacity benchmarking immediately after 80 RPS.
+
+Recommended next phase:
+
+1. Write Phase 5 final checkpoint.
+2. Add alerting rules for Kafka lag, HPA pending pods, Tempo OOM, PostgreSQL pressure, and disk pressure.
+3. Add centralized logging with Loki/Promtail or Grafana Alloy.
+4. Write runbooks for high Kafka lag, pending pods, DB pressure, and observability failure.
+5. Optionally run 90 RPS only as explicit stress-to-break testing.
