@@ -22,6 +22,43 @@ spec:
       namespace: default
       jsonPointers:
         - /spec/replicas
+  - group: apps
+    kind: Deployment
+    name: inventory-api
+    namespace: default
+    jsonPointers:
+    - /spec/replicas
+  - group: apps
+    kind: Deployment
+    name: inventory-consumer
+    namespace: default
+    jsonPointers:
+    - /spec/replicas
+  - group: apps
+    kind: Deployment
+    name: payment-api
+    namespace: default
+    jsonPointers:
+    - /spec/replicas
+  - group: apps
+    kind: Deployment
+    name: payment-consumer
+    namespace: default
+    jsonPointers:
+    - /spec/replicas
+  - group: apps
+    kind: Deployment
+    name: notification-api
+    namespace: default
+    jsonPointers:
+    - /spec/replicas
+  - group: apps
+    kind: Deployment
+    name: notification-consumer
+    namespace: default
+    jsonPointers:
+    - /spec/replicas
+
   syncPolicy:
     automated:
       prune: false
