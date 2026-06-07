@@ -105,3 +105,42 @@ The next steps should be:
 2. Let ArgoCD reconcile the monitoring layer from Git.
 3. Verify that the monitoring application remains Synced and Healthy.
 4. Later, validate additional exporters before adding Kafka, PgBouncer, PostgreSQL, and ArgoCD alerts.
+
+## 10. GitOps Reconciliation Proof
+
+After committing the alerting foundation to Git, the `monitoring-addons` ArgoCD application was hard-refreshed and reconciled successfully.
+
+Observed result:
+
+- Application: `monitoring-addons`
+- Sync status: `Synced`
+- Health status: `Healthy`
+- Synced revision: `81cdbd0480ff2399e87366e7a74b1e01319a1b13`
+- Source path: `k8s/monitoring`
+- Target revision: `main`
+
+The custom PrometheusRule was also visible in the ArgoCD resource tree:
+
+- Resource: `PrometheusRule monitoring/ecommerce-platform-alert-rules`
+- Status: `Synced`
+
+The live PrometheusRule object remained valid:
+
+- `release=kube-prometheus-stack`
+- `prometheus-operator-validated=true`
+
+This confirms that the alerting foundation is now managed by GitOps, not only by manual `kubectl apply`.
+
+## 11. Final Verdict
+
+Final result: PASS.
+
+Phase 6.1 Alerting Foundation is complete.
+
+The next work item is metric availability audit for advanced alerts:
+
+- Kafka consumer lag metrics.
+- PgBouncer pool metrics.
+- PostgreSQL metrics.
+- ArgoCD application metrics.
+- Optional business/SLO metrics.
