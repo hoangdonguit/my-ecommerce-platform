@@ -105,3 +105,33 @@ spec:
           annotations:
             summary: "Tempo unavailable"
             description: "Tempo has unavailable replicas for more than 3 minutes. Since Tempo had OOM issues before, check memory usage, pod restart reason, and /ready endpoint."
+
+        - alert: ECommerceArgoCDAppOutOfSync
+          expr: |
+            argocd_app_info{
+              namespace="argocd",
+              sync_status!="Synced"
+            } == 1
+          for: 5m
+          labels:
+            severity: warning
+            phase: phase6
+            area: gitops
+          annotations:
+            summary: "ArgoCD application is OutOfSync: {{ $labels.name }}"
+            description: "ArgoCD application {{ $labels.name }} has sync_status={{ $labels.sync_status }} for more than 5 minutes. Check Git revision, manifest diff, sync errors, and ignored differences."
+
+        - alert: ECommerceArgoCDAppNotHealthy
+          expr: |
+            argocd_app_info{
+              namespace="argocd",
+              health_status!="Healthy"
+            } == 1
+          for: 5m
+          labels:
+            severity: critical
+            phase: phase6
+            area: gitops
+          annotations:
+            summary: "ArgoCD application is not Healthy: {{ $labels.name }}"
+            description: "ArgoCD application {{ $labels.name }} has health_status={{ $labels.health_status }} for more than 5 minutes. Check degraded resources, failed rollouts, unavailable pods, and dependency health."
