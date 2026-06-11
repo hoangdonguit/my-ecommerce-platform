@@ -1,0 +1,10 @@
+c3f6338 (HEAD -> main, origin/main) docs: record phase6 final k6 benchmark suite
+91a9dfd docs: record phase6 controlled chaos proof
+d574848 test: harden controlled chaos experiments
+c6fb62b docs: record phase6 postgres backup restore proof
+409fa06 docs: add phase6 observability alert runbook
+075d45e observability: add loki alloy centralized logging
+ea50f1c docs: record phase6 logging gap inspection
+d1c9f0c docs: record argocd alert rules evidence
+e07510b observability: add argocd application alert rules
+4adaf60 observability: scrape argocd application metrics

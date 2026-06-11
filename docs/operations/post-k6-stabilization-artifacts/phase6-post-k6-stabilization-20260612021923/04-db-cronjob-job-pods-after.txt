@@ -1,0 +1,21 @@
+NAME                                      SCHEDULE      TIMEZONE   SUSPEND   ACTIVE   LAST SCHEDULE   AGE   CONTAINERS                  IMAGES               SELECTOR
+cronjob.batch/order-status-reconciler     */1 * * * *   <none>     False     0        19s             13d   order-status-reconciler     postgres:16-alpine   <none>
+cronjob.batch/payment-status-reconciler   */1 * * * *   <none>     False     0        19s             13d   payment-status-reconciler   postgres:16-alpine   <none>
+
+NAME                                           STATUS     COMPLETIONS   DURATION   AGE     CONTAINERS                  IMAGES               SELECTOR
+job.batch/order-status-reconciler-29686763     Complete   1/1           4s         2m19s   order-status-reconciler     postgres:16-alpine   batch.kubernetes.io/controller-uid=3c6a9e4d-70ec-4865-af45-89b1fedd03b4
+job.batch/order-status-reconciler-29686764     Complete   1/1           4s         79s     order-status-reconciler     postgres:16-alpine   batch.kubernetes.io/controller-uid=1b2eaa01-8eb8-4532-a074-41b4e5ba7197
+job.batch/order-status-reconciler-29686765     Complete   1/1           4s         19s     order-status-reconciler     postgres:16-alpine   batch.kubernetes.io/controller-uid=6b6c1c21-37cf-494f-8bd0-909cdfdbad3b
+job.batch/payment-status-reconciler-29686763   Complete   1/1           4s         2m19s   payment-status-reconciler   postgres:16-alpine   batch.kubernetes.io/controller-uid=5f619cfa-e17b-4bf4-b7f2-cce133204419
+job.batch/payment-status-reconciler-29686764   Complete   1/1           4s         79s     payment-status-reconciler   postgres:16-alpine   batch.kubernetes.io/controller-uid=80a94e9b-4b4a-44da-ad33-4e2a98417e18
+job.batch/payment-status-reconciler-29686765   Complete   1/1           4s         19s     payment-status-reconciler   postgres:16-alpine   batch.kubernetes.io/controller-uid=f4baaf84-fcc0-4d69-a9a3-220dacf1ff92
+
+NAME                                           READY   STATUS      RESTARTS   AGE     IP            NODE         NOMINATED NODE   READINESS GATES
+pod/order-status-reconciler-29686763-9s4q7     0/1     Completed   0          2m19s   10.42.2.100   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686764-cnqmk     0/1     Completed   0          79s     10.42.2.101   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686765-zb74r     0/1     Completed   0          19s     10.42.2.103   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686763-zrgvf   0/1     Completed   0          2m19s   10.42.2.99    vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686764-4b8sq   0/1     Completed   0          79s     10.42.2.102   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686765-t79jq   0/1     Completed   0          19s     10.42.2.104   vm3-gitops   <none>           <none>
+pod/pgbouncer-6cb6679645-jbnz4                 1/1     Running     0          5d13h   10.42.2.24    vm3-gitops   <none>           <none>
+pod/postgresql-0                               1/1     Running     0          11d     10.42.2.105   vm3-gitops   <none>           <none>

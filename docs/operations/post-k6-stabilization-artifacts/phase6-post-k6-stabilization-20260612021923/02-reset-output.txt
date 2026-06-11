@@ -1,0 +1,138 @@
+[INFO] Bắt đầu reset môi trường benchmark...
+[INFO] Kafka bootstrap: kafka-svc.kafka.svc.cluster.local:9092
+[INFO] Kafka topic partitions: 16
+[0/9] Đọc PostgreSQL password từ Kubernetes Secret...
+[1/9] Pause KEDA ScaledObjects cho consumer trong lúc reset...
+scaledobject.keda.sh/inventory-consumer-scaler annotated
+scaledobject.keda.sh/payment-consumer-scaler annotated
+scaledobject.keda.sh/notification-consumer-scaler annotated
+[2/9] Scale down consumers để tránh xử lý event trong lúc reset...
+deployment.apps/inventory-consumer scaled
+deployment.apps/payment-consumer scaled
+deployment.apps/notification-consumer scaled
+[3/9] Dọn PostgreSQL databases...
+TRUNCATE TABLE
+TRUNCATE TABLE
+TRUNCATE TABLE
+TRUNCATE TABLE
+TRUNCATE TABLE
+TRUNCATE TABLE
+UPDATE 3
+TRUNCATE TABLE
+TRUNCATE TABLE
+TRUNCATE TABLE
+TRUNCATE TABLE
+[4/9] Dọn Redis...
+OK
+[4.5/9] Dọn MongoDB read model nếu có...
+order_read_models count = 0
+[5/9] Reset Kafka topics của Saga...
+      -> Delete topic: order.created
+      -> Delete topic: order.cancelled
+      -> Delete topic: inventory.reserved
+      -> Delete topic: inventory.failed
+      -> Delete topic: payment.completed
+      -> Delete topic: payment.failed
+      -> Delete topic: inventory.reserved.dlq
+      -> Delete topic: payment.completed.dlq
+      -> Delete topic: payment.failed.dlq
+      -> Delete topic: payment.dlq
+      -> Chờ Kafka xóa topic...
+      -> Create topic: order.created
+WARNING: Due to limitations in metric names, topics with a period ('.') or underscore ('_') could collide. To avoid issues it is best to use either, but not both.
+Created topic order.created.
+      -> Create topic: order.cancelled
+WARNING: Due to limitations in metric names, topics with a period ('.') or underscore ('_') could collide. To avoid issues it is best to use either, but not both.
+      -> Create topic: inventory.reserved
+WARNING: Due to limitations in metric names, topics with a period ('.') or underscore ('_') could collide. To avoid issues it is best to use either, but not both.
+Created topic inventory.reserved.
+      -> Create topic: inventory.failed
+WARNING: Due to limitations in metric names, topics with a period ('.') or underscore ('_') could collide. To avoid issues it is best to use either, but not both.
+      -> Create topic: payment.completed
+WARNING: Due to limitations in metric names, topics with a period ('.') or underscore ('_') could collide. To avoid issues it is best to use either, but not both.
+      -> Create topic: payment.failed
+WARNING: Due to limitations in metric names, topics with a period ('.') or underscore ('_') could collide. To avoid issues it is best to use either, but not both.
+      -> Create topic: inventory.reserved.dlq
+WARNING: Due to limitations in metric names, topics with a period ('.') or underscore ('_') could collide. To avoid issues it is best to use either, but not both.
+Created topic inventory.reserved.dlq.
+      -> Create topic: payment.completed.dlq
+WARNING: Due to limitations in metric names, topics with a period ('.') or underscore ('_') could collide. To avoid issues it is best to use either, but not both.
+Created topic payment.completed.dlq.
+      -> Create topic: payment.failed.dlq
+WARNING: Due to limitations in metric names, topics with a period ('.') or underscore ('_') could collide. To avoid issues it is best to use either, but not both.
+Created topic payment.failed.dlq.
+      -> Create topic: payment.dlq
+WARNING: Due to limitations in metric names, topics with a period ('.') or underscore ('_') could collide. To avoid issues it is best to use either, but not both.
+Created topic payment.dlq.
+[6/9] Restart APIs và consumers để join lại sạch...
+deployment.apps/order-service restarted
+deployment.apps/inventory-api restarted
+deployment.apps/payment-api restarted
+deployment.apps/notification-api restarted
+deployment.apps/web-gateway restarted
+deployment.apps/read-model-service restarted
+deployment.apps/inventory-consumer scaled
+deployment.apps/inventory-consumer restarted
+deployment.apps/payment-consumer scaled
+deployment.apps/payment-consumer restarted
+deployment.apps/notification-consumer scaled
+deployment.apps/notification-consumer restarted
+[7/9] Unpause KEDA ScaledObjects...
+scaledobject.keda.sh/inventory-consumer-scaler annotated
+scaledobject.keda.sh/payment-consumer-scaler annotated
+scaledobject.keda.sh/notification-consumer-scaler annotated
+[8/9] Chờ deployments Available...
+Waiting for deployment "order-service" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "order-service" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "order-service" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "order-service" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "order-service" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "order-service" rollout to finish: 1 old replicas are pending termination...
+deployment "order-service" successfully rolled out
+deployment "inventory-api" successfully rolled out
+deployment "payment-api" successfully rolled out
+deployment "notification-api" successfully rolled out
+Waiting for deployment "web-gateway" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "web-gateway" rollout to finish: 1 old replicas are pending termination...
+deployment "web-gateway" successfully rolled out
+deployment "read-model-service" successfully rolled out
+deployment "inventory-consumer" successfully rolled out
+deployment "payment-consumer" successfully rolled out
+deployment "notification-consumer" successfully rolled out
+[9/9] Kiểm tra nhanh consumer groups và lag...
+
+----- GROUP: inventory-service-group -----
+
+GROUP                   CONSUMER-ID                                                                                                                 HOST            CLIENT-ID                                                                              #PARTITIONS     ASSIGNMENT
+inventory-service-group inventory-consumer@inventory-consumer-64fb85d7dc-dg7ln (github.com/segmentio/kafka-go)-9aec8141-37a3-44cd-9a0c-d5399b3cca50 /10.42.0.80     inventory-consumer@inventory-consumer-64fb85d7dc-dg7ln (github.com/segmentio/kafka-go) 2               order.created(3,4)
+inventory-service-group inventory-consumer@inventory-consumer-64fb85d7dc-r9w4f (github.com/segmentio/kafka-go)-f0dcc734-1632-4a9f-be30-ff0d2fce1768 /10.42.1.220    inventory-consumer@inventory-consumer-64fb85d7dc-r9w4f (github.com/segmentio/kafka-go) 2               order.created(9,10)
+inventory-service-group inventory-consumer@inventory-consumer-64fb85d7dc-w75kg (github.com/segmentio/kafka-go)-281f1b2c-ab43-4b51-9b80-83836f15bcf5 /10.42.0.79     inventory-consumer@inventory-consumer-64fb85d7dc-w75kg (github.com/segmentio/kafka-go) 2               order.created(7,8)
+inventory-service-group inventory-consumer@inventory-consumer-64fb85d7dc-kdk67 (github.com/segmentio/kafka-go)-39061e95-885c-4c73-b712-79382c51b09b /10.42.1.221    inventory-consumer@inventory-consumer-64fb85d7dc-kdk67 (github.com/segmentio/kafka-go) 2               order.created(0,15)
+inventory-service-group inventory-consumer@inventory-consumer-64fb85d7dc-llr7n (github.com/segmentio/kafka-go)-06cd8cb6-5621-45c1-acb5-b32bc18b688a /10.42.1.215    inventory-consumer@inventory-consumer-64fb85d7dc-llr7n (github.com/segmentio/kafka-go) 2               order.created(11,12)
+inventory-service-group inventory-consumer@inventory-consumer-64fb85d7dc-hfssj (github.com/segmentio/kafka-go)-008a757e-bcf0-4235-971a-3df1e2f26665 /10.42.1.222    inventory-consumer@inventory-consumer-64fb85d7dc-hfssj (github.com/segmentio/kafka-go) 2               order.created(1,2)
+inventory-service-group inventory-consumer@inventory-consumer-64fb85d7dc-kt5rs (github.com/segmentio/kafka-go)-b1e470bb-6ca9-4d21-8746-3abcea02acf9 /10.42.0.81     inventory-consumer@inventory-consumer-64fb85d7dc-kt5rs (github.com/segmentio/kafka-go) 2               order.created(13,14)
+inventory-service-group inventory-consumer@inventory-consumer-64fb85d7dc-2z4nv (github.com/segmentio/kafka-go)-defab886-7d61-460f-96ad-23b95a424a84 /10.42.0.77     inventory-consumer@inventory-consumer-64fb85d7dc-2z4nv (github.com/segmentio/kafka-go) 2               order.created(5,6)
+
+----- GROUP: payment-service-group -----
+
+GROUP                 CONSUMER-ID                                                                                                             HOST            CLIENT-ID                                                                          #PARTITIONS     ASSIGNMENT
+payment-service-group payment-consumer@payment-consumer-79b775d5b5-bd7mw (github.com/segmentio/kafka-go)-56b2442e-ceca-4c02-8f68-f86f800ed336 /10.42.1.216    payment-consumer@payment-consumer-79b775d5b5-bd7mw (github.com/segmentio/kafka-go) 16              inventory.reserved(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)
+
+----- GROUP: notification-service-group -----
+
+GROUP                      CONSUMER-ID                                                                                                                       HOST            CLIENT-ID                                                                                    #PARTITIONS     ASSIGNMENT
+notification-service-group notification-consumer@notification-consumer-7c8f77cbcd-5nvmv (github.com/segmentio/kafka-go)-7907fb0e-51e1-42f5-ae36-c9adf0898ae9 /10.42.1.219    notification-consumer@notification-consumer-7c8f77cbcd-5nvmv (github.com/segmentio/kafka-go) 16              payment.completed(0,1,2,3,4,5,6,7), payment.failed(0,1,2,3,4,5,6,7)
+
+----- GROUP: order-service-saga-monitor -----
+
+GROUP                      CONSUMER-ID                                                                                                       HOST            CLIENT-ID                                                                    #PARTITIONS     ASSIGNMENT
+order-service-saga-monitor order-service@order-service-5896f7df7d-n7xbc (github.com/segmentio/kafka-go)-df91a8dc-5222-484e-8167-5432d0467572 /10.42.1.211    order-service@order-service-5896f7df7d-n7xbc (github.com/segmentio/kafka-go) 12              inventory.failed(3,4,5,6), payment.completed(3,4,5,6), payment.failed(3,4,5,6)
+order-service-saga-monitor order-service@order-service-5896f7df7d-stwhj (github.com/segmentio/kafka-go)-df3533c8-e99d-41a8-bc00-0327ccbaf781 /10.42.0.76     order-service@order-service-5896f7df7d-stwhj (github.com/segmentio/kafka-go) 12              inventory.failed(0,1,2,7), payment.completed(0,1,2,7), payment.failed(0,1,2,7)
+
+----- GROUP: read-model-service-group -----
+
+GROUP                    CONSUMER-ID                                                                                                                 HOST            CLIENT-ID                                                                              #PARTITIONS     ASSIGNMENT
+read-model-service-group read-model-service@read-model-service-55f885645f-m5cjl (github.com/segmentio/kafka-go)-3f5f434e-6662-4032-a5b5-41de64198a74 /10.42.1.214    read-model-service@read-model-service-55f885645f-m5cjl (github.com/segmentio/kafka-go) 8               payment.completed(0,1,2,3,4,5,6,7)
+==============================================================================
+[SUCCESS] Hệ thống đã được reset sạch. Sẵn sàng chạy K6/Chaos Test.
+==============================================================================

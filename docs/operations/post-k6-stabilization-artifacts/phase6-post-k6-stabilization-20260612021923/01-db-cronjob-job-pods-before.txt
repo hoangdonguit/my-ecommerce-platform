@@ -1,0 +1,75 @@
+NAME                                      SCHEDULE      TIMEZONE   SUSPEND   ACTIVE   LAST SCHEDULE   AGE   CONTAINERS                  IMAGES               SELECTOR
+cronjob.batch/order-status-reconciler     */1 * * * *   <none>     False     1        84s             13d   order-status-reconciler     postgres:16-alpine   <none>
+cronjob.batch/payment-status-reconciler   */1 * * * *   <none>     False     1        84s             13d   payment-status-reconciler   postgres:16-alpine   <none>
+
+NAME                                           STATUS     COMPLETIONS   DURATION   AGE     CONTAINERS                  IMAGES               SELECTOR
+job.batch/order-status-reconciler-29686655     Failed     0/1           104m       104m    order-status-reconciler     postgres:16-alpine   batch.kubernetes.io/controller-uid=f2762b8b-76ba-40bf-9fa5-625d98911152
+job.batch/order-status-reconciler-29686656     Failed     0/1           102m       102m    order-status-reconciler     postgres:16-alpine   batch.kubernetes.io/controller-uid=b27686e5-b12a-4e86-ada5-f91537c59476
+job.batch/order-status-reconciler-29686658     Failed     0/1           100m       100m    order-status-reconciler     postgres:16-alpine   batch.kubernetes.io/controller-uid=f111e933-db0c-438b-8bca-7058609e2e4b
+job.batch/order-status-reconciler-29686660     Failed     0/1           99m        99m     order-status-reconciler     postgres:16-alpine   batch.kubernetes.io/controller-uid=89e61cc9-3b35-45e7-bfbc-85392a1e5a2d
+job.batch/order-status-reconciler-29686661     Failed     0/1           97m        97m     order-status-reconciler     postgres:16-alpine   batch.kubernetes.io/controller-uid=ef560351-bd5d-436a-a7f3-7266e2ccd0c7
+job.batch/order-status-reconciler-29686755     Complete   1/1           65s        3m43s   order-status-reconciler     postgres:16-alpine   batch.kubernetes.io/controller-uid=769fa9b0-9c59-4a24-adb8-b71a6de2cb8f
+job.batch/order-status-reconciler-29686756     Complete   1/1           69s        2m38s   order-status-reconciler     postgres:16-alpine   batch.kubernetes.io/controller-uid=4193c9fe-b220-48dd-8869-696fe2b8a141
+job.batch/order-status-reconciler-29686757     Complete   1/1           64s        89s     order-status-reconciler     postgres:16-alpine   batch.kubernetes.io/controller-uid=6bc03a90-2cdc-44fb-a49e-b9c8e53079da
+job.batch/order-status-reconciler-29686758     Running    0/1           25s        25s     order-status-reconciler     postgres:16-alpine   batch.kubernetes.io/controller-uid=c2abaff6-3520-4129-8239-c53301d8e19c
+job.batch/payment-status-reconciler-29686656   Failed     0/1           102m       102m    payment-status-reconciler   postgres:16-alpine   batch.kubernetes.io/controller-uid=7c38a037-1216-4f20-95c0-66d571054713
+job.batch/payment-status-reconciler-29686658   Failed     0/1           100m       100m    payment-status-reconciler   postgres:16-alpine   batch.kubernetes.io/controller-uid=c26265a4-792d-4a60-82ca-7aea23ef6166
+job.batch/payment-status-reconciler-29686659   Failed     0/1           99m        99m     payment-status-reconciler   postgres:16-alpine   batch.kubernetes.io/controller-uid=5e7f8990-aef6-4f16-ac7e-a8bee26e5fc6
+job.batch/payment-status-reconciler-29686661   Failed     0/1           98m        98m     payment-status-reconciler   postgres:16-alpine   batch.kubernetes.io/controller-uid=369cb4fc-efd4-4a9d-85ef-2e7d7a35c37c
+job.batch/payment-status-reconciler-29686663   Failed     0/1           95m        95m     payment-status-reconciler   postgres:16-alpine   batch.kubernetes.io/controller-uid=25c42e64-1990-43f6-a0b6-b6582b59b281
+job.batch/payment-status-reconciler-29686751   Complete   1/1           2m9s       7m40s   payment-status-reconciler   postgres:16-alpine   batch.kubernetes.io/controller-uid=62aac175-85a0-4516-8b72-2c3a7efabe7f
+job.batch/payment-status-reconciler-29686753   Complete   1/1           2m6s       5m30s   payment-status-reconciler   postgres:16-alpine   batch.kubernetes.io/controller-uid=59a552f9-2bc0-4b78-81ac-82c499521a53
+job.batch/payment-status-reconciler-29686756   Complete   1/1           2m11s      3m24s   payment-status-reconciler   postgres:16-alpine   batch.kubernetes.io/controller-uid=2f872789-2bc2-46f4-92e4-2bf915189c6e
+job.batch/payment-status-reconciler-29686758   Running    0/1           72s        72s     payment-status-reconciler   postgres:16-alpine   batch.kubernetes.io/controller-uid=2d08a692-c4ad-445e-aa60-62f89902162b
+
+NAME                                           READY   STATUS      RESTARTS   AGE     IP            NODE         NOMINATED NODE   READINESS GATES
+pod/order-status-reconciler-29686655-cnw7p     0/1     Error       0          104m    10.42.2.186   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686655-jf9bb     0/1     Error       0          103m    10.42.2.193   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686655-qnqvd     0/1     Error       0          104m    10.42.2.189   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686655-stcff     0/1     Error       0          103m    10.42.2.191   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686656-7vz4v     0/1     Error       0          102m    10.42.2.196   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686656-9t6kt     0/1     Error       0          102m    10.42.2.198   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686656-hvcn9     0/1     Error       0          100m    10.42.2.204   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686656-pjxjz     0/1     Error       0          101m    10.42.2.200   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686658-2p5tl     0/1     Error       0          99m     10.42.2.208   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686658-b6z65     0/1     Error       0          100m    10.42.2.206   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686658-mpzs6     0/1     Error       0          100m    10.42.2.205   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686658-wqwnh     0/1     Error       0          99m     10.42.2.212   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686660-2pmm9     0/1     Error       0          99m     10.42.2.213   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686660-ltjf5     0/1     Error       0          98m     10.42.2.214   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686660-nbnfg     0/1     Error       0          97m     10.42.2.219   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686660-x982c     0/1     Error       0          98m     10.42.2.216   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686661-f2lrl     0/1     Error       0          97m     10.42.2.222   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686661-khgdm     0/1     Error       0          97m     10.42.2.223   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686661-l288k     0/1     Error       0          97m     10.42.2.221   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686661-m4tpn     0/1     Error       0          96m     10.42.2.225   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686755-h676x     0/1     Completed   0          3m43s   10.42.2.85    vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686756-przzg     0/1     Completed   0          2m38s   10.42.2.88    vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686757-nr8xp     0/1     Completed   0          89s     10.42.2.89    vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686758-vj6vz     1/1     Running     0          25s     10.42.2.91    vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686656-7bs5n   0/1     Error       0          102m    10.42.2.199   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686656-l6hdk   0/1     Error       0          102m    10.42.2.195   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686656-v7486   0/1     Error       0          100m    10.42.2.201   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686656-zghz6   0/1     Error       0          102m    10.42.2.197   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686658-5ll2f   0/1     Error       0          100m    10.42.2.202   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686658-b6pmr   0/1     Error       0          100m    10.42.2.207   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686658-kmqpv   0/1     Error       0          99m     10.42.2.209   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686658-zrjlx   0/1     Error       0          100m    10.42.2.203   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686659-2l7mk   0/1     Error       0          98m     10.42.2.217   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686659-5vk78   0/1     Error       0          98m     10.42.2.215   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686659-l7757   0/1     Error       0          99m     10.42.2.210   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686659-ztg8x   0/1     Error       0          99m     10.42.2.211   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686661-4pmjq   0/1     Error       0          97m     10.42.2.220   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686661-bx5bh   0/1     Error       0          97m     10.42.2.224   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686661-l5p82   0/1     Error       0          96m     10.42.2.228   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686661-lh9b2   0/1     Error       0          98m     10.42.2.218   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686663-9wck9   0/1     Error       0          95m     10.42.2.230   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686663-f6m79   0/1     Error       0          95m     10.42.2.232   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686663-v74wb   0/1     Error       0          95m     10.42.2.229   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686663-wtnp4   0/1     Error       0          94m     10.42.2.233   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686751-5n4gr   0/1     Completed   0          7m40s   10.42.2.80    vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686753-5ccxk   0/1     Completed   0          5m30s   10.42.2.83    vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686756-8h8cw   0/1     Completed   0          3m24s   10.42.2.86    vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686758-drdt7   1/1     Running     0          72s     10.42.2.90    vm3-gitops   <none>           <none>
+pod/pgbouncer-6cb6679645-jbnz4                 1/1     Running     0          5d13h   10.42.2.24    vm3-gitops   <none>           <none>
+pod/postgresql-0                               1/1     Running     0          11d     10.42.2.105   vm3-gitops   <none>           <none>
