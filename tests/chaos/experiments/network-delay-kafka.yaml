@@ -1,17 +1,19 @@
 apiVersion: chaos-mesh.org/v1alpha1
 kind: NetworkChaos
 metadata:
-  name: kafka-delay
+  name: order-service-kafka-delay
   namespace: default
 spec:
   action: delay
   mode: all
   selector:
+    namespaces:
+      - default
     labelSelectors:
       app: order-service
   externalTargets:
-    - kafka-svc.kafka.svc.cluster.local # Kafka service DNS, tránh phụ thuộc ClusterIP tĩnh
+    - kafka-svc.kafka.svc.cluster.local
   delay:
-    latency: '1000ms'
-    jitter: '200ms'
-  duration: '5m'
+    latency: "1000ms"
+    jitter: "200ms"
+  duration: "5m"
