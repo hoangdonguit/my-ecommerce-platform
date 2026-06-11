@@ -1,0 +1,35 @@
+===== HTTP health =====
+HTTP/1.1 200 OK
+server: istio-envoy
+date: Thu, 11 Jun 2026 16:38:06 GMT
+content-type: application/json; charset=utf-8
+content-length: 84
+x-envoy-upstream-service-time: 10
+x-envoy-decorator-operation: ecommerce-dashboard.default.svc.cluster.local:80/*
+
+{"success":true,"message":"web-gateway is running","data":{"service":"web-gateway"}}
+===== Dashboard root =====
+HTTP/1.1 200 OK
+server: istio-envoy
+date: Thu, 11 Jun 2026 16:38:06 GMT
+content-type: text/html
+content-length: 469
+last-modified: Fri, 29 May 2026 07:27:12 GMT
+etag: "6a193fd0-1d5"
+accept-ranges: bytes
+x-envoy-upstream-service-time: 0
+x-envoy-decorator-operation: ecommerce-dashboard.default.svc.cluster.local:80/*
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ecommerce-dashboard</title>
+    <script type="module" crossorigin src="/assets/index-DHlw6vOq.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BFg6rdBD.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>

@@ -1,0 +1,14 @@
+===== Loki default namespace quick query =====
+stream_count= 6
+stream= {'app': 'inventory-api', 'container': 'inventory-api', 'detected_level': 'unknown', 'instance': 'default/inventory-api-79666ffc57-jcgkt:inventory-api', 'job': 'default/inventory-api-79666ffc57-jcgkt/inventory-api', 'namespace': 'default', 'pod': 'inventory-api-79666ffc57-jcgkt', 'service_name': 'inventory-api'}
+   1781195897571619490 [GIN] 2026/06/11 - 16:38:17 | 200 | 72.592µs |       127.0.0.6 | GET      "/api/v1/health"
+
+stream= {'app': 'notification-api', 'container': 'notification-api', 'detected_level': 'unknown', 'instance': 'default/notification-api-55fbccb95b-jc9f8:notification-api', 'job': 'default/notification-api-55fbccb95b-jc9f8/notification-api', 'namespace': 'default', 'pod': 'notification-api-55fbccb95b-jc9f8', 'service_name': 'notification-api'}
+   1781195897839728709 [GIN] 2026/06/11 - 16:38:17 | 200 | 52.014µs |       127.0.0.6 | GET      "/api/v1/health"
+
+stream= {'app': 'order-service', 'container': 'order-service', 'detected_level': 'unknown', 'instance': 'default/order-service-66476786d4-7xtsx:order-service', 'job': 'default/order-service-66476786d4-7xtsx/order-service', 'namespace': 'default', 'pod': 'order-service-66476786d4-7xtsx', 'service_name': 'order-service'}
+   1781195897414330337 [GIN] 2026/06/11 - 16:38:17 | 200 | 139.81µs |       127.0.0.6 | GET      "/api/v1/health"
+
+stream= {'app': 'payment-api', 'container': 'payment-api', 'detected_level': 'unknown', 'instance': 'default/payment-api-79bc59f97f-hw542:payment-api', 'job': 'default/payment-api-79bc59f97f-hw542/payment-api', 'namespace': 'default', 'pod': 'payment-api-79bc59f97f-hw542', 'service_name': 'payment-api'}
+   1781195892969315205 [GIN] 2026/06/11 - 16:38:12 | 200 | 64.363µs |       127.0.0.6 | GET      "/api/v1/health"
+

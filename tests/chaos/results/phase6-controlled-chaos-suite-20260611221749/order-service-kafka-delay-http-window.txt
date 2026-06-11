@@ -1,0 +1,16 @@
+t=15s http_code=200
+{"success":true,"message":"web-gateway is running","data":{"service":"web-gateway"}}
+t=30s http_code=200
+{"success":true,"message":"web-gateway is running","data":{"service":"web-gateway"}}
+t=45s http_code=200
+{"success":true,"message":"web-gateway is running","data":{"service":"web-gateway"}}
+t=60s http_code=200
+{"success":true,"message":"web-gateway is running","data":{"service":"web-gateway"}}
+t=75s http_code=200
+{"success":true,"message":"web-gateway is running","data":{"service":"web-gateway"}}
+t=90s http_code=200
+{"success":true,"message":"web-gateway is running","data":{"service":"web-gateway"}}
+t=105s http_code=200
+{"success":true,"message":"web-gateway is running","data":{"service":"web-gateway"}}
+t=120s http_code=200
+{"success":true,"message":"web-gateway is running","data":{"service":"web-gateway"}}

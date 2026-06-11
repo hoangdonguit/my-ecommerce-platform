@@ -1,0 +1,12 @@
+t=10s http_code=200
+{"success":true,"message":"web-gateway is running","data":{"service":"web-gateway"}}
+t=20s http_code=200
+{"success":true,"message":"web-gateway is running","data":{"service":"web-gateway"}}
+t=30s http_code=200
+{"success":true,"message":"web-gateway is running","data":{"service":"web-gateway"}}
+t=40s http_code=200
+{"success":true,"message":"web-gateway is running","data":{"service":"web-gateway"}}
+t=50s http_code=200
+{"success":true,"message":"web-gateway is running","data":{"service":"web-gateway"}}
+t=60s http_code=200
+{"success":true,"message":"web-gateway is running","data":{"service":"web-gateway"}}

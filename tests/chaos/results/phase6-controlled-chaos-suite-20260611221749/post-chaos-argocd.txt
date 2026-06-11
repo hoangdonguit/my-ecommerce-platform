@@ -1,0 +1,10 @@
+===== ArgoCD applications =====
+NAME                       SYNC STATUS   HEALTH STATUS
+analytics-layer            Synced        Healthy
+cdc-layer                  Synced        Healthy
+ecommerce-infrastructure   Synced        Healthy
+ecommerce-platform         Synced        Healthy
+infrastructure-layer       Synced        Healthy
+monitoring-addons          Synced        Healthy
+observability-layer        Synced        Healthy
+security-layer             Synced        Healthy

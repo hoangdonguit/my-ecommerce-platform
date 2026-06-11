@@ -1,0 +1,8 @@
+script=tests/k6/baseline-e2e-5rps.js
+context=run during order-service to Kafka 1000ms network delay
+http_req_failed_rate= NA
+http_req_duration_p95_ms= 74.181084
+iterations_count= 301
+http_reqs_count= 301
+accepted_orders_count= 301
+unexpected_error_rate= NA
