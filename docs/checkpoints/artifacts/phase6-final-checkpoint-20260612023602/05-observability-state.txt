@@ -1,0 +1,12 @@
+NAME                                 READY   STATUS    RESTARTS   AGE    IP            NODE          NOMINATED NODE   READINESS GATES
+pod/alloy-98df599cd-crbfc            1/1     Running   0          10h    10.42.1.119   vm2-mesh      <none>           <none>
+pod/loki-0                           1/1     Running   0          10h    10.42.1.120   vm2-mesh      <none>           <none>
+pod/otel-collector-f7bd9b9b5-b5qsx   1/1     Running   0          10d    10.42.0.69    vm1-gateway   <none>           <none>
+pod/tempo-775dfff8b7-45n57           1/1     Running   0          4d3h   10.42.1.115   vm2-mesh      <none>           <none>
+NAME                     TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE   SELECTOR
+service/alloy            ClusterIP   10.43.122.164   <none>        12345/TCP                    10h   app=alloy
+service/loki             ClusterIP   10.43.47.176    <none>        3100/TCP                     10h   app=loki
+service/otel-collector   ClusterIP   10.43.103.22    <none>        4317/TCP,4318/TCP,8888/TCP   10d   app=otel-collector
+service/tempo            ClusterIP   10.43.16.89     <none>        3200/TCP,4317/TCP,4318/TCP   10d   app=tempo
+NAME                                     STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE   VOLUMEMODE
+persistentvolumeclaim/loki-data-loki-0   Bound    pvc-64425233-0ce4-4aa6-991a-b4047458b7ba   5Gi        RWO            local-path     <unset>                 10h   Filesystem

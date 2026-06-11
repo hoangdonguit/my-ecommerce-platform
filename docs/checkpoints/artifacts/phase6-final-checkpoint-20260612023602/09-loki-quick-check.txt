@@ -1,0 +1,13 @@
+stream_count= 7
+stream= {'app': 'notification-api', 'container': 'notification-api', 'detected_level': 'unknown', 'instance': 'default/notification-api-647b85c85c-lk4vf:notification-api', 'job': 'default/notification-api-647b85c85c-lk4vf/notification-api', 'namespace': 'default', 'pod': 'notification-api-647b85c85c-lk4vf', 'service_name': 'notification-api'}
+   1781206568744403058 [GIN] 2026/06/11 - 19:36:08 | 200 | 61.385µs |       127.0.0.6 | GET      "/api/v1/health"
+
+stream= {'app': 'order-service', 'container': 'order-service', 'detected_level': 'unknown', 'instance': 'default/order-service-5896f7df7d-n7xbc:order-service', 'job': 'default/order-service-5896f7df7d-n7xbc/order-service', 'namespace': 'default', 'pod': 'order-service-5896f7df7d-n7xbc', 'service_name': 'order-service'}
+   1781206576191208112 [GIN] 2026/06/11 - 19:36:16 | 200 | 210.389µs |       127.0.0.6 | GET      "/api/v1/health"
+
+stream= {'app': 'order-service', 'container': 'order-service', 'detected_level': 'unknown', 'instance': 'default/order-service-5896f7df7d-stwhj:order-service', 'job': 'default/order-service-5896f7df7d-stwhj/order-service', 'namespace': 'default', 'pod': 'order-service-5896f7df7d-stwhj', 'service_name': 'order-service'}
+   1781206573785516069 [GIN] 2026/06/11 - 19:36:13 | 200 | 155.333µs |       127.0.0.6 | GET      "/api/v1/health"
+
+stream= {'app': 'payment-api', 'container': 'payment-api', 'detected_level': 'unknown', 'instance': 'default/payment-api-9c8fb4b9-x4dfz:payment-api', 'job': 'default/payment-api-9c8fb4b9-x4dfz/payment-api', 'namespace': 'default', 'pod': 'payment-api-9c8fb4b9-x4dfz', 'service_name': 'payment-api'}
+   1781206570766201842 [GIN] 2026/06/11 - 19:36:10 | 200 | 76.809µs |       127.0.0.6 | GET      "/api/v1/health"
+

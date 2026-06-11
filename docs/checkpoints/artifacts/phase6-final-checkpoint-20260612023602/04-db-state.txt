@@ -1,0 +1,33 @@
+NAME                                           READY   STATUS      RESTARTS   AGE     IP            NODE         NOMINATED NODE   READINESS GATES
+pod/order-status-reconciler-29686773-pkm4x     0/1     Completed   0          3m4s    10.42.2.121   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686774-tr964     0/1     Completed   0          2m4s    10.42.2.122   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686775-929vd     0/1     Completed   0          64s     10.42.2.125   vm3-gitops   <none>           <none>
+pod/order-status-reconciler-29686776-xb6r7     0/1     Completed   0          4s      10.42.2.126   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686773-mbbcm   0/1     Completed   0          3m4s    10.42.2.120   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686774-qmkl6   0/1     Completed   0          2m4s    10.42.2.123   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686775-skk46   0/1     Completed   0          64s     10.42.2.124   vm3-gitops   <none>           <none>
+pod/payment-status-reconciler-29686776-t675x   0/1     Completed   0          4s      10.42.2.127   vm3-gitops   <none>           <none>
+pod/pgbouncer-6cb6679645-jbnz4                 1/1     Running     0          5d14h   10.42.2.24    vm3-gitops   <none>           <none>
+pod/postgresql-0                               1/1     Running     0          11d     10.42.2.105   vm3-gitops   <none>           <none>
+
+NAME                    TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE   SELECTOR
+service/pgbouncer       ClusterIP   10.43.185.249   <none>        6432/TCP   14d   app=pgbouncer
+service/postgresql      ClusterIP   10.43.35.230    <none>        5432/TCP   14d   app.kubernetes.io/component=primary,app.kubernetes.io/instance=postgresql,app.kubernetes.io/name=postgresql
+service/postgresql-hl   ClusterIP   None            <none>        5432/TCP   14d   app.kubernetes.io/component=primary,app.kubernetes.io/instance=postgresql,app.kubernetes.io/name=postgresql
+
+NAME                                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE   VOLUMEMODE
+persistentvolumeclaim/data-postgresql-0   Bound    pvc-e70f9807-6ff9-4461-96fa-f8a8e2e25366   30Gi       RWO            local-path     <unset>                 14d   Filesystem
+
+NAME                                      SCHEDULE      TIMEZONE   SUSPEND   ACTIVE   LAST SCHEDULE   AGE   CONTAINERS                  IMAGES               SELECTOR
+cronjob.batch/order-status-reconciler     */1 * * * *   <none>     False     1        4s              13d   order-status-reconciler     postgres:16-alpine   <none>
+cronjob.batch/payment-status-reconciler   */1 * * * *   <none>     False     1        4s              13d   payment-status-reconciler   postgres:16-alpine   <none>
+
+NAME                                           STATUS     COMPLETIONS   DURATION   AGE    CONTAINERS                  IMAGES               SELECTOR
+job.batch/order-status-reconciler-29686773     Complete   1/1           4s         3m4s   order-status-reconciler     postgres:16-alpine   batch.kubernetes.io/controller-uid=164b306e-93a4-4ce8-b459-fea78bb80eb3
+job.batch/order-status-reconciler-29686774     Complete   1/1           4s         2m4s   order-status-reconciler     postgres:16-alpine   batch.kubernetes.io/controller-uid=99afd5ba-4ae3-4beb-adcf-72c0b2ed5720
+job.batch/order-status-reconciler-29686775     Complete   1/1           4s         64s    order-status-reconciler     postgres:16-alpine   batch.kubernetes.io/controller-uid=8301c014-a6af-4b77-94b3-dfccee7d953e
+job.batch/order-status-reconciler-29686776     Running    0/1           4s         4s     order-status-reconciler     postgres:16-alpine   batch.kubernetes.io/controller-uid=51a0360d-e8f4-4f35-b3c3-7266048927ee
+job.batch/payment-status-reconciler-29686773   Complete   1/1           4s         3m4s   payment-status-reconciler   postgres:16-alpine   batch.kubernetes.io/controller-uid=ebf3dff7-9e6e-4c61-bd53-d0cb0f3a4048
+job.batch/payment-status-reconciler-29686774   Complete   1/1           4s         2m4s   payment-status-reconciler   postgres:16-alpine   batch.kubernetes.io/controller-uid=6f9f5f3c-a452-4767-8cb2-4e318084d151
+job.batch/payment-status-reconciler-29686775   Complete   1/1           4s         64s    payment-status-reconciler   postgres:16-alpine   batch.kubernetes.io/controller-uid=1d79390b-f41d-4921-96b3-36d33b4fb978
+job.batch/payment-status-reconciler-29686776   Running    0/1           4s         4s     payment-status-reconciler   postgres:16-alpine   batch.kubernetes.io/controller-uid=35df5e09-4bc0-4129-94af-6edce30bbfac

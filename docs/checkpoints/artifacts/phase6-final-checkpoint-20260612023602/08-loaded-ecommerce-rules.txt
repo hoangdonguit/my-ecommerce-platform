@@ -1,0 +1,8 @@
+ECommerceArgoCDAppNotHealthy
+ECommerceArgoCDAppOutOfSync
+ECommerceContainerRestarting
+ECommerceDeploymentUnavailable
+ECommerceNodePressure
+ECommercePodCrashLooping
+ECommercePodPendingTooLong
+ECommerceTempoUnavailable

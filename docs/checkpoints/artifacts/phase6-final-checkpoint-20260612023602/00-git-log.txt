@@ -1,0 +1,15 @@
+7b1e183 (HEAD -> main, origin/main) docs: record phase6 post-k6 stabilization
+c3f6338 docs: record phase6 final k6 benchmark suite
+91a9dfd docs: record phase6 controlled chaos proof
+d574848 test: harden controlled chaos experiments
+c6fb62b docs: record phase6 postgres backup restore proof
+409fa06 docs: add phase6 observability alert runbook
+075d45e observability: add loki alloy centralized logging
+ea50f1c docs: record phase6 logging gap inspection
+d1c9f0c docs: record argocd alert rules evidence
+e07510b observability: add argocd application alert rules
+4adaf60 observability: scrape argocd application metrics
+fcd74e2 docs: record phase6 advanced metric availability audit
+ccc55f8 docs: record phase6 alerting gitops proof
+81cdbd0 observability: add phase6 alerting foundation
+a6ef39f docs: add phase5 capacity and observability checkpoint
