@@ -1,0 +1,17 @@
+stream_count= 7
+stream= {'app': 'inventory-consumer', 'container': 'inventory-consumer', 'detected_level': 'error', 'instance': 'default/inventory-consumer-fd59b46b8-9dp46:inventory-consumer', 'job': 'default/inventory-consumer-fd59b46b8-9dp46/inventory-consumer', 'namespace': 'default', 'pod': 'inventory-consumer-fd59b46b8-9dp46', 'service_name': 'inventory-consumer'}
+   1781203520613878416 2026/06/11 18:45:20 failed to handle order.created order_id=3389bbff-0b03-49ba-a5b8-4eb6c7b72254 err=failed to create failed reservation: ERROR: current transaction is aborted, commands ignored until end of transaction b
+stream= {'app': 'inventory-consumer', 'container': 'inventory-consumer', 'detected_level': 'unknown', 'instance': 'default/inventory-consumer-fd59b46b8-kdr4w:inventory-consumer', 'job': 'default/inventory-consumer-fd59b46b8-kdr4w/inventory-consumer', 'namespace': 'default', 'pod': 'inventory-consumer-fd59b46b8-kdr4w', 'service_name': 'inventory-consumer'}
+   1781203520836737587 2026/06/11 18:45:20 inventory outbox batch published count=1 first_aggregate_id=2f9ac903-c21d-450a-9bda-ac52642c8276 last_aggregate_id=2f9ac903-c21d-450a-9bda-ac52642c8276
+
+stream= {'app': 'notification-consumer', 'container': 'notification-consumer', 'detected_level': 'unknown', 'instance': 'default/notification-consumer-76b6997846-t9mst:notification-consumer', 'job': 'default/notification-consumer-76b6997846-t9mst/notification-consumer', 'namespace': 'default', 'pod': 'notification-consumer-76b6997846-t9mst', 'service_name': 'notification-consumer'}
+   1781203521236141090 [NOTIFICATION SENT] user=flash-sale-55 order=2f9ac903-c21d-450a-9bda-ac52642c8276 event=payment.completed title=Thanh toán thành công message=Đơn hàng 2f9ac903-c21d-450a-9bda-ac52642c8276 đã thanh toán thành công 2400000
+stream= {'app': 'order-service', 'container': 'order-service', 'detected_level': 'unknown', 'instance': 'default/order-service-5698bbfd54-dfv7g:order-service', 'job': 'default/order-service-5698bbfd54-dfv7g/order-service', 'namespace': 'default', 'pod': 'order-service-5698bbfd54-dfv7g', 'service_name': 'order-service'}
+   1781203521239617756 2026/06/11 18:45:21 [OrderOutboxWorker] batch published count=200 first_order_id=350489bb-5815-4738-a341-886fff093e91 last_order_id=39141165-8d15-4c2e-bc54-32e0507596ba
+
+stream= {'app': 'order-service', 'container': 'order-service', 'detected_level': 'unknown', 'instance': 'default/order-service-5698bbfd54-w2t45:order-service', 'job': 'default/order-service-5698bbfd54-w2t45/order-service', 'namespace': 'default', 'pod': 'order-service-5698bbfd54-w2t45', 'service_name': 'order-service'}
+   1781203521233630665 2026/06/11 18:45:21 processed and committed saga event order_id=2f9ac903-c21d-450a-9bda-ac52642c8276 status=COMPLETED offset=11794
+
+stream= {'app': 'payment-consumer', 'container': 'payment-consumer', 'detected_level': 'unknown', 'instance': 'default/payment-consumer-5cc8c55745-5g49s:payment-consumer', 'job': 'default/payment-consumer-5cc8c55745-5g49s/payment-consumer', 'namespace': 'default', 'pod': 'payment-consumer-5cc8c55745-5g49s', 'service_name': 'payment-consumer'}
+   1781203521153199966 2026/06/11 18:45:21 payment outbox batch published count=1 first_aggregate_id=fbd3da35-1b13-42ef-9f17-71e1d7dcfd87 last_aggregate_id=fbd3da35-1b13-42ef-9f17-71e1d7dcfd87
+

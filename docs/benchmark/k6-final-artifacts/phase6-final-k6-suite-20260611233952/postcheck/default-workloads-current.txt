@@ -1,0 +1,54 @@
+NAME                                    READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS              IMAGES                                                                          SELECTOR
+deployment.apps/ecommerce-dashboard     1/1     1            1           14d   ecommerce-dashboard     hoangdonguit/ecommerce-dashboard:dashboard-ui-polish-20260529142705             app=ecommerce-dashboard
+deployment.apps/inventory-api           1/1     1            1           14d   inventory-api           hoangdonguit/inventory-service:otel-full-saga-inventory-hotfix-20260603013722   app=inventory-api
+deployment.apps/inventory-consumer      8/8     8            8           14d   inventory-consumer      hoangdonguit/inventory-service:otel-full-saga-inventory-hotfix-20260603013722   app=inventory-consumer
+deployment.apps/mongodb                 1/1     1            1           14d   mongodb                 mongo:7                                                                         app=mongodb
+deployment.apps/notification-api        1/1     1            1           14d   notification-api        hoangdonguit/notification-service:otel-full-saga-20260603005334                 app=notification-api
+deployment.apps/notification-consumer   1/1     1            1           14d   notification-consumer   hoangdonguit/notification-service:otel-full-saga-20260603005334                 app=notification-consumer
+deployment.apps/order-service           2/2     2            2           14d   order-service           hoangdonguit/order-service:redis-fallback-hardening-20260606092113              app=order-service
+deployment.apps/payment-api             1/1     1            1           14d   payment-api             hoangdonguit/payment-service:otel-full-saga-payment-hotfix-20260603015846       app=payment-api
+deployment.apps/payment-consumer        1/1     1            1           14d   payment-consumer        hoangdonguit/payment-service:otel-full-saga-payment-hotfix-20260603015846       app=payment-consumer
+deployment.apps/read-model-service      1/1     1            1           14d   read-model-service      hoangdonguit/read-model-service:otel-full-saga-20260603005334                   app=read-model-service
+deployment.apps/redis                   1/1     1            1           14d   redis                   redis:6.2-alpine                                                                app=redis
+deployment.apps/web-gateway             2/2     2            2           14d   web-gateway             hoangdonguit/web-gateway:otel-webgateway-20260601213658                         app=web-gateway
+
+NAME                                         READY   STATUS    RESTARTS   AGE    IP            NODE          NOMINATED NODE   READINESS GATES
+pod/ecommerce-dashboard-7c96b77f96-6tqkq     2/2     Running   0          8d     10.42.0.91    vm1-gateway   <none>           <none>
+pod/inventory-api-8576d67875-6cm24           2/2     Running   0          138m   10.42.1.129   vm2-mesh      <none>           <none>
+pod/inventory-consumer-fd59b46b8-7p6t2       1/1     Running   0          138m   10.42.0.238   vm1-gateway   <none>           <none>
+pod/inventory-consumer-fd59b46b8-9dp46       1/1     Running   0          138m   10.42.1.133   vm2-mesh      <none>           <none>
+pod/inventory-consumer-fd59b46b8-bvw5b       1/1     Running   0          105m   10.42.1.162   vm2-mesh      <none>           <none>
+pod/inventory-consumer-fd59b46b8-c4kss       1/1     Running   0          105m   10.42.0.23    vm1-gateway   <none>           <none>
+pod/inventory-consumer-fd59b46b8-jqm5n       1/1     Running   0          105m   10.42.1.163   vm2-mesh      <none>           <none>
+pod/inventory-consumer-fd59b46b8-kdr4w       1/1     Running   0          105m   10.42.0.24    vm1-gateway   <none>           <none>
+pod/inventory-consumer-fd59b46b8-lj8jg       1/1     Running   0          105m   10.42.0.22    vm1-gateway   <none>           <none>
+pod/inventory-consumer-fd59b46b8-lkhr7       1/1     Running   0          105m   10.42.1.161   vm2-mesh      <none>           <none>
+pod/mongodb-5f575d5775-7jzjg                 1/1     Running   0          14d    10.42.2.19    vm3-gitops    <none>           <none>
+pod/notification-api-754bd85bd5-xk6bv        2/2     Running   0          138m   10.42.0.235   vm1-gateway   <none>           <none>
+pod/notification-consumer-76b6997846-t9mst   1/1     Running   0          138m   10.42.1.135   vm2-mesh      <none>           <none>
+pod/order-service-5698bbfd54-dfv7g           2/2     Running   0          128m   10.42.0.241   vm1-gateway   <none>           <none>
+pod/order-service-5698bbfd54-m6fq8           2/2     Running   0          124m   10.42.1.138   vm2-mesh      <none>           <none>
+pod/payment-api-f98cc7d49-n7nhz              2/2     Running   0          138m   10.42.1.128   vm2-mesh      <none>           <none>
+pod/payment-consumer-5cc8c55745-42j6c        1/1     Running   0          138m   10.42.0.237   vm1-gateway   <none>           <none>
+pod/read-model-service-7d467fcf-mhpk9        2/2     Running   0          138m   10.42.1.130   vm2-mesh      <none>           <none>
+pod/redis-5fcfc85d5d-79lfw                   1/1     Running   0          14d    10.42.2.16    vm3-gitops    <none>           <none>
+pod/web-gateway-664946b7df-8mm8k             2/2     Running   0          138m   10.42.0.236   vm1-gateway   <none>           <none>
+pod/web-gateway-664946b7df-pkvkv             2/2     Running   0          138m   10.42.0.239   vm1-gateway   <none>           <none>
+
+NAME                                                                        REFERENCE                          TARGETS                    MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/keda-hpa-inventory-api-scaler           Deployment/inventory-api           cpu: 2%/25%                1         8         1          14d
+horizontalpodautoscaler.autoscaling/keda-hpa-inventory-consumer-scaler      Deployment/inventory-consumer      80/40 (avg)                2         8         8          140m
+horizontalpodautoscaler.autoscaling/keda-hpa-notification-api-scaler        Deployment/notification-api        cpu: 2%/25%                1         8         1          14d
+horizontalpodautoscaler.autoscaling/keda-hpa-notification-consumer-scaler   Deployment/notification-consumer   80/80 (avg), 80/80 (avg)   1         8         1          140m
+horizontalpodautoscaler.autoscaling/keda-hpa-order-service-scaler           Deployment/order-service           cpu: 5%/25%                2         8         2          14d
+horizontalpodautoscaler.autoscaling/keda-hpa-payment-api-scaler             Deployment/payment-api             cpu: 2%/25%                1         8         1          14d
+horizontalpodautoscaler.autoscaling/keda-hpa-payment-consumer-scaler        Deployment/payment-consumer        80/80 (avg)                1         8         1          140m
+
+NAME                                                SCALETARGETKIND      SCALETARGETNAME         MIN   MAX   READY   ACTIVE   FALLBACK   PAUSED   TRIGGERS   AUTHENTICATIONS   AGE
+scaledobject.keda.sh/inventory-api-scaler           apps/v1.Deployment   inventory-api           1     8     True    True     False      False    cpu                          14d
+scaledobject.keda.sh/inventory-consumer-scaler      apps/v1.Deployment   inventory-consumer      2     8     True    True     False      False    kafka                        14d
+scaledobject.keda.sh/notification-api-scaler        apps/v1.Deployment   notification-api        1     8     True    True     False      False    cpu                          14d
+scaledobject.keda.sh/notification-consumer-scaler   apps/v1.Deployment   notification-consumer   1     8     True    False    False      False    kafka                        14d
+scaledobject.keda.sh/order-service-scaler           apps/v1.Deployment   order-service           2     8     True    True     False      False    cpu                          14d
+scaledobject.keda.sh/payment-api-scaler             apps/v1.Deployment   payment-api             1     8     True    True     False      False    cpu                          14d
+scaledobject.keda.sh/payment-consumer-scaler        apps/v1.Deployment   payment-consumer        1     8     True    False    False      False    kafka                        14d

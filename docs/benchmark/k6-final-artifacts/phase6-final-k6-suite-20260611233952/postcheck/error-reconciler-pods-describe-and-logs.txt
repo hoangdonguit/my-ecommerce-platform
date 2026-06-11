@@ -1,0 +1,2144 @@
+
+### POD: order-status-reconciler-29686655-cnw7p
+Name:             order-status-reconciler-29686655-cnw7p
+Namespace:        db
+Priority:         0
+Service Account:  default
+Node:             vm3-gitops/192.168.100.24
+Start Time:       Fri, 12 Jun 2026 00:35:06 +0700
+Labels:           batch.kubernetes.io/controller-uid=f2762b8b-76ba-40bf-9fa5-625d98911152
+                  batch.kubernetes.io/job-name=order-status-reconciler-29686655
+                  controller-uid=f2762b8b-76ba-40bf-9fa5-625d98911152
+                  job-name=order-status-reconciler-29686655
+Annotations:      <none>
+Status:           Failed
+IP:               10.42.2.186
+IPs:
+  IP:           10.42.2.186
+Controlled By:  Job/order-status-reconciler-29686655
+Containers:
+  order-status-reconciler:
+    Container ID:  containerd://c515e745a7064b57c43d77429eca05955f482f5153cc4cab5284f1b5ff4f3785
+    Image:         postgres:16-alpine
+    Image ID:      docker.io/library/postgres@sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/sh
+      -ec
+      echo "===== order-status-reconciler started at $(date -Iseconds) ====="
+      
+      wait_for_postgres() {
+        echo "Waiting for PostgreSQL to become ready..."
+        for i in $(seq 1 60); do
+          if pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" >/dev/null 2>&1; then
+            echo "PostgreSQL is ready."
+            return 0
+          fi
+      
+          echo "PostgreSQL is not ready yet ($i/60). Sleeping 2s..."
+          sleep 2
+        done
+      
+        echo "PostgreSQL is not ready after 120s. Exit reconciler safely."
+        exit 1
+      }
+      
+      wait_for_postgres
+      
+      
+      PENDING_IDS="$(
+        psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -At -c "
+          SELECT id
+          FROM orders
+          WHERE status = 'PENDING'
+            AND created_at < NOW() - (${PENDING_AGE_SECONDS} || ' seconds')::interval
+          ORDER BY created_at
+          LIMIT ${BATCH_LIMIT};
+        "
+      )"
+      
+      if [ -z "$PENDING_IDS" ]; then
+        echo "No stale PENDING orders found."
+        exit 0
+      fi
+      
+      echo "Found stale PENDING orders:"
+      echo "$PENDING_IDS"
+      
+      completed_count=0
+      failed_count=0
+      skipped_count=0
+      
+      for order_id in $PENDING_IDS; do
+        payment_status="$(
+          psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PAYMENT_DB" -At -c "
+            SELECT status
+            FROM payments
+            WHERE order_id = '${order_id}'
+            ORDER BY updated_at DESC
+            LIMIT 1;
+          "
+        )"
+      
+        case "$payment_status" in
+          COMPLETED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'COMPLETED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            completed_count=$((completed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> COMPLETED"
+            ;;
+          FAILED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'FAILED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            failed_count=$((failed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> FAILED"
+            ;;
+          *)
+            skipped_count=$((skipped_count + 1))
+            echo "Skipped order ${order_id}: payment_status='${payment_status}'"
+            ;;
+        esac
+      done
+      
+      echo "===== reconciliation summary ====="
+      echo "completed_count=${completed_count}"
+      echo "failed_count=${failed_count}"
+      echo "skipped_count=${skipped_count}"
+      echo "===== order-status-reconciler finished at $(date -Iseconds) ====="
+      
+    State:          Terminated
+      Reason:       Error
+      Exit Code:    2
+      Started:      Fri, 12 Jun 2026 00:35:07 +0700
+      Finished:     Fri, 12 Jun 2026 00:35:07 +0700
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     200m
+      memory:  128Mi
+    Requests:
+      cpu:     20m
+      memory:  64Mi
+    Environment:
+      PGHOST:               postgresql.db.svc.cluster.local
+      PGPORT:               5432
+      PGUSER:               postgres
+      ORDER_DB:             order_db
+      PAYMENT_DB:           payment_db
+      PENDING_AGE_SECONDS:  30
+      BATCH_LIMIT:          300
+      PGPASSWORD:           <set to the key 'postgres-password' in secret 'postgresql'>  Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-9ltsb (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-9ltsb:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              kubernetes.io/hostname=vm3-gitops
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+--- logs: order-status-reconciler-29686655-cnw7p ---
+===== order-status-reconciler started at 2026-06-11T17:35:07+00:00 =====
+Waiting for PostgreSQL to become ready...
+PostgreSQL is ready.
+psql: error: connection to server at "postgresql.db.svc.cluster.local" (10.43.35.230), port 5432 failed: FATAL:  sorry, too many clients already
+
+### POD: order-status-reconciler-29686655-jf9bb
+Name:             order-status-reconciler-29686655-jf9bb
+Namespace:        db
+Priority:         0
+Service Account:  default
+Node:             vm3-gitops/192.168.100.24
+Start Time:       Fri, 12 Jun 2026 00:36:19 +0700
+Labels:           batch.kubernetes.io/controller-uid=f2762b8b-76ba-40bf-9fa5-625d98911152
+                  batch.kubernetes.io/job-name=order-status-reconciler-29686655
+                  controller-uid=f2762b8b-76ba-40bf-9fa5-625d98911152
+                  job-name=order-status-reconciler-29686655
+Annotations:      <none>
+Status:           Failed
+IP:               10.42.2.193
+IPs:
+  IP:           10.42.2.193
+Controlled By:  Job/order-status-reconciler-29686655
+Containers:
+  order-status-reconciler:
+    Container ID:  containerd://ce670ff68df4343c76d324fdd324818a2fe443499a90ba0d08cff799e00799aa
+    Image:         postgres:16-alpine
+    Image ID:      docker.io/library/postgres@sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/sh
+      -ec
+      echo "===== order-status-reconciler started at $(date -Iseconds) ====="
+      
+      wait_for_postgres() {
+        echo "Waiting for PostgreSQL to become ready..."
+        for i in $(seq 1 60); do
+          if pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" >/dev/null 2>&1; then
+            echo "PostgreSQL is ready."
+            return 0
+          fi
+      
+          echo "PostgreSQL is not ready yet ($i/60). Sleeping 2s..."
+          sleep 2
+        done
+      
+        echo "PostgreSQL is not ready after 120s. Exit reconciler safely."
+        exit 1
+      }
+      
+      wait_for_postgres
+      
+      
+      PENDING_IDS="$(
+        psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -At -c "
+          SELECT id
+          FROM orders
+          WHERE status = 'PENDING'
+            AND created_at < NOW() - (${PENDING_AGE_SECONDS} || ' seconds')::interval
+          ORDER BY created_at
+          LIMIT ${BATCH_LIMIT};
+        "
+      )"
+      
+      if [ -z "$PENDING_IDS" ]; then
+        echo "No stale PENDING orders found."
+        exit 0
+      fi
+      
+      echo "Found stale PENDING orders:"
+      echo "$PENDING_IDS"
+      
+      completed_count=0
+      failed_count=0
+      skipped_count=0
+      
+      for order_id in $PENDING_IDS; do
+        payment_status="$(
+          psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PAYMENT_DB" -At -c "
+            SELECT status
+            FROM payments
+            WHERE order_id = '${order_id}'
+            ORDER BY updated_at DESC
+            LIMIT 1;
+          "
+        )"
+      
+        case "$payment_status" in
+          COMPLETED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'COMPLETED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            completed_count=$((completed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> COMPLETED"
+            ;;
+          FAILED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'FAILED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            failed_count=$((failed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> FAILED"
+            ;;
+          *)
+            skipped_count=$((skipped_count + 1))
+            echo "Skipped order ${order_id}: payment_status='${payment_status}'"
+            ;;
+        esac
+      done
+      
+      echo "===== reconciliation summary ====="
+      echo "completed_count=${completed_count}"
+      echo "failed_count=${failed_count}"
+      echo "skipped_count=${skipped_count}"
+      echo "===== order-status-reconciler finished at $(date -Iseconds) ====="
+      
+    State:          Terminated
+      Reason:       Error
+      Exit Code:    2
+      Started:      Fri, 12 Jun 2026 00:36:20 +0700
+      Finished:     Fri, 12 Jun 2026 00:36:39 +0700
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     200m
+      memory:  128Mi
+    Requests:
+      cpu:     20m
+      memory:  64Mi
+    Environment:
+      PGHOST:               postgresql.db.svc.cluster.local
+      PGPORT:               5432
+      PGUSER:               postgres
+      ORDER_DB:             order_db
+      PAYMENT_DB:           payment_db
+      PENDING_AGE_SECONDS:  30
+      BATCH_LIMIT:          300
+      PGPASSWORD:           <set to the key 'postgres-password' in secret 'postgresql'>  Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-54q97 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-54q97:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              kubernetes.io/hostname=vm3-gitops
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+--- logs: order-status-reconciler-29686655-jf9bb ---
+abe91524-8b88-44d4-8a54-aafd6ed4aeb4
+6a4a8e16-f2a7-4b16-9421-769bf57a51cc
+cf775a73-35d6-4f25-8181-0f17a2ea901c
+5574dc07-f7c3-48b6-a85f-fa57377d0fd0
+cf8d1996-7a22-4c01-a041-bf694a430ddd
+2d08af1b-c62e-46a0-9cb8-6bf5901e311f
+2eddbd83-18d8-40fc-8949-73a1060c85cd
+84759cf0-952f-4df9-9313-3a659dbe3445
+1dec02f6-ee77-420e-b6c7-e9fa53050c8f
+3da958b1-73a3-4c46-a565-0f5572f5d365
+309ae1ef-daa2-4288-bacc-05cfc1989211
+16b02bac-8e3a-4a13-ba49-aa143662fd79
+eabd4075-865c-4a1f-a8cd-c8c6c3728918
+cf94a7fc-bba6-425c-876c-cee15d913cc3
+7bd76d3e-6782-437a-a478-7d7de1bf2f94
+d2f74e18-77b0-432a-879a-9b9bf4abacb9
+c3eae5e9-18a2-458f-a427-2dff63bb6709
+5c25ef91-ba65-4dcb-a028-3df5d890f041
+e2e4ffc0-822f-4f77-bb07-c23e24706f59
+497cf2dc-63a8-4116-aa73-581481bb3d80
+8d145bba-0170-4998-901c-b4769c3c7688
+f7fcf243-875f-4dd1-abb0-787305f146c9
+95af69f9-55d6-4591-8f92-b8b1c0a02891
+860c2b3d-9832-4c40-8203-c49a77aef188
+c03fd9f1-28c8-40ec-baba-f15888a1a1e1
+612e9d0b-7370-4503-be8e-c685871d3360
+3b4e61ca-0abe-43d6-bcea-c29afe0c4de9
+8a289127-3fd7-4127-b24b-5e5405f10cc0
+6f3f2028-63ae-4d3d-84c7-208588e133c3
+90191cbc-cb53-4ce0-a506-155288c5c630
+4a705149-4f5f-4b7f-8f14-37fc8a793c0b
+fb7010e4-490e-45ac-a1eb-74093dfe5330
+535db12e-20e5-4441-969d-d53c959e4d7a
+75ec398f-108b-4dc0-a9c2-354a499740c7
+3f4feca4-3401-417c-94bb-cfa981f2e1c5
+1729f81c-2789-4b23-97cb-03b27a80175a
+9fd4cb2f-2c72-435e-ab5d-c85196c8b0eb
+1a8c8231-c8a6-484c-a30a-2a253866ce54
+2fd625bb-a9bc-42be-97a6-70aecebe2527
+e3c4d8ec-1e49-4e60-875f-bf444e813a9b
+fafcef03-1d3f-4879-837f-ddc447997fa6
+94bf98d1-ac83-4a38-b3c8-f584e48a5fb5
+375c4285-e2f5-492d-83dc-e3488c67a2c8
+1b5fce06-f70c-4a62-b202-ec976c86cfc5
+4e9479ca-e5b1-4f14-8af0-f92b73932b0d
+0cc5d2ff-3714-483f-a4d8-c83c3a2d6055
+1fbedc2e-b04b-4794-892a-9b81a311a17d
+023e0f9c-5989-4999-943e-87e6a76ee4f5
+56aafaea-4b76-4a9c-8895-e811b67db9bd
+3d2b2cf2-e04a-4fb0-8315-ccb3186b4312
+5f717862-8235-4aa5-9291-b6b9f207103e
+e4e32d1c-ba76-4e40-8468-56a4837b7c75
+24c6dec3-da00-418d-991a-e3ece8f38745
+0bc6178e-8b72-49bf-b5a5-b632e01fa7f4
+6fb9b89c-6eb2-4e3f-9806-233568455ad4
+32e36a54-c2fa-495a-9218-bed469c00ff3
+40affdab-7809-4491-a74a-204fa25bf3fb
+7b945823-8a8b-427c-b593-873cdeab1b23
+46436afb-32bb-4953-adb1-6c2d87c80ca8
+e2f2699a-7af6-4924-ad90-68c91c888df8
+94dfc493-58ae-4625-80d0-4cbb322349ab
+838de7d9-c38e-4c66-8634-92cba9d9e507
+d3f26117-3f3f-4f0a-ae1d-c09f5ec672cd
+9f620be8-0b81-4a5b-8618-ffdbd0fbfd16
+3e17911c-709e-41d0-9778-62775fd5be51
+c77d729f-e927-4317-8eb4-03fd8b2f6d5b
+931ad9e4-5d36-41f6-8bfe-68c15cdeb2ce
+fa90a579-f0f3-4614-a82a-8e33d054006d
+902c2234-af2d-4d52-be9c-c7d395d4e2e7
+5088153a-0b30-4d99-bddd-f34df295f594
+e8eb509e-ea37-4ae8-b4bb-934b07923957
+46fb1677-2f6e-449a-aae5-07828885cb33
+43166614-0e03-43e3-baf5-17396b87de9c
+9efed398-9a88-4f34-89be-ebd991b162b8
+08d9d687-7ef4-4cfe-9829-76c12f16d784
+4b7c03fd-a419-4c33-98a1-e81a73ac621a
+59677a9e-90be-415d-80d9-0ec2fbc91994
+UPDATE 0
+Reconciled order 04ac07e5-49ff-4d24-bafb-cf541f29f3ff: PENDING -> COMPLETED
+Skipped order 0d450b6f-af64-44c7-be4f-6102527bb747: payment_status=''
+Skipped order ad035895-d020-4e59-886b-a071592ff13a: payment_status=''
+UPDATE 0
+Reconciled order 4910dda6-198c-42e9-8716-1985bc490d98: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order f17b5a28-6943-40f0-96e8-4f6623cb7bc5: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 6fa70428-7b9e-483e-8440-cfd8bdcd7686: PENDING -> COMPLETED
+Skipped order 4dfb33e3-b6b6-431f-9661-27ecd01da5a7: payment_status=''
+Skipped order c9811990-133e-4761-987b-bad7fb0550fd: payment_status=''
+UPDATE 0
+Reconciled order eea60dce-0cf7-49e1-ab06-2cfb5dd3e9fb: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 1dc19ab0-6c18-4064-adc4-6065993817ad: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 37f39fff-4cc1-498e-863b-dc7d2f447a4f: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order d3238f25-29d6-4536-bbc1-da3a3b1a9ed7: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order eea4d468-b8b6-40ee-b3df-9148239bd592: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order c648c5ed-6ef4-4899-a62d-c66591eb55e9: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 51a8a95e-5b4b-4b9a-a075-fc4b544bbda1: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 3042a513-28a0-4a70-96cc-c933baa00f3a: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 5ca4a9b3-6117-4d86-877a-73bd59d08cdd: PENDING -> COMPLETED
+Skipped order 4322772d-3ac0-46f4-8585-4f04cf550ff0: payment_status=''
+UPDATE 0
+Reconciled order ecbf05e2-1a6a-42dc-9343-220d772eba77: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order a2a2d709-c24c-45b9-99a7-a43f20eee172: PENDING -> COMPLETED
+Skipped order 0d94bfda-9e70-46d3-a7f9-4b903d82b57d: payment_status=''
+UPDATE 0
+Reconciled order bd04bc2c-7171-4716-a104-236ae3a80aa6: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order eb09f60e-c349-47ac-89d5-b67cb166c686: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 28a1a259-330f-4e4c-aaf3-d85163155fba: PENDING -> COMPLETED
+psql: error: connection to server at "postgresql.db.svc.cluster.local" (10.43.35.230), port 5432 failed: FATAL:  sorry, too many clients already
+
+### POD: order-status-reconciler-29686655-qnqvd
+Name:             order-status-reconciler-29686655-qnqvd
+Namespace:        db
+Priority:         0
+Service Account:  default
+Node:             vm3-gitops/192.168.100.24
+Start Time:       Fri, 12 Jun 2026 00:35:17 +0700
+Labels:           batch.kubernetes.io/controller-uid=f2762b8b-76ba-40bf-9fa5-625d98911152
+                  batch.kubernetes.io/job-name=order-status-reconciler-29686655
+                  controller-uid=f2762b8b-76ba-40bf-9fa5-625d98911152
+                  job-name=order-status-reconciler-29686655
+Annotations:      <none>
+Status:           Failed
+IP:               10.42.2.189
+IPs:
+  IP:           10.42.2.189
+Controlled By:  Job/order-status-reconciler-29686655
+Containers:
+  order-status-reconciler:
+    Container ID:  containerd://3b778744621a6435e7660cda7b874fb651022cf4c1c1785d0b73fcf6c551cad1
+    Image:         postgres:16-alpine
+    Image ID:      docker.io/library/postgres@sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/sh
+      -ec
+      echo "===== order-status-reconciler started at $(date -Iseconds) ====="
+      
+      wait_for_postgres() {
+        echo "Waiting for PostgreSQL to become ready..."
+        for i in $(seq 1 60); do
+          if pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" >/dev/null 2>&1; then
+            echo "PostgreSQL is ready."
+            return 0
+          fi
+      
+          echo "PostgreSQL is not ready yet ($i/60). Sleeping 2s..."
+          sleep 2
+        done
+      
+        echo "PostgreSQL is not ready after 120s. Exit reconciler safely."
+        exit 1
+      }
+      
+      wait_for_postgres
+      
+      
+      PENDING_IDS="$(
+        psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -At -c "
+          SELECT id
+          FROM orders
+          WHERE status = 'PENDING'
+            AND created_at < NOW() - (${PENDING_AGE_SECONDS} || ' seconds')::interval
+          ORDER BY created_at
+          LIMIT ${BATCH_LIMIT};
+        "
+      )"
+      
+      if [ -z "$PENDING_IDS" ]; then
+        echo "No stale PENDING orders found."
+        exit 0
+      fi
+      
+      echo "Found stale PENDING orders:"
+      echo "$PENDING_IDS"
+      
+      completed_count=0
+      failed_count=0
+      skipped_count=0
+      
+      for order_id in $PENDING_IDS; do
+        payment_status="$(
+          psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PAYMENT_DB" -At -c "
+            SELECT status
+            FROM payments
+            WHERE order_id = '${order_id}'
+            ORDER BY updated_at DESC
+            LIMIT 1;
+          "
+        )"
+      
+        case "$payment_status" in
+          COMPLETED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'COMPLETED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            completed_count=$((completed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> COMPLETED"
+            ;;
+          FAILED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'FAILED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            failed_count=$((failed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> FAILED"
+            ;;
+          *)
+            skipped_count=$((skipped_count + 1))
+            echo "Skipped order ${order_id}: payment_status='${payment_status}'"
+            ;;
+        esac
+      done
+      
+      echo "===== reconciliation summary ====="
+      echo "completed_count=${completed_count}"
+      echo "failed_count=${failed_count}"
+      echo "skipped_count=${skipped_count}"
+      echo "===== order-status-reconciler finished at $(date -Iseconds) ====="
+      
+    State:          Terminated
+      Reason:       Error
+      Exit Code:    2
+      Started:      Fri, 12 Jun 2026 00:35:18 +0700
+      Finished:     Fri, 12 Jun 2026 00:35:18 +0700
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     200m
+      memory:  128Mi
+    Requests:
+      cpu:     20m
+      memory:  64Mi
+    Environment:
+      PGHOST:               postgresql.db.svc.cluster.local
+      PGPORT:               5432
+      PGUSER:               postgres
+      ORDER_DB:             order_db
+      PAYMENT_DB:           payment_db
+      PENDING_AGE_SECONDS:  30
+      BATCH_LIMIT:          300
+      PGPASSWORD:           <set to the key 'postgres-password' in secret 'postgresql'>  Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-vkp28 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-vkp28:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              kubernetes.io/hostname=vm3-gitops
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+--- logs: order-status-reconciler-29686655-qnqvd ---
+===== order-status-reconciler started at 2026-06-11T17:35:18+00:00 =====
+Waiting for PostgreSQL to become ready...
+PostgreSQL is ready.
+psql: error: connection to server at "postgresql.db.svc.cluster.local" (10.43.35.230), port 5432 failed: FATAL:  sorry, too many clients already
+
+### POD: order-status-reconciler-29686655-stcff
+Name:             order-status-reconciler-29686655-stcff
+Namespace:        db
+Priority:         0
+Service Account:  default
+Node:             vm3-gitops/192.168.100.24
+Start Time:       Fri, 12 Jun 2026 00:35:38 +0700
+Labels:           batch.kubernetes.io/controller-uid=f2762b8b-76ba-40bf-9fa5-625d98911152
+                  batch.kubernetes.io/job-name=order-status-reconciler-29686655
+                  controller-uid=f2762b8b-76ba-40bf-9fa5-625d98911152
+                  job-name=order-status-reconciler-29686655
+Annotations:      <none>
+Status:           Failed
+IP:               10.42.2.191
+IPs:
+  IP:           10.42.2.191
+Controlled By:  Job/order-status-reconciler-29686655
+Containers:
+  order-status-reconciler:
+    Container ID:  containerd://78da56fefb352b86da121bfd7038fdf2eb5b965aa7f6c61e870455351720d144
+    Image:         postgres:16-alpine
+    Image ID:      docker.io/library/postgres@sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/sh
+      -ec
+      echo "===== order-status-reconciler started at $(date -Iseconds) ====="
+      
+      wait_for_postgres() {
+        echo "Waiting for PostgreSQL to become ready..."
+        for i in $(seq 1 60); do
+          if pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" >/dev/null 2>&1; then
+            echo "PostgreSQL is ready."
+            return 0
+          fi
+      
+          echo "PostgreSQL is not ready yet ($i/60). Sleeping 2s..."
+          sleep 2
+        done
+      
+        echo "PostgreSQL is not ready after 120s. Exit reconciler safely."
+        exit 1
+      }
+      
+      wait_for_postgres
+      
+      
+      PENDING_IDS="$(
+        psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -At -c "
+          SELECT id
+          FROM orders
+          WHERE status = 'PENDING'
+            AND created_at < NOW() - (${PENDING_AGE_SECONDS} || ' seconds')::interval
+          ORDER BY created_at
+          LIMIT ${BATCH_LIMIT};
+        "
+      )"
+      
+      if [ -z "$PENDING_IDS" ]; then
+        echo "No stale PENDING orders found."
+        exit 0
+      fi
+      
+      echo "Found stale PENDING orders:"
+      echo "$PENDING_IDS"
+      
+      completed_count=0
+      failed_count=0
+      skipped_count=0
+      
+      for order_id in $PENDING_IDS; do
+        payment_status="$(
+          psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PAYMENT_DB" -At -c "
+            SELECT status
+            FROM payments
+            WHERE order_id = '${order_id}'
+            ORDER BY updated_at DESC
+            LIMIT 1;
+          "
+        )"
+      
+        case "$payment_status" in
+          COMPLETED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'COMPLETED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            completed_count=$((completed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> COMPLETED"
+            ;;
+          FAILED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'FAILED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            failed_count=$((failed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> FAILED"
+            ;;
+          *)
+            skipped_count=$((skipped_count + 1))
+            echo "Skipped order ${order_id}: payment_status='${payment_status}'"
+            ;;
+        esac
+      done
+      
+      echo "===== reconciliation summary ====="
+      echo "completed_count=${completed_count}"
+      echo "failed_count=${failed_count}"
+      echo "skipped_count=${skipped_count}"
+      echo "===== order-status-reconciler finished at $(date -Iseconds) ====="
+      
+    State:          Terminated
+      Reason:       Error
+      Exit Code:    2
+      Started:      Fri, 12 Jun 2026 00:35:39 +0700
+      Finished:     Fri, 12 Jun 2026 00:35:39 +0700
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     200m
+      memory:  128Mi
+    Requests:
+      cpu:     20m
+      memory:  64Mi
+    Environment:
+      PGHOST:               postgresql.db.svc.cluster.local
+      PGPORT:               5432
+      PGUSER:               postgres
+      ORDER_DB:             order_db
+      PAYMENT_DB:           payment_db
+      PENDING_AGE_SECONDS:  30
+      BATCH_LIMIT:          300
+      PGPASSWORD:           <set to the key 'postgres-password' in secret 'postgresql'>  Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-fjdjr (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-fjdjr:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              kubernetes.io/hostname=vm3-gitops
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+--- logs: order-status-reconciler-29686655-stcff ---
+===== order-status-reconciler started at 2026-06-11T17:35:39+00:00 =====
+Waiting for PostgreSQL to become ready...
+PostgreSQL is ready.
+psql: error: connection to server at "postgresql.db.svc.cluster.local" (10.43.35.230), port 5432 failed: FATAL:  sorry, too many clients already
+
+### POD: order-status-reconciler-29686656-7vz4v
+Name:             order-status-reconciler-29686656-7vz4v
+Namespace:        db
+Priority:         0
+Service Account:  default
+Node:             vm3-gitops/192.168.100.24
+Start Time:       Fri, 12 Jun 2026 00:36:42 +0700
+Labels:           batch.kubernetes.io/controller-uid=b27686e5-b12a-4e86-ada5-f91537c59476
+                  batch.kubernetes.io/job-name=order-status-reconciler-29686656
+                  controller-uid=b27686e5-b12a-4e86-ada5-f91537c59476
+                  job-name=order-status-reconciler-29686656
+Annotations:      <none>
+Status:           Failed
+IP:               10.42.2.196
+IPs:
+  IP:           10.42.2.196
+Controlled By:  Job/order-status-reconciler-29686656
+Containers:
+  order-status-reconciler:
+    Container ID:  containerd://9ee44a46e865858bb5b7592d514406136935e522ed32bba93e34980ff025177c
+    Image:         postgres:16-alpine
+    Image ID:      docker.io/library/postgres@sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/sh
+      -ec
+      echo "===== order-status-reconciler started at $(date -Iseconds) ====="
+      
+      wait_for_postgres() {
+        echo "Waiting for PostgreSQL to become ready..."
+        for i in $(seq 1 60); do
+          if pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" >/dev/null 2>&1; then
+            echo "PostgreSQL is ready."
+            return 0
+          fi
+      
+          echo "PostgreSQL is not ready yet ($i/60). Sleeping 2s..."
+          sleep 2
+        done
+      
+        echo "PostgreSQL is not ready after 120s. Exit reconciler safely."
+        exit 1
+      }
+      
+      wait_for_postgres
+      
+      
+      PENDING_IDS="$(
+        psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -At -c "
+          SELECT id
+          FROM orders
+          WHERE status = 'PENDING'
+            AND created_at < NOW() - (${PENDING_AGE_SECONDS} || ' seconds')::interval
+          ORDER BY created_at
+          LIMIT ${BATCH_LIMIT};
+        "
+      )"
+      
+      if [ -z "$PENDING_IDS" ]; then
+        echo "No stale PENDING orders found."
+        exit 0
+      fi
+      
+      echo "Found stale PENDING orders:"
+      echo "$PENDING_IDS"
+      
+      completed_count=0
+      failed_count=0
+      skipped_count=0
+      
+      for order_id in $PENDING_IDS; do
+        payment_status="$(
+          psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PAYMENT_DB" -At -c "
+            SELECT status
+            FROM payments
+            WHERE order_id = '${order_id}'
+            ORDER BY updated_at DESC
+            LIMIT 1;
+          "
+        )"
+      
+        case "$payment_status" in
+          COMPLETED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'COMPLETED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            completed_count=$((completed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> COMPLETED"
+            ;;
+          FAILED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'FAILED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            failed_count=$((failed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> FAILED"
+            ;;
+          *)
+            skipped_count=$((skipped_count + 1))
+            echo "Skipped order ${order_id}: payment_status='${payment_status}'"
+            ;;
+        esac
+      done
+      
+      echo "===== reconciliation summary ====="
+      echo "completed_count=${completed_count}"
+      echo "failed_count=${failed_count}"
+      echo "skipped_count=${skipped_count}"
+      echo "===== order-status-reconciler finished at $(date -Iseconds) ====="
+      
+    State:          Terminated
+      Reason:       Error
+      Exit Code:    2
+      Started:      Fri, 12 Jun 2026 00:36:43 +0700
+      Finished:     Fri, 12 Jun 2026 00:36:48 +0700
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     200m
+      memory:  128Mi
+    Requests:
+      cpu:     20m
+      memory:  64Mi
+    Environment:
+      PGHOST:               postgresql.db.svc.cluster.local
+      PGPORT:               5432
+      PGUSER:               postgres
+      ORDER_DB:             order_db
+      PAYMENT_DB:           payment_db
+      PENDING_AGE_SECONDS:  30
+      BATCH_LIMIT:          300
+      PGPASSWORD:           <set to the key 'postgres-password' in secret 'postgresql'>  Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-cn4s7 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-cn4s7:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              kubernetes.io/hostname=vm3-gitops
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+--- logs: order-status-reconciler-29686656-7vz4v ---
+e4e32d1c-ba76-4e40-8468-56a4837b7c75
+24c6dec3-da00-418d-991a-e3ece8f38745
+0bc6178e-8b72-49bf-b5a5-b632e01fa7f4
+32e36a54-c2fa-495a-9218-bed469c00ff3
+40affdab-7809-4491-a74a-204fa25bf3fb
+7b945823-8a8b-427c-b593-873cdeab1b23
+e2f2699a-7af6-4924-ad90-68c91c888df8
+94dfc493-58ae-4625-80d0-4cbb322349ab
+d3f26117-3f3f-4f0a-ae1d-c09f5ec672cd
+9f620be8-0b81-4a5b-8618-ffdbd0fbfd16
+3e17911c-709e-41d0-9778-62775fd5be51
+c77d729f-e927-4317-8eb4-03fd8b2f6d5b
+fa90a579-f0f3-4614-a82a-8e33d054006d
+902c2234-af2d-4d52-be9c-c7d395d4e2e7
+5088153a-0b30-4d99-bddd-f34df295f594
+e8eb509e-ea37-4ae8-b4bb-934b07923957
+43166614-0e03-43e3-baf5-17396b87de9c
+4b7c03fd-a419-4c33-98a1-e81a73ac621a
+8371eaf1-ca28-4cc5-afb3-a909f8f43b5f
+e49729da-b299-4945-b4db-34d83c62a1aa
+2284dadb-5113-4df6-81a2-55f9eb5a7d13
+2f9ef3a5-c0b6-4e2c-8e3e-781bffb2f963
+deaf1e01-3a5b-4623-8dee-879fb3de8c1a
+e0545067-ae57-4329-ace2-44c461473b01
+6b7ea5db-e572-41cd-89f3-94d1a5f87eb0
+19596e65-279b-40e5-bd60-ec5d9bd7ea70
+39166b05-6414-48eb-9196-02a6811bf856
+ac64941d-5c23-4ba1-8301-912d698839b0
+f628439c-fc28-4ed9-9981-5be98ec30e2b
+f2e92023-76d3-4726-9204-d6b134c4551e
+f1112b32-cb36-40b6-b675-50c7867387cf
+75461a81-8b1c-4846-b493-757b4103d704
+f6c4745e-f57a-42ec-ab79-dc5b17f06c3e
+9fae2af0-d7e5-4b45-95bb-0a5bfd426e35
+a4b4af15-15f3-45ab-9e35-b87a222de536
+da908a79-5ada-494f-b83b-961b594f6f8c
+27f23999-befe-41a6-9eb7-ab6abadaa0a9
+b4175104-066d-4c61-a4d2-6d99be538720
+14c510f5-15c6-44b4-8021-5a048e7f1dc3
+dbf254c3-97ad-4d63-858e-e67b5d384511
+82a377c4-d071-49f6-a19e-a54d2d3bc6fe
+6af8f597-c870-4185-a553-ba5098871b1b
+4e3d479c-ad19-4b0a-91c5-91ed9fc71666
+9d41f7de-e8d3-46f6-a40c-31a8822f0a0d
+8980537a-1c87-4a20-bec6-466a44d36abc
+d2541128-765c-4cf5-80fe-1cf5949bfe41
+9cdb8fd0-e723-486e-b59a-2640c09cf292
+29ed628c-8de4-43ac-a97e-affacf034576
+bbba9db3-4923-41c5-b6ec-a93c497a5c65
+3aafa4ba-248f-4924-9459-77cf91b348ec
+e968d2b3-9585-4b9d-ad82-88a8732ec0be
+9db91e45-f228-48fc-bb04-dbaa70783f53
+8d0e0231-852d-4244-aca0-1fcb280969d4
+0c92cdd3-8b93-4ea7-a511-09f1c9aebc4a
+204a01a5-1795-4205-870b-ff9e3dc85a7c
+d52ab003-3e71-4692-878b-435366dad331
+46cb2739-19b7-416a-8fac-d6feef14ce12
+0aeeacc1-71a1-44b2-bc5d-a67a0e26e1e0
+30cfd6ff-0fde-47d0-ae0f-e389fe5c7c63
+c929f705-a3a1-4769-8278-774643e8da4b
+bdc01d1f-e0c0-4d49-b1f6-5d8ab52af01b
+8802c1d2-9ee6-4c7c-b4f2-39555061afa9
+95cc71b8-258a-4e8f-a8a3-820181d6e6e1
+c1c7c312-c91b-4cdf-9eb4-a2b92f40e7c0
+3a876b0a-48a8-4733-826d-9df53a39367e
+3f745674-60e3-4067-b15a-b14e93670683
+0ab8498f-683f-448a-8ae0-bbd031fb9272
+866cba29-2989-40e6-8e35-a37cae220320
+d4e4bf51-c340-4006-8a91-d338dc66eaca
+9da0b92e-40f9-477f-9785-e4fb6aa13eae
+6190057d-7016-4aa7-a788-3910d1781bda
+909499f0-b174-46ba-a9c7-2784dc60c501
+f60a0d06-5468-4844-8291-f695bbb7f137
+62be07d7-cc8b-4152-9e66-323e538905e2
+f28f8258-19c6-4149-a186-8fede3391b18
+5020d208-24ab-450d-94c9-c95de5dc1dae
+5eecbc67-7731-4bf0-9399-948fe03249d5
+1306f969-aa5e-438a-80e1-29c3adc18787
+9d3e53b4-855c-4bea-ae83-e974be23a2ea
+476a19ac-8dd7-41fa-af1e-0ff1610b5862
+3508a668-4aa4-491b-bed1-9a9f7aa20d21
+46e91739-6296-41d3-9419-c32cdd3bd19c
+9c71dae7-d5ad-47e6-bd3a-a31e3c9d1b14
+1f5ce34d-a985-462b-894b-84553570c694
+a56f31cd-dda7-4266-be47-a414c34e9ed7
+cfa0428b-f211-401c-a87c-9c4e1e40f155
+9575d3b7-b148-453a-af22-49bffe964e64
+29ec93ad-01dd-4de9-93d8-b1508892d3b8
+cddaaea0-bb73-4e82-a403-1beb64165339
+a3cea78b-588e-49fc-9804-3a6108989b6f
+e6bfc369-9301-4f82-8e81-84f2d912b38b
+cd922abe-05f1-4540-ba03-a7cd3de4bb14
+bbb708dc-8458-4cdd-b134-72d4c0737989
+932cdf64-e7bc-41b7-971b-7d812f6927d7
+96c76398-add5-4f82-bfbc-ba3dc9a1e0dd
+f8c0df76-6101-4a13-9e51-fdf43a37de9b
+0db02968-6e5b-41c8-b8b3-50bfc0c86be7
+8b25a97d-9b4a-4087-8d64-da7c4aabfe13
+a253e7a5-20a0-4807-8533-f5dd361a3bac
+d3002b18-2663-4deb-80ba-70a89a037a7a
+b105360c-3a76-40df-b584-9b4c03610e10
+fe80f8cb-f04b-4bcc-bdcc-4d04f1289656
+3ab0328b-d3e9-42ed-bb32-d15614e24eae
+2c17345f-d9cd-4978-a111-a7d45ecf33b7
+f03c83d4-53d5-46ad-8a10-23a3b86b5746
+ffeff187-d482-4ccc-ab2d-9111a77bfc96
+52b56f66-1b6a-444c-8332-c3da47f019a6
+87378462-c9c9-46c2-afdd-444733ecc20a
+3a089320-fbd6-4fbb-9bba-e60b03b4b696
+e86713bc-7b98-4bea-8e54-b5391d1de820
+7df4fa43-a4ae-4661-a9b0-64ff131bfd28
+82e14316-83e2-4c94-b7b8-f3a04e68af40
+efa3f508-4ef6-47ad-a6e3-bff6710cc676
+67c0e5c0-b531-4c2c-95a1-181dba5ca3ae
+6d388a6d-7332-4065-988e-65be74990b20
+a0cb2d47-dbf6-4b26-bc8d-395fa34c83ff
+3a484a83-c0a2-49fb-a860-c97f8ca09f56
+UPDATE 0
+Reconciled order f9c10c7c-08f2-4a20-b12a-3415f50a362b: PENDING -> COMPLETED
+psql: error: connection to server at "postgresql.db.svc.cluster.local" (10.43.35.230), port 5432 failed: FATAL:  sorry, too many clients already
+
+### POD: order-status-reconciler-29686656-9t6kt
+Name:             order-status-reconciler-29686656-9t6kt
+Namespace:        db
+Priority:         0
+Service Account:  default
+Node:             vm3-gitops/192.168.100.24
+Start Time:       Fri, 12 Jun 2026 00:36:58 +0700
+Labels:           batch.kubernetes.io/controller-uid=b27686e5-b12a-4e86-ada5-f91537c59476
+                  batch.kubernetes.io/job-name=order-status-reconciler-29686656
+                  controller-uid=b27686e5-b12a-4e86-ada5-f91537c59476
+                  job-name=order-status-reconciler-29686656
+Annotations:      <none>
+Status:           Failed
+IP:               10.42.2.198
+IPs:
+  IP:           10.42.2.198
+Controlled By:  Job/order-status-reconciler-29686656
+Containers:
+  order-status-reconciler:
+    Container ID:  containerd://579b0ae1d2560d58c61225af23994b5b8cc22990b8530e7f5820118dac6e47a7
+    Image:         postgres:16-alpine
+    Image ID:      docker.io/library/postgres@sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/sh
+      -ec
+      echo "===== order-status-reconciler started at $(date -Iseconds) ====="
+      
+      wait_for_postgres() {
+        echo "Waiting for PostgreSQL to become ready..."
+        for i in $(seq 1 60); do
+          if pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" >/dev/null 2>&1; then
+            echo "PostgreSQL is ready."
+            return 0
+          fi
+      
+          echo "PostgreSQL is not ready yet ($i/60). Sleeping 2s..."
+          sleep 2
+        done
+      
+        echo "PostgreSQL is not ready after 120s. Exit reconciler safely."
+        exit 1
+      }
+      
+      wait_for_postgres
+      
+      
+      PENDING_IDS="$(
+        psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -At -c "
+          SELECT id
+          FROM orders
+          WHERE status = 'PENDING'
+            AND created_at < NOW() - (${PENDING_AGE_SECONDS} || ' seconds')::interval
+          ORDER BY created_at
+          LIMIT ${BATCH_LIMIT};
+        "
+      )"
+      
+      if [ -z "$PENDING_IDS" ]; then
+        echo "No stale PENDING orders found."
+        exit 0
+      fi
+      
+      echo "Found stale PENDING orders:"
+      echo "$PENDING_IDS"
+      
+      completed_count=0
+      failed_count=0
+      skipped_count=0
+      
+      for order_id in $PENDING_IDS; do
+        payment_status="$(
+          psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PAYMENT_DB" -At -c "
+            SELECT status
+            FROM payments
+            WHERE order_id = '${order_id}'
+            ORDER BY updated_at DESC
+            LIMIT 1;
+          "
+        )"
+      
+        case "$payment_status" in
+          COMPLETED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'COMPLETED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            completed_count=$((completed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> COMPLETED"
+            ;;
+          FAILED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'FAILED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            failed_count=$((failed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> FAILED"
+            ;;
+          *)
+            skipped_count=$((skipped_count + 1))
+            echo "Skipped order ${order_id}: payment_status='${payment_status}'"
+            ;;
+        esac
+      done
+      
+      echo "===== reconciliation summary ====="
+      echo "completed_count=${completed_count}"
+      echo "failed_count=${failed_count}"
+      echo "skipped_count=${skipped_count}"
+      echo "===== order-status-reconciler finished at $(date -Iseconds) ====="
+      
+    State:          Terminated
+      Reason:       Error
+      Exit Code:    2
+      Started:      Fri, 12 Jun 2026 00:36:59 +0700
+      Finished:     Fri, 12 Jun 2026 00:37:29 +0700
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     200m
+      memory:  128Mi
+    Requests:
+      cpu:     20m
+      memory:  64Mi
+    Environment:
+      PGHOST:               postgresql.db.svc.cluster.local
+      PGPORT:               5432
+      PGUSER:               postgres
+      ORDER_DB:             order_db
+      PAYMENT_DB:           payment_db
+      PENDING_AGE_SECONDS:  30
+      BATCH_LIMIT:          300
+      PGPASSWORD:           <set to the key 'postgres-password' in secret 'postgresql'>  Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-r2qn8 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-r2qn8:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              kubernetes.io/hostname=vm3-gitops
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+--- logs: order-status-reconciler-29686656-9t6kt ---
+8ca6a0cb-df4b-411b-9ed9-02b083d568af
+886e80bd-0987-43b9-a5b6-c21f8344dea9
+4569ab65-516a-4f83-8826-1864156ccba7
+d8114c4c-161e-495e-ad4d-4e8b65f65045
+89d93a1c-6297-4701-a556-4cfb12a15321
+bedb78be-74b6-46ad-91ee-c5b79f426bee
+3d9819f5-98c8-4848-9de8-de6715332baf
+22b5c6ab-2046-48e8-abf0-7a2e69ab3067
+afdee547-6a9b-4a54-9f2f-81e722fe27d5
+9d775d84-1a82-47f0-a8e1-ca8385109a9a
+f5b715fb-9799-4e25-9097-5385150c768a
+b466d070-d379-4e91-8992-eee3795413be
+9b32a448-238b-4a2a-a8af-d2f86c1655d8
+56096013-f098-400a-b202-2758c6f1ba4f
+8bbb6457-64a8-4178-9a44-b0e7178083f9
+24833bf8-2217-4bba-85c5-b01abdf54eac
+e3d27b72-2c83-410d-9f37-54c22fb151e0
+dc57eda2-162d-47e7-992e-21df1e05945e
+398321e9-6ebe-43e2-99bd-0e4dd66a288e
+3f600e77-c08b-4bda-9a02-c92bdc06d497
+06efb06f-8c1d-4a7d-aad7-92a1071730e3
+519e0aef-b454-43a0-bcae-a8323024adca
+0b572284-e82f-48bc-b317-20c580efd9fe
+584c2d81-f9d9-4b5d-96f9-477aadf5f8d0
+4f456e2c-713a-451e-9b60-45b1211dbce7
+413efddf-fb3b-458e-bf0b-6abd37616a74
+eca1b3fb-aad1-4c17-bd4d-70a5f53a03f5
+16c27d88-9652-4ff5-a1f9-f67deba53ae1
+54343132-e2cc-4400-a326-a1f658a5632e
+152f3d5b-4be3-4ee5-ac3e-b65ebad611f5
+ab388683-6f39-4898-8651-77ab11c8bba5
+41813356-048e-492e-8e13-f49d04ac4411
+ffb4f9fa-0d3a-4e18-8d6b-ff5223d47d95
+ef81c2e1-69e9-45c9-aac4-b292f61419f9
+62f2ffaa-f1d5-4dca-9318-b42195ec030d
+5cf83754-99d3-48e9-b8e1-d0de60f58024
+93185b9c-d64a-427f-a082-d671b705244f
+d7c16bc1-0592-418f-9bae-595043e2b691
+cade9287-d441-4fd2-b419-b87aa9ac2a2f
+d6eb3fa9-24a7-42b8-8a64-cc736acb99cd
+ed8c7856-fbe4-408b-9397-1132ebf76017
+92f42b54-71cb-497a-bede-d653ef7fe67e
+5ab503c4-70ce-458f-a7b5-c5b5738f5b84
+d05bf668-b8e3-4439-adbe-070453ca5f99
+868de4d6-d7e8-43fa-8d9d-fed84adb940e
+55930cc7-da92-4789-853d-9f496207783d
+9765e8db-2b71-413e-9ad3-ac21d5265d0d
+62eaef72-fd2d-4a59-938a-78f8671a03c6
+6a1746b1-ca06-4ec6-8cee-3b740ace8093
+9c9f2557-c0c3-4b0b-9722-2aa253e9f635
+40f056bd-618e-4788-a55f-78d7ecc5f1d2
+fa96b691-8ed5-4710-9024-d5d08d77c35a
+Skipped order 81aeb47f-aa3d-4964-8b69-1ff9af8e450f: payment_status=''
+Skipped order b61d2723-0cb7-4163-a78f-9336ec4ac07c: payment_status=''
+UPDATE 0
+Reconciled order 2fdc91f8-0283-4b93-84e1-404f48b7c620: PENDING -> COMPLETED
+Skipped order 2c6958db-331a-44b5-83c9-8c893555e882: payment_status=''
+Skipped order 0c038d4a-f8d4-4d53-bb50-5ae4972cb88f: payment_status=''
+UPDATE 0
+Reconciled order f4c01ff9-060f-4393-a02b-2faad5977873: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 80f96e61-f2fe-41da-83b9-3d16f2910aba: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 0fafdae1-8445-45a5-9e2b-62a1e5579c45: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order d5d9ca3a-a5dc-4ad9-bc90-c0d5ee3b9ea2: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order b8b690c2-273b-4c87-a4bb-1a2d37708d6d: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 0a753d41-6e8b-4907-b60f-598052467a0a: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 029f6321-d2b9-45f7-ae6b-3cd687ef0369: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 821bc062-5adf-4e41-a351-3ea1417a5ef4: PENDING -> COMPLETED
+Skipped order c353842d-7f2f-4de9-9f4a-b01bae5b3584: payment_status=''
+UPDATE 0
+Reconciled order 866011c0-11e4-46ba-b40c-cdc5264a8ccd: PENDING -> COMPLETED
+Skipped order 8e7fd76b-dbb5-4c16-8d60-802a3415a80e: payment_status=''
+Skipped order 5077463c-0936-4ee6-ab8f-b308a775c36a: payment_status=''
+Skipped order de019983-5e5f-40b8-ac06-1604662f39a0: payment_status=''
+Skipped order 08085ed8-a626-4da4-9f1a-4c19f7710fe1: payment_status=''
+UPDATE 0
+Reconciled order 828fab8e-6bed-456f-9729-29f8ce811cb0: PENDING -> COMPLETED
+Skipped order 4acc2c85-e067-4d74-98b5-9602c5756c2d: payment_status=''
+Skipped order c71b7e3f-1f6b-4b64-afd3-447e86ff3301: payment_status=''
+Skipped order 80c2a34b-5f6b-4a64-b877-b49f786670af: payment_status=''
+Skipped order 3598e40e-65be-4fe7-99d0-72f96d552f37: payment_status=''
+Skipped order 3aedec1c-59d6-47fe-ab0d-f635196a7268: payment_status=''
+UPDATE 0
+Reconciled order b129acbc-81de-4f12-b782-69380fad4f67: PENDING -> COMPLETED
+Skipped order 4bc1236c-0a03-49aa-af6d-625c8d3d27c1: payment_status=''
+Skipped order 0a1931eb-f57d-4701-932d-a3eef69392ac: payment_status=''
+Skipped order 1b529e05-efaa-4c5b-bd53-0399cf22fdef: payment_status=''
+Skipped order 9df5bfad-f918-456f-b16a-f6bd412a9868: payment_status=''
+UPDATE 0
+Reconciled order b5d3be37-1f32-48e1-9e95-4cd308a47354: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order f5ab9774-4e93-4104-a44d-949cba729cda: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 63507552-b906-4bb2-ba7a-4cdc6173fa95: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 00f0924a-fd23-45b8-bf00-897046d9d058: PENDING -> COMPLETED
+Skipped order ab5416ae-255f-46a0-b315-efa950b92b17: payment_status=''
+UPDATE 0
+Reconciled order 6ddaadbc-8598-4797-ae39-bcf95fe264c0: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order c1646f0c-0421-47ae-98f5-969fcc3747a7: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 0a05776d-834b-453c-88b9-3c0171700be8: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 04ca3a29-fc32-4565-9c77-3a52ecf3e9b2: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order a9c717c4-75b1-4fb6-ae00-ca90ec9e11b7: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 20a1d34f-456b-45fc-a4a1-ef1692fbf57a: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 106c438d-db87-4065-8a70-e3f203d80661: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 5dbd6d56-ea26-4827-a82a-6439e3db7ce6: PENDING -> COMPLETED
+psql: error: connection to server at "postgresql.db.svc.cluster.local" (10.43.35.230), port 5432 failed: FATAL:  sorry, too many clients already
+
+### POD: order-status-reconciler-29686656-hvcn9
+Name:             order-status-reconciler-29686656-hvcn9
+Namespace:        db
+Priority:         0
+Service Account:  default
+Node:             vm3-gitops/192.168.100.24
+Start Time:       Fri, 12 Jun 2026 00:38:44 +0700
+Labels:           batch.kubernetes.io/controller-uid=b27686e5-b12a-4e86-ada5-f91537c59476
+                  batch.kubernetes.io/job-name=order-status-reconciler-29686656
+                  controller-uid=b27686e5-b12a-4e86-ada5-f91537c59476
+                  job-name=order-status-reconciler-29686656
+Annotations:      <none>
+Status:           Failed
+IP:               10.42.2.204
+IPs:
+  IP:           10.42.2.204
+Controlled By:  Job/order-status-reconciler-29686656
+Containers:
+  order-status-reconciler:
+    Container ID:  containerd://243431aec534a2f23b7b0189cb98221a8735aa5fe62c1f036608130c9add83ac
+    Image:         postgres:16-alpine
+    Image ID:      docker.io/library/postgres@sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/sh
+      -ec
+      echo "===== order-status-reconciler started at $(date -Iseconds) ====="
+      
+      wait_for_postgres() {
+        echo "Waiting for PostgreSQL to become ready..."
+        for i in $(seq 1 60); do
+          if pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" >/dev/null 2>&1; then
+            echo "PostgreSQL is ready."
+            return 0
+          fi
+      
+          echo "PostgreSQL is not ready yet ($i/60). Sleeping 2s..."
+          sleep 2
+        done
+      
+        echo "PostgreSQL is not ready after 120s. Exit reconciler safely."
+        exit 1
+      }
+      
+      wait_for_postgres
+      
+      
+      PENDING_IDS="$(
+        psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -At -c "
+          SELECT id
+          FROM orders
+          WHERE status = 'PENDING'
+            AND created_at < NOW() - (${PENDING_AGE_SECONDS} || ' seconds')::interval
+          ORDER BY created_at
+          LIMIT ${BATCH_LIMIT};
+        "
+      )"
+      
+      if [ -z "$PENDING_IDS" ]; then
+        echo "No stale PENDING orders found."
+        exit 0
+      fi
+      
+      echo "Found stale PENDING orders:"
+      echo "$PENDING_IDS"
+      
+      completed_count=0
+      failed_count=0
+      skipped_count=0
+      
+      for order_id in $PENDING_IDS; do
+        payment_status="$(
+          psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PAYMENT_DB" -At -c "
+            SELECT status
+            FROM payments
+            WHERE order_id = '${order_id}'
+            ORDER BY updated_at DESC
+            LIMIT 1;
+          "
+        )"
+      
+        case "$payment_status" in
+          COMPLETED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'COMPLETED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            completed_count=$((completed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> COMPLETED"
+            ;;
+          FAILED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'FAILED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            failed_count=$((failed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> FAILED"
+            ;;
+          *)
+            skipped_count=$((skipped_count + 1))
+            echo "Skipped order ${order_id}: payment_status='${payment_status}'"
+            ;;
+        esac
+      done
+      
+      echo "===== reconciliation summary ====="
+      echo "completed_count=${completed_count}"
+      echo "failed_count=${failed_count}"
+      echo "skipped_count=${skipped_count}"
+      echo "===== order-status-reconciler finished at $(date -Iseconds) ====="
+      
+    State:          Terminated
+      Reason:       Error
+      Exit Code:    2
+      Started:      Fri, 12 Jun 2026 00:38:46 +0700
+      Finished:     Fri, 12 Jun 2026 00:38:47 +0700
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     200m
+      memory:  128Mi
+    Requests:
+      cpu:     20m
+      memory:  64Mi
+    Environment:
+      PGHOST:               postgresql.db.svc.cluster.local
+      PGPORT:               5432
+      PGUSER:               postgres
+      ORDER_DB:             order_db
+      PAYMENT_DB:           payment_db
+      PENDING_AGE_SECONDS:  30
+      BATCH_LIMIT:          300
+      PGPASSWORD:           <set to the key 'postgres-password' in secret 'postgresql'>  Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-v7z52 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-v7z52:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              kubernetes.io/hostname=vm3-gitops
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+--- logs: order-status-reconciler-29686656-hvcn9 ---
+===== order-status-reconciler started at 2026-06-11T17:38:46+00:00 =====
+Waiting for PostgreSQL to become ready...
+PostgreSQL is ready.
+psql: error: connection to server at "postgresql.db.svc.cluster.local" (10.43.35.230), port 5432 failed: FATAL:  sorry, too many clients already
+
+### POD: order-status-reconciler-29686656-pjxjz
+Name:             order-status-reconciler-29686656-pjxjz
+Namespace:        db
+Priority:         0
+Service Account:  default
+Node:             vm3-gitops/192.168.100.24
+Start Time:       Fri, 12 Jun 2026 00:37:49 +0700
+Labels:           batch.kubernetes.io/controller-uid=b27686e5-b12a-4e86-ada5-f91537c59476
+                  batch.kubernetes.io/job-name=order-status-reconciler-29686656
+                  controller-uid=b27686e5-b12a-4e86-ada5-f91537c59476
+                  job-name=order-status-reconciler-29686656
+Annotations:      <none>
+Status:           Failed
+IP:               10.42.2.200
+IPs:
+  IP:           10.42.2.200
+Controlled By:  Job/order-status-reconciler-29686656
+Containers:
+  order-status-reconciler:
+    Container ID:  containerd://ed893daf917d26c0fe069d2055271235a2ea50d0b2865aeff91a9791cef2bdef
+    Image:         postgres:16-alpine
+    Image ID:      docker.io/library/postgres@sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/sh
+      -ec
+      echo "===== order-status-reconciler started at $(date -Iseconds) ====="
+      
+      wait_for_postgres() {
+        echo "Waiting for PostgreSQL to become ready..."
+        for i in $(seq 1 60); do
+          if pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" >/dev/null 2>&1; then
+            echo "PostgreSQL is ready."
+            return 0
+          fi
+      
+          echo "PostgreSQL is not ready yet ($i/60). Sleeping 2s..."
+          sleep 2
+        done
+      
+        echo "PostgreSQL is not ready after 120s. Exit reconciler safely."
+        exit 1
+      }
+      
+      wait_for_postgres
+      
+      
+      PENDING_IDS="$(
+        psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -At -c "
+          SELECT id
+          FROM orders
+          WHERE status = 'PENDING'
+            AND created_at < NOW() - (${PENDING_AGE_SECONDS} || ' seconds')::interval
+          ORDER BY created_at
+          LIMIT ${BATCH_LIMIT};
+        "
+      )"
+      
+      if [ -z "$PENDING_IDS" ]; then
+        echo "No stale PENDING orders found."
+        exit 0
+      fi
+      
+      echo "Found stale PENDING orders:"
+      echo "$PENDING_IDS"
+      
+      completed_count=0
+      failed_count=0
+      skipped_count=0
+      
+      for order_id in $PENDING_IDS; do
+        payment_status="$(
+          psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PAYMENT_DB" -At -c "
+            SELECT status
+            FROM payments
+            WHERE order_id = '${order_id}'
+            ORDER BY updated_at DESC
+            LIMIT 1;
+          "
+        )"
+      
+        case "$payment_status" in
+          COMPLETED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'COMPLETED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            completed_count=$((completed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> COMPLETED"
+            ;;
+          FAILED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'FAILED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            failed_count=$((failed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> FAILED"
+            ;;
+          *)
+            skipped_count=$((skipped_count + 1))
+            echo "Skipped order ${order_id}: payment_status='${payment_status}'"
+            ;;
+        esac
+      done
+      
+      echo "===== reconciliation summary ====="
+      echo "completed_count=${completed_count}"
+      echo "failed_count=${failed_count}"
+      echo "skipped_count=${skipped_count}"
+      echo "===== order-status-reconciler finished at $(date -Iseconds) ====="
+      
+    State:          Terminated
+      Reason:       Error
+      Exit Code:    2
+      Started:      Fri, 12 Jun 2026 00:37:50 +0700
+      Finished:     Fri, 12 Jun 2026 00:38:04 +0700
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     200m
+      memory:  128Mi
+    Requests:
+      cpu:     20m
+      memory:  64Mi
+    Environment:
+      PGHOST:               postgresql.db.svc.cluster.local
+      PGPORT:               5432
+      PGUSER:               postgres
+      ORDER_DB:             order_db
+      PAYMENT_DB:           payment_db
+      PENDING_AGE_SECONDS:  30
+      BATCH_LIMIT:          300
+      PGPASSWORD:           <set to the key 'postgres-password' in secret 'postgresql'>  Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-26hmv (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-26hmv:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              kubernetes.io/hostname=vm3-gitops
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+--- logs: order-status-reconciler-29686656-pjxjz ---
+43d78b5a-ffd1-472d-8907-56cc3e9e7e72
+a0aaed98-044d-49ba-b7a7-44f91365c292
+30aeee03-144d-4415-aa96-887827f7da3b
+f71163a7-6d07-4798-b2e9-cbac559a2d17
+98a0d631-31e8-4ea1-ba47-09554a9ded5d
+22930a66-53dc-4a2e-8632-28374e817ce6
+88e02b42-3185-4f32-909d-42764bcfd99a
+7a4158cb-4a8e-415f-9bed-c6826c3a13d1
+e58dd1db-6377-4e1c-8214-bc170522f9d6
+4309c936-7c63-4298-95e7-9c60e902981a
+a316116f-e580-48da-8973-86ae0e7bde74
+4a98cd0b-0212-41da-8ed3-bb21f99c3368
+cfa4dbb8-222a-4e0d-a463-bc37509d8feb
+dcacce90-5bfa-42db-b852-c5c99adecc40
+fa3db5be-781e-4a16-95e6-9bd0c2cd793d
+38fb067b-f780-47eb-8472-995e63b4898b
+dd68a071-0a84-456a-9536-d0dad179c0dc
+0821d54f-42a6-4820-9007-2f3d65f33e47
+54c5e1fb-e7fa-4512-982a-1ec5b5a3a510
+a0f8a8c2-edca-44fb-9358-3a82df6ad5da
+4483d895-9afe-4526-bb48-0f597b114bef
+b294c90a-db9e-4dc4-9df8-7238ba5e7675
+476728f2-042d-4c1e-8f1f-493e67bb2b3d
+749ce97f-832d-48c3-ae81-3777a6f9e823
+4022659b-cc17-4c01-87f9-a1e5d9382989
+1caa281c-86da-40b0-aeac-f05640a92863
+8de2e6b1-7e9a-44b8-a43b-342cda0ec5e3
+ef9ea8a8-849e-4000-9b3c-d0ad6769d066
+f45f93aa-2628-4029-b877-ae16cf755d53
+0d51c060-430d-4935-b45f-4be92363e9dd
+a4a7be8d-ce5e-4fea-84ec-7620a85702c3
+409ee5db-64d8-4097-8004-12cf571ec281
+6aee02ec-5ab5-4bc4-b58c-3746594cfa96
+2b085be5-efe0-4fee-912b-53cffa461f4c
+f0ba0d37-5e8a-4654-b2b9-95177d497438
+453a47d8-b51f-427a-a7cd-5408245cc3bb
+bba453ea-c9bc-445e-afcf-4ba678d00578
+52387085-dd55-443d-891d-41201e643d24
+7eacfa33-fc0a-4ebb-8ca6-4101269926ce
+063cbf18-19ba-4118-99bb-cbdaf41ac512
+71c7a232-b365-4837-a791-4fab4502bb89
+83ceea25-2e9b-47d1-b2a6-b4f33d2ffb90
+e6315af7-e061-4dd7-9be8-10a96bcad1d9
+df49dc74-0f72-47ac-bb3b-bcba9f86cacd
+184a7828-e8fc-4a75-874c-9dacd12ef731
+12aa11b6-cf62-4349-ae51-408eff668d67
+5f6dfed3-cc5d-4451-91e7-f6b901e352dc
+33729d8e-fe8f-4d14-a56b-9605dd8cd83a
+79f74a8f-8e99-4a4d-9b0e-dc70b88b4ab4
+839f95e1-1035-46bc-82c1-043c128e7ed8
+92c398b3-f4b9-4c6a-9121-dbeb3c8e319b
+35c5f114-3a06-4460-bf28-893210bc3420
+82fc0438-7204-46d3-8f2b-1ef218e0ba49
+4ac11ce3-cef3-482a-a57a-4d227a3c0456
+73d80b5c-b2f7-4823-b480-d250be5f1a86
+718bed79-4aa7-4a46-b4df-397eeb4bb348
+8ab29d6c-09de-4a89-8521-cdde3bf9d782
+3afb7e35-2d64-46ba-bbf6-8d55677e48cb
+fd94d7ca-34a2-44ca-bd2d-2a2823623572
+a9acb4be-6ebc-4a3a-bfd7-a1bf021d1c78
+10b5123f-b16c-487d-bfe0-c43593b66578
+a42fc96b-c3ab-49da-ad15-b4fa5735acd7
+13a7545e-ec33-4754-a948-d473347dc967
+852f1d28-108b-4394-a6a2-9858f755de68
+5610e812-6325-4f68-840e-725f38614487
+33be267a-c74d-4eff-837b-db05e31f9213
+8c50868d-0ef5-46a1-aee8-d81cf6b5c5e7
+4c5358ad-44e2-4fad-989d-17bfaa1c9d6b
+df1d5e56-0876-42f3-a5da-1a1eb19e92e2
+dd53b293-4f25-4b77-bff3-a92533778219
+66595523-fb35-43da-942d-d5d488d77820
+56dcd8f7-1194-49f2-9707-827f52e94bb5
+1fc1c0fe-f2f0-413e-a783-6c855a6832ad
+533a8c77-8a75-4cb1-8e6f-0257b79adc5a
+bf1e290a-5e5a-4ed1-ad46-05048175a848
+4cb41898-ae6d-4295-ae0f-dd48c893db00
+126f2694-5db7-467b-a73b-5aca22efd3d6
+76e614b0-a55f-4708-8be9-2ae329d06fb4
+4035b157-1648-4cb0-a347-9ebbcb3c66b9
+36cbd436-be3d-45af-838a-13f710a2a1c3
+f335aa74-99b5-41c4-9ed0-a91971c46946
+86f491ff-f7bd-43cc-a63f-2efd3ac93fec
+0cfbc894-dbcb-49a1-9ad8-516a389518b2
+5605481e-016c-4eee-9fe7-70be2b7eae17
+d55331ef-d7d5-4924-b101-44395ef4ab0f
+44470856-cd51-4f25-8b4b-7e95515444eb
+2e3502ce-dd68-4374-b1c2-7397da544af9
+0639d1ca-b7bd-46dd-b3d4-d8d9d1b423e4
+1e8e5366-52a1-436e-a624-659d5b263eb8
+b1a8ff3a-203d-4620-955a-65b6f604c966
+198836b1-ea53-4a5c-895f-1f444665f0f9
+2166fcd9-c6e4-4a0a-9e78-fc3a09ff6cc9
+71a8bd3b-5f7a-44cb-80a7-63509b60a5c5
+3cf8f769-490b-4349-830b-572bc17e9a43
+057f924e-36c1-4988-ae4b-8a7759556e9e
+53ef1e1b-9eb4-4012-9f8d-da4b3fc585a2
+af1b774b-27c7-4abb-aa7b-e301b8814a2d
+0a8c1ca9-e400-4291-9be2-cf48d328b974
+d98d5353-c07a-4f5a-8d99-9e175ab56415
+91797110-3577-4843-8c1f-e6219e49dadf
+3478d3a4-d86c-4128-a474-52f883850283
+f9b52610-dcaa-4016-b224-53d41692b92a
+dfe7c349-f3d3-423c-a1a5-4ef058ef4e24
+b3dc129f-004c-429c-a085-93e0c9aeb738
+f7cac12d-9bc5-4c26-a4c4-0bd54ecd273b
+4dcdfb08-66c0-4231-9fc1-f073888a3359
+Skipped order 52928e37-1852-47d5-b4b9-44fb839ff817: payment_status=''
+UPDATE 0
+Reconciled order db5aec36-5c13-493d-8442-d869cb42ad2f: PENDING -> COMPLETED
+UPDATE 0
+Reconciled order 7087cec5-97ef-4486-929f-247b96dc32fe: PENDING -> COMPLETED
+Skipped order 2a49c020-f5c7-41eb-978d-979bf4154ace: payment_status=''
+Skipped order abc72e92-01d4-4700-9cb9-2f83c0c14baa: payment_status=''
+Skipped order 27a1ef31-74e0-45ea-ba79-4feca5be926f: payment_status=''
+UPDATE 0
+Reconciled order 268ba468-383d-4c64-a296-beb5b637030c: PENDING -> COMPLETED
+Skipped order f6e99e2d-b1ec-4da2-b338-26a438117ae3: payment_status=''
+UPDATE 0
+Reconciled order e5a728d4-c424-410b-936b-82c7a2ba8fa5: PENDING -> COMPLETED
+psql: error: connection to server at "postgresql.db.svc.cluster.local" (10.43.35.230), port 5432 failed: FATAL:  sorry, too many clients already
+
+### POD: order-status-reconciler-29686658-2p5tl
+Name:             order-status-reconciler-29686658-2p5tl
+Namespace:        db
+Priority:         0
+Service Account:  default
+Node:             vm3-gitops/192.168.100.24
+Start Time:       Fri, 12 Jun 2026 00:39:26 +0700
+Labels:           batch.kubernetes.io/controller-uid=f111e933-db0c-438b-8bca-7058609e2e4b
+                  batch.kubernetes.io/job-name=order-status-reconciler-29686658
+                  controller-uid=f111e933-db0c-438b-8bca-7058609e2e4b
+                  job-name=order-status-reconciler-29686658
+Annotations:      <none>
+Status:           Failed
+IP:               10.42.2.208
+IPs:
+  IP:           10.42.2.208
+Controlled By:  Job/order-status-reconciler-29686658
+Containers:
+  order-status-reconciler:
+    Container ID:  containerd://b44367d0edfd194560c06d8fcddfacebcd4deb299150d5487da1054f3b9a2ed1
+    Image:         postgres:16-alpine
+    Image ID:      docker.io/library/postgres@sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/sh
+      -ec
+      echo "===== order-status-reconciler started at $(date -Iseconds) ====="
+      
+      wait_for_postgres() {
+        echo "Waiting for PostgreSQL to become ready..."
+        for i in $(seq 1 60); do
+          if pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" >/dev/null 2>&1; then
+            echo "PostgreSQL is ready."
+            return 0
+          fi
+      
+          echo "PostgreSQL is not ready yet ($i/60). Sleeping 2s..."
+          sleep 2
+        done
+      
+        echo "PostgreSQL is not ready after 120s. Exit reconciler safely."
+        exit 1
+      }
+      
+      wait_for_postgres
+      
+      
+      PENDING_IDS="$(
+        psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -At -c "
+          SELECT id
+          FROM orders
+          WHERE status = 'PENDING'
+            AND created_at < NOW() - (${PENDING_AGE_SECONDS} || ' seconds')::interval
+          ORDER BY created_at
+          LIMIT ${BATCH_LIMIT};
+        "
+      )"
+      
+      if [ -z "$PENDING_IDS" ]; then
+        echo "No stale PENDING orders found."
+        exit 0
+      fi
+      
+      echo "Found stale PENDING orders:"
+      echo "$PENDING_IDS"
+      
+      completed_count=0
+      failed_count=0
+      skipped_count=0
+      
+      for order_id in $PENDING_IDS; do
+        payment_status="$(
+          psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PAYMENT_DB" -At -c "
+            SELECT status
+            FROM payments
+            WHERE order_id = '${order_id}'
+            ORDER BY updated_at DESC
+            LIMIT 1;
+          "
+        )"
+      
+        case "$payment_status" in
+          COMPLETED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'COMPLETED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            completed_count=$((completed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> COMPLETED"
+            ;;
+          FAILED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'FAILED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            failed_count=$((failed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> FAILED"
+            ;;
+          *)
+            skipped_count=$((skipped_count + 1))
+            echo "Skipped order ${order_id}: payment_status='${payment_status}'"
+            ;;
+        esac
+      done
+      
+      echo "===== reconciliation summary ====="
+      echo "completed_count=${completed_count}"
+      echo "failed_count=${failed_count}"
+      echo "skipped_count=${skipped_count}"
+      echo "===== order-status-reconciler finished at $(date -Iseconds) ====="
+      
+    State:          Terminated
+      Reason:       Error
+      Exit Code:    2
+      Started:      Fri, 12 Jun 2026 00:39:28 +0700
+      Finished:     Fri, 12 Jun 2026 00:39:28 +0700
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     200m
+      memory:  128Mi
+    Requests:
+      cpu:     20m
+      memory:  64Mi
+    Environment:
+      PGHOST:               postgresql.db.svc.cluster.local
+      PGPORT:               5432
+      PGUSER:               postgres
+      ORDER_DB:             order_db
+      PAYMENT_DB:           payment_db
+      PENDING_AGE_SECONDS:  30
+      BATCH_LIMIT:          300
+      PGPASSWORD:           <set to the key 'postgres-password' in secret 'postgresql'>  Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-fx8hm (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-fx8hm:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              kubernetes.io/hostname=vm3-gitops
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+--- logs: order-status-reconciler-29686658-2p5tl ---
+===== order-status-reconciler started at 2026-06-11T17:39:28+00:00 =====
+Waiting for PostgreSQL to become ready...
+PostgreSQL is ready.
+psql: error: connection to server at "postgresql.db.svc.cluster.local" (10.43.35.230), port 5432 failed: FATAL:  sorry, too many clients already
+
+### POD: order-status-reconciler-29686658-b6z65
+Name:             order-status-reconciler-29686658-b6z65
+Namespace:        db
+Priority:         0
+Service Account:  default
+Node:             vm3-gitops/192.168.100.24
+Start Time:       Fri, 12 Jun 2026 00:39:04 +0700
+Labels:           batch.kubernetes.io/controller-uid=f111e933-db0c-438b-8bca-7058609e2e4b
+                  batch.kubernetes.io/job-name=order-status-reconciler-29686658
+                  controller-uid=f111e933-db0c-438b-8bca-7058609e2e4b
+                  job-name=order-status-reconciler-29686658
+Annotations:      <none>
+Status:           Failed
+IP:               10.42.2.206
+IPs:
+  IP:           10.42.2.206
+Controlled By:  Job/order-status-reconciler-29686658
+Containers:
+  order-status-reconciler:
+    Container ID:  containerd://7125a2f070f5f0841ef78e7144b1ab19626fb9497fedb08d3e9fbd269370f4d6
+    Image:         postgres:16-alpine
+    Image ID:      docker.io/library/postgres@sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/sh
+      -ec
+      echo "===== order-status-reconciler started at $(date -Iseconds) ====="
+      
+      wait_for_postgres() {
+        echo "Waiting for PostgreSQL to become ready..."
+        for i in $(seq 1 60); do
+          if pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" >/dev/null 2>&1; then
+            echo "PostgreSQL is ready."
+            return 0
+          fi
+      
+          echo "PostgreSQL is not ready yet ($i/60). Sleeping 2s..."
+          sleep 2
+        done
+      
+        echo "PostgreSQL is not ready after 120s. Exit reconciler safely."
+        exit 1
+      }
+      
+      wait_for_postgres
+      
+      
+      PENDING_IDS="$(
+        psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -At -c "
+          SELECT id
+          FROM orders
+          WHERE status = 'PENDING'
+            AND created_at < NOW() - (${PENDING_AGE_SECONDS} || ' seconds')::interval
+          ORDER BY created_at
+          LIMIT ${BATCH_LIMIT};
+        "
+      )"
+      
+      if [ -z "$PENDING_IDS" ]; then
+        echo "No stale PENDING orders found."
+        exit 0
+      fi
+      
+      echo "Found stale PENDING orders:"
+      echo "$PENDING_IDS"
+      
+      completed_count=0
+      failed_count=0
+      skipped_count=0
+      
+      for order_id in $PENDING_IDS; do
+        payment_status="$(
+          psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PAYMENT_DB" -At -c "
+            SELECT status
+            FROM payments
+            WHERE order_id = '${order_id}'
+            ORDER BY updated_at DESC
+            LIMIT 1;
+          "
+        )"
+      
+        case "$payment_status" in
+          COMPLETED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'COMPLETED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            completed_count=$((completed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> COMPLETED"
+            ;;
+          FAILED)
+            psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$ORDER_DB" -c "
+              UPDATE orders
+              SET status = 'FAILED',
+                  updated_at = NOW()
+              WHERE id = '${order_id}'
+                AND status = 'PENDING';
+            "
+            failed_count=$((failed_count + 1))
+            echo "Reconciled order ${order_id}: PENDING -> FAILED"
+            ;;
+          *)
+            skipped_count=$((skipped_count + 1))
+            echo "Skipped order ${order_id}: payment_status='${payment_status}'"
+            ;;
+        esac
+      done
+      
+      echo "===== reconciliation summary ====="
+      echo "completed_count=${completed_count}"
+      echo "failed_count=${failed_count}"
+      echo "skipped_count=${skipped_count}"
+      echo "===== order-status-reconciler finished at $(date -Iseconds) ====="
+      
+    State:          Terminated
+      Reason:       Error
+      Exit Code:    2
+      Started:      Fri, 12 Jun 2026 00:39:05 +0700
+      Finished:     Fri, 12 Jun 2026 00:39:06 +0700
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     200m
+      memory:  128Mi
+    Requests:
+      cpu:     20m
+      memory:  64Mi
+    Environment:
+      PGHOST:               postgresql.db.svc.cluster.local
+      PGPORT:               5432
+      PGUSER:               postgres
+      ORDER_DB:             order_db
+      PAYMENT_DB:           payment_db
+      PENDING_AGE_SECONDS:  30
+      BATCH_LIMIT:          300
+      PGPASSWORD:           <set to the key 'postgres-password' in secret 'postgresql'>  Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-fpm5b (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-fpm5b:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              kubernetes.io/hostname=vm3-gitops
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+--- logs: order-status-reconciler-29686658-b6z65 ---
+===== order-status-reconciler started at 2026-06-11T17:39:05+00:00 =====
+Waiting for PostgreSQL to become ready...
+PostgreSQL is ready.
+psql: error: connection to server at "postgresql.db.svc.cluster.local" (10.43.35.230), port 5432 failed: FATAL:  sorry, too many clients already

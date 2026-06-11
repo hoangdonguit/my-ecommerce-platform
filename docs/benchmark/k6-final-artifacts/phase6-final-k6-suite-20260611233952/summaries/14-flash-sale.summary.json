@@ -1,0 +1,149 @@
+{
+    "metrics": {
+        "vus_max": {
+            "value": 200,
+            "min": 200,
+            "max": 200
+        },
+        "accepted_orders": {
+            "count": 12993,
+            "rate": 185.1932566551444
+        },
+        "checks": {
+            "passes": 12993,
+            "fails": 0,
+            "value": 1
+        },
+        "http_req_duration{expected_response:true}": {
+            "p(90)": 1010.0034974000001,
+            "p(95)": 1101.7313904,
+            "avg": 651.0016492572173,
+            "min": 22.570576,
+            "med": 660.983293,
+            "max": 1968.147664
+        },
+        "data_sent": {
+            "count": 5331750,
+            "rate": 75995.08552074704
+        },
+        "http_req_receiving": {
+            "med": 0.031197,
+            "max": 1.461,
+            "p(90)": 0.06239780000000002,
+            "p(95)": 0.07294499999999998,
+            "avg": 0.037270745786192556,
+            "min": 0.009542
+        },
+        "http_req_connecting": {
+            "med": 0,
+            "max": 28.564505,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0.07246811467713389,
+            "min": 0
+        },
+        "status_409_rate": {
+            "passes": 0,
+            "fails": 12993,
+            "value": 0
+        },
+        "iteration_duration": {
+            "p(90)": 1210.4945486000004,
+            "p(95)": 1302.0647883999998,
+            "avg": 851.7182097915774,
+            "min": 223.833267,
+            "med": 861.755419,
+            "max": 2168.970113
+        },
+        "iterations": {
+            "rate": 185.1932566551444,
+            "count": 12993
+        },
+        "http_req_sending": {
+            "p(90)": 0.021554400000000005,
+            "p(95)": 0.0254684,
+            "avg": 0.015161872161933328,
+            "min": 0.004006,
+            "med": 0.013493,
+            "max": 0.344521
+        },
+        "data_received": {
+            "count": 10916942,
+            "rate": 155602.55843110333
+        },
+        "unexpected_error_rate": {
+            "fails": 12993,
+            "passes": 0,
+            "thresholds": {
+                "rate<0.01": false
+            },
+            "value": 0
+        },
+        "http_req_blocked": {
+            "avg": 0.07731906572769955,
+            "min": 0.001332,
+            "med": 0.0038,
+            "max": 28.626095,
+            "p(90)": 0.005736600000000002,
+            "p(95)": 0.006820999999999999
+        },
+        "http_req_duration": {
+            "min": 22.570576,
+            "med": 660.983293,
+            "max": 1968.147664,
+            "p(90)": 1010.0034974000001,
+            "p(95)": 1101.7313904,
+            "avg": 651.0016492572173
+        },
+        "http_req_failed": {
+            "fails": 12993,
+            "passes": 0,
+            "value": 0
+        },
+        "vus": {
+            "value": 4,
+            "min": 4,
+            "max": 200
+        },
+        "http_req_tls_handshaking": {
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0
+        },
+        "http_reqs": {
+            "count": 12993,
+            "rate": 185.1932566551444
+        },
+        "http_req_waiting": {
+            "max": 1968.076389,
+            "p(90)": 1009.9405558000002,
+            "p(95)": 1101.6736136,
+            "avg": 650.9492166392678,
+            "min": 22.489901,
+            "med": 660.937886
+        },
+        "status_2xx_rate": {
+            "passes": 12993,
+            "fails": 0,
+            "value": 1
+        }
+    },
+    "root_group": {
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {},
+        "checks": {
+                "accepted or rejected by flash sale gate": {
+                    "passes": 12993,
+                    "fails": 0,
+                    "name": "accepted or rejected by flash sale gate",
+                    "path": "::accepted or rejected by flash sale gate",
+                    "id": "1b375f469036e12d72fd1afc35d08240"
+                }
+            }
+    }
+}

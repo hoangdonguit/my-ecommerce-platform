@@ -1,0 +1,9 @@
+HTTP/1.1 200 OK
+server: istio-envoy
+date: Thu, 11 Jun 2026 19:06:11 GMT
+content-type: application/json; charset=utf-8
+content-length: 84
+x-envoy-upstream-service-time: 11
+x-envoy-decorator-operation: ecommerce-dashboard.default.svc.cluster.local:80/*
+
+{"success":true,"message":"web-gateway is running","data":{"service":"web-gateway"}}
