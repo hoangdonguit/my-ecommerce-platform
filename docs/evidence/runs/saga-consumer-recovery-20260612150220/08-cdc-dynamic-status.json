@@ -1,0 +1,15 @@
+{
+  "name": "order-db-orders-dynamic-filter-connector",
+  "connector": {
+    "state": "RUNNING",
+    "worker_id": "10.42.2.8:8083"
+  },
+  "tasks": [
+    {
+      "id": 0,
+      "state": "RUNNING",
+      "worker_id": "10.42.2.8:8083"
+    }
+  ],
+  "type": "source"
+}

@@ -1,0 +1,13 @@
+CONTAINER=notification-consumer
+APP_NAME=notification-service
+APP_PORT=8084
+APP_ENV=development
+DB_URL=
+KAFKA_BROKER=
+KAFKA_GROUP_ID=notification-service-group
+KAFKA_TOPIC_PAYMENT_COMPLETED=payment.completed
+KAFKA_TOPIC_PAYMENT_FAILED=payment.failed
+OTEL_ENABLED=true
+OTEL_SERVICE_NAME=notification-service
+OTEL_ENVIRONMENT=development
+OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector.observability.svc.cluster.local:4317

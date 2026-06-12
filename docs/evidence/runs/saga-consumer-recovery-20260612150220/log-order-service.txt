@@ -1,0 +1,472 @@
+2026/06/12 08:03:03 postgres connected successfully
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /api/v1/health            --> github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/interfaces/http.SetupRouter.func1 (4 handlers)
+[GIN-debug] POST   /api/v1/orders            --> github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/interfaces/http.(*OrderHandler).CreateOrder-fm (4 handlers)
+2026/06/12 08:03:03 redis connected successfully
+2026/06/12 08:03:03 order-service starting on port 8081
+2026/06/12 08:03:03 Order saga monitor started: listening inventory.failed, payment.failed, payment.completed
+2026/06/12 08:03:03 order outbox worker started batch_size=200 interval=200ms stale_processing_after=60s requeue_published=true requeue_after=120s
+[GIN-debug] GET    /api/v1/orders            --> github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/interfaces/http.(*OrderHandler).ListOrders-fm (4 handlers)
+[GIN-debug] GET    /api/v1/orders/:id        --> github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/interfaces/http.(*OrderHandler).GetOrderByID-fm (4 handlers)
+[GIN-debug] PATCH  /api/v1/orders/:id/cancel --> github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/interfaces/http.(*OrderHandler).CancelOrder-fm (4 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://github.com/gin-gonic/gin/blob/master/docs/doc.md#dont-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8081
+[GIN] 2026/06/12 - 08:03:05 | 200 | 288.589µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:03:17 | 200 | 158.831µs |       127.0.0.6 | GET      "/api/v1/health"
+2026/06/12 08:03:26 received saga event event_type=payment.completed order_id=0088007c-cffa-4f44-94f0-b344fe332f15 target_status=COMPLETED topic=payment.completed partition=2 offset=0
+2026/06/12 08:03:26 processed and committed saga event order_id=0088007c-cffa-4f44-94f0-b344fe332f15 status=COMPLETED offset=0
+[GIN] 2026/06/12 - 08:03:27 | 200 | 173.895µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:03:37 | 200 | 175.246µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:03:39 | 200 | 171.011µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:03:47 | 200 | 177.665µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:03:57 | 200 | 588.955µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:03:59 | 200 | 191.391µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:04:07 | 200 | 211.556µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:04:17 | 200 | 181.305µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:04:19 | 200 | 184.802µs |       127.0.0.6 | GET      "/api/v1/health"
+2026/06/12 08:04:21 received saga event event_type=payment.completed order_id=110b0b08-0364-48d0-ac31-63be2d60f4fa target_status=COMPLETED topic=payment.completed partition=5 offset=0
+2026/06/12 08:04:21 processed and committed saga event order_id=110b0b08-0364-48d0-ac31-63be2d60f4fa status=COMPLETED offset=0
+[GIN] 2026/06/12 - 08:04:27 | 200 | 174.801µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:04:37 | 200 | 146.123µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:04:39 | 200 | 646.211µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:04:47 | 200 | 217.101µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:04:57 | 200 | 142.108µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:04:59 | 200 | 154.533µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:05:07 | 200 | 217.267µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:05:17 | 200 | 132.154µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:05:19 | 200 | 136.513µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:05:27 | 200 | 264.089µs |       127.0.0.6 | GET      "/api/v1/health"
+2026/06/12 08:03:00 INFO GOMEMLIMIT is updated package=github.com/KimMachineGun/automemlimit/memlimit GOMEMLIMIT=966367641 previous=9223372036854775807
+2026-06-12T08:03:00.094496Z	info	Istio iptables environment:
+ENVOY_PORT=
+INBOUND_CAPTURE_PORT=
+ISTIO_INBOUND_INTERCEPTION_MODE=
+ISTIO_INBOUND_TPROXY_ROUTE_TABLE=
+ISTIO_INBOUND_PORTS=
+ISTIO_OUTBOUND_PORTS=
+ISTIO_LOCAL_EXCLUDE_PORTS=
+ISTIO_EXCLUDE_INTERFACES=
+ISTIO_SERVICE_CIDR=
+ISTIO_SERVICE_EXCLUDE_CIDR=
+ISTIO_META_DNS_CAPTURE=
+INVALID_DROP=
+
+2026-06-12T08:03:00.094717Z	info	Istio config:
+PROXY_PORT=15001
+PROXY_INBOUND_CAPTURE_PORT=15006
+PROXY_TUNNEL_PORT=15008
+PROXY_UID=1337
+PROXY_GID=1337
+INBOUND_INTERCEPTION_MODE=REDIRECT
+INBOUND_TPROXY_MARK=1337
+INBOUND_TPROXY_ROUTE_TABLE=133
+INBOUND_PORTS_INCLUDE=*
+INBOUND_PORTS_EXCLUDE=15090,15021,15020
+OUTBOUND_OWNER_GROUPS_INCLUDE=*
+OUTBOUND_OWNER_GROUPS_EXCLUDE=
+OUTBOUND_IP_RANGES_INCLUDE=*
+OUTBOUND_IP_RANGES_EXCLUDE=
+OUTBOUND_PORTS_INCLUDE=
+OUTBOUND_PORTS_EXCLUDE=5432,6379,9092,27017,4317,4318
+KUBE_VIRT_INTERFACES=
+ENABLE_INBOUND_IPV6=false
+DUAL_STACK=false
+DNS_CAPTURE=false
+DROP_INVALID=false
+CAPTURE_ALL_DNS=false
+DNS_SERVERS=[],[]
+NETWORK_NAMESPACE=
+CNI_MODE=false
+EXCLUDE_INTERFACES=
+RECONCILE=false
+CLEANUP_ONLY=false
+FORCE_APPLY=false
+NATIVE_NFTABLES=false
+FORCE_IPTABLES_BINARY=
+
+2026-06-12T08:03:00.102134Z	info	Clean-state detected, new iptables are needed
+2026-06-12T08:03:00.102174Z	info	Applying iptables chains and rules
+2026-06-12T08:03:00.102272Z	info	Running iptables restore with: iptables-nft-restore and the following input:
+* nat
+-N ISTIO_INBOUND
+-N ISTIO_REDIRECT
+-N ISTIO_IN_REDIRECT
+-N ISTIO_OUTPUT
+-A ISTIO_INBOUND -p tcp --dport 15008 -j RETURN
+-A ISTIO_REDIRECT -p tcp -j REDIRECT --to-ports 15001
+-A ISTIO_IN_REDIRECT -p tcp -j REDIRECT --to-ports 15006
+-A PREROUTING -p tcp -j ISTIO_INBOUND
+-A ISTIO_INBOUND -p tcp --dport 15090 -j RETURN
+-A ISTIO_INBOUND -p tcp --dport 15021 -j RETURN
+-A ISTIO_INBOUND -p tcp --dport 15020 -j RETURN
+-A ISTIO_INBOUND -p tcp -j ISTIO_IN_REDIRECT
+-A OUTPUT -j ISTIO_OUTPUT
+-A ISTIO_OUTPUT -p tcp --dport 5432 -j RETURN
+-A ISTIO_OUTPUT -p udp --dport 5432 -j RETURN
+-A ISTIO_OUTPUT -p tcp --dport 6379 -j RETURN
+-A ISTIO_OUTPUT -p udp --dport 6379 -j RETURN
+-A ISTIO_OUTPUT -p tcp --dport 9092 -j RETURN
+-A ISTIO_OUTPUT -p udp --dport 9092 -j RETURN
+-A ISTIO_OUTPUT -p tcp --dport 27017 -j RETURN
+-A ISTIO_OUTPUT -p udp --dport 27017 -j RETURN
+-A ISTIO_OUTPUT -p tcp --dport 4317 -j RETURN
+-A ISTIO_OUTPUT -p udp --dport 4317 -j RETURN
+-A ISTIO_OUTPUT -p tcp --dport 4318 -j RETURN
+-A ISTIO_OUTPUT -p udp --dport 4318 -j RETURN
+-A ISTIO_OUTPUT -o lo -s 127.0.0.6/32 -j RETURN
+-A ISTIO_OUTPUT -o lo ! -d 127.0.0.1/32 -p tcp ! --dport 15008 -m owner --uid-owner 1337 -j ISTIO_IN_REDIRECT
+-A ISTIO_OUTPUT -o lo -m owner ! --uid-owner 1337 -j RETURN
+-A ISTIO_OUTPUT -m owner --uid-owner 1337 -j RETURN
+-A ISTIO_OUTPUT -o lo ! -d 127.0.0.1/32 -p tcp ! --dport 15008 -m owner --gid-owner 1337 -j ISTIO_IN_REDIRECT
+-A ISTIO_OUTPUT -o lo -m owner ! --gid-owner 1337 -j RETURN
+-A ISTIO_OUTPUT -m owner --gid-owner 1337 -j RETURN
+-A ISTIO_OUTPUT -d 127.0.0.1/32 -j RETURN
+-A ISTIO_OUTPUT -j ISTIO_REDIRECT
+COMMIT
+2026-06-12T08:03:00.114748Z	info	Final iptables state (IPv4):
+# Generated by iptables-nft-save v1.8.10 (nf_tables) on Fri Jun 12 08:03:00 2026
+*nat
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+:ISTIO_INBOUND - [0:0]
+:ISTIO_IN_REDIRECT - [0:0]
+:ISTIO_OUTPUT - [0:0]
+:ISTIO_REDIRECT - [0:0]
+-A PREROUTING -p tcp -j ISTIO_INBOUND
+-A OUTPUT -j ISTIO_OUTPUT
+-A ISTIO_INBOUND -p tcp -m tcp --dport 15008 -j RETURN
+-A ISTIO_INBOUND -p tcp -m tcp --dport 15090 -j RETURN
+-A ISTIO_INBOUND -p tcp -m tcp --dport 15021 -j RETURN
+-A ISTIO_INBOUND -p tcp -m tcp --dport 15020 -j RETURN
+-A ISTIO_INBOUND -p tcp -j ISTIO_IN_REDIRECT
+-A ISTIO_IN_REDIRECT -p tcp -j REDIRECT --to-ports 15006
+-A ISTIO_OUTPUT -p tcp -m tcp --dport 5432 -j RETURN
+-A ISTIO_OUTPUT -p udp -m udp --dport 5432 -j RETURN
+-A ISTIO_OUTPUT -p tcp -m tcp --dport 6379 -j RETURN
+-A ISTIO_OUTPUT -p udp -m udp --dport 6379 -j RETURN
+-A ISTIO_OUTPUT -p tcp -m tcp --dport 9092 -j RETURN
+-A ISTIO_OUTPUT -p udp -m udp --dport 9092 -j RETURN
+-A ISTIO_OUTPUT -p tcp -m tcp --dport 27017 -j RETURN
+-A ISTIO_OUTPUT -p udp -m udp --dport 27017 -j RETURN
+-A ISTIO_OUTPUT -p tcp -m tcp --dport 4317 -j RETURN
+-A ISTIO_OUTPUT -p udp -m udp --dport 4317 -j RETURN
+-A ISTIO_OUTPUT -p tcp -m tcp --dport 4318 -j RETURN
+-A ISTIO_OUTPUT -p udp -m udp --dport 4318 -j RETURN
+-A ISTIO_OUTPUT -s 127.0.0.6/32 -o lo -j RETURN
+-A ISTIO_OUTPUT ! -d 127.0.0.1/32 -o lo -p tcp -m tcp ! --dport 15008 -m owner --uid-owner 1337 -j ISTIO_IN_REDIRECT
+-A ISTIO_OUTPUT -o lo -m owner ! --uid-owner 1337 -j RETURN
+-A ISTIO_OUTPUT -m owner --uid-owner 1337 -j RETURN
+-A ISTIO_OUTPUT ! -d 127.0.0.1/32 -o lo -p tcp -m tcp ! --dport 15008 -m owner --gid-owner 1337 -j ISTIO_IN_REDIRECT
+-A ISTIO_OUTPUT -o lo -m owner ! --gid-owner 1337 -j RETURN
+-A ISTIO_OUTPUT -m owner --gid-owner 1337 -j RETURN
+-A ISTIO_OUTPUT -d 127.0.0.1/32 -j RETURN
+-A ISTIO_OUTPUT -j ISTIO_REDIRECT
+-A ISTIO_REDIRECT -p tcp -j REDIRECT --to-ports 15001
+COMMIT
+# Completed on Fri Jun 12 08:03:00 2026
+
+2026/06/12 08:03:01 INFO GOMEMLIMIT is already set, skipping package=github.com/KimMachineGun/automemlimit/memlimit GOMEMLIMIT=1073741824
+2026-06-12T08:03:01.332413Z	info	FLAG: --concurrency="0"
+2026-06-12T08:03:01.332464Z	info	FLAG: --domain="default.svc.cluster.local"
+2026-06-12T08:03:01.332473Z	info	FLAG: --help="false"
+2026-06-12T08:03:01.332476Z	info	FLAG: --log_as_json="false"
+2026-06-12T08:03:01.332480Z	info	FLAG: --log_caller=""
+2026-06-12T08:03:01.332483Z	info	FLAG: --log_output_level="default:info"
+2026-06-12T08:03:01.332486Z	info	FLAG: --log_stacktrace_level="default:none"
+2026-06-12T08:03:01.332687Z	info	FLAG: --log_target="[stdout]"
+2026-06-12T08:03:01.332709Z	info	FLAG: --meshConfig="./etc/istio/config/mesh"
+2026-06-12T08:03:01.332714Z	info	FLAG: --outlierLogPath=""
+2026-06-12T08:03:01.332719Z	info	FLAG: --profiling="true"
+2026-06-12T08:03:01.332724Z	info	FLAG: --proxyComponentLogLevel="misc:error"
+2026-06-12T08:03:01.332728Z	info	FLAG: --proxyLogLevel="warning"
+2026-06-12T08:03:01.332732Z	info	FLAG: --serviceCluster="istio-proxy"
+2026-06-12T08:03:01.332737Z	info	FLAG: --stsPort="0"
+2026-06-12T08:03:01.332740Z	info	FLAG: --templateFile=""
+2026-06-12T08:03:01.332743Z	info	FLAG: --token=<REDACTED>
+2026-06-12T08:03:01.332750Z	info	FLAG: --vklog="0"
+2026-06-12T08:03:01.332763Z	info	Version 1.30.0-badd809ed7d57954d4c16e12e75e15a7722a7b96-Clean
+2026-06-12T08:03:01.333090Z	info	Proxy role	ips=[10.42.0.100] type=sidecar id=order-service-7b75c47594-9rslw.default domain=default.svc.cluster.local
+2026-06-12T08:03:01.333210Z	info	Apply proxy config from env {"holdApplicationUntilProxyStarts":true}
+
+2026-06-12T08:03:01.336427Z	info	Apply proxy config from annotation { "holdApplicationUntilProxyStarts": true }
+2026-06-12T08:03:01.336551Z	info	cpu limit detected as 2, setting concurrency
+2026-06-12T08:03:01.336994Z	info	Effective config: binaryPath: /usr/local/bin/envoy
+concurrency: 2
+configPath: ./etc/istio/proxy
+controlPlaneAuthPolicy: MUTUAL_TLS
+discoveryAddress: istiod.istio-system.svc:15012
+drainDuration: 45s
+holdApplicationUntilProxyStarts: true
+proxyAdminPort: 15000
+serviceCluster: istio-proxy
+statNameLength: 189
+statusPort: 15020
+terminationDrainDuration: 5s
+
+2026-06-12T08:03:01.337026Z	info	JWT policy is third-party-jwt
+2026-06-12T08:03:01.337032Z	info	using credential fetcher of JWT type in cluster.local trust domain
+2026-06-12T08:03:01.542122Z	info	Starting default Istio SDS Server
+2026-06-12T08:03:01.542160Z	info	CA Endpoint istiod.istio-system.svc:15012, provider Citadel
+2026-06-12T08:03:01.542189Z	info	Using CA istiod.istio-system.svc:15012 cert with certs: var/run/secret=<REDACTED>
+2026-06-12T08:03:01.542806Z	info	Opening status port 15020
+2026-06-12T08:03:01.545395Z	info	xdsproxy	Initializing with upstream address "istiod.istio-system.svc:15012" and cluster "Kubernetes"
+2026-06-12T08:03:01.549607Z	info	Pilot SAN: [istiod.istio-system.svc]
+2026-06-12T08:03:01.551922Z	info	Starting proxy agent
+2026-06-12T08:03:01.552335Z	info	Envoy command: [-c etc/istio/proxy/envoy-rev.json --drain-time-s 45 --drain-strategy immediate --local-address-ip-version v4 --file-flush-interval-msec 1000 --disable-hot-restart --allow-unknown-static-fields -l warning --component-log-level misc:error --skip-deprecated-logs --concurrency 2]
+2026-06-12T08:03:01.559113Z	info	sds	Starting SDS grpc server
+2026-06-12T08:03:01.559175Z	info	sds	Starting SDS server for workload certificates, will listen on "var/run/secret=<REDACTED>
+2026-06-12T08:03:01.713414Z	info	xdsproxy	connected to delta upstream XDS server: istiod.istio-system.svc:15012	id=1
+2026-06-12T08:03:01.809456Z	info	ads	ADS: new connection for node:1
+2026-06-12T08:03:01.811135Z	info	ads	ADS: new connection for node:2
+2026-06-12T08:03:01.877046Z	info	cache	generated new workload certificate	resourceName=default latency=330.719002ms ttl=23h59m59.122961696s
+2026-06-12T08:03:01.877125Z	info	cache	Root cert has changed, start rotating root cert
+2026-06-12T08:03:01.877208Z	info	cache	returned workload trust anchor from cache	ttl=23h59m59.122794017s
+2026-06-12T08:03:01.877299Z	info	cache	returned workload certificate from cache	ttl=23h59m59.122702311s
+2026-06-12T08:03:01.877984Z	info	cache	returned workload trust anchor from cache	ttl=23h59m59.1220193s
+2026-06-12T08:03:01.878260Z	info	cache	returned workload trust anchor from cache	ttl=23h59m59.121741247s
+2026-06-12T08:03:02.591232Z	info	Readiness succeeded in 1.264912787s
+2026-06-12T08:03:02.591883Z	info	Envoy proxy is ready
+2026/06/12 08:02:42 INFO GOMEMLIMIT is updated package=github.com/KimMachineGun/automemlimit/memlimit GOMEMLIMIT=966367641 previous=9223372036854775807
+2026-06-12T08:02:42.392363Z	info	Istio iptables environment:
+ENVOY_PORT=
+INBOUND_CAPTURE_PORT=
+ISTIO_INBOUND_INTERCEPTION_MODE=
+ISTIO_INBOUND_TPROXY_ROUTE_TABLE=
+ISTIO_INBOUND_PORTS=
+ISTIO_OUTBOUND_PORTS=
+ISTIO_LOCAL_EXCLUDE_PORTS=
+ISTIO_EXCLUDE_INTERFACES=
+ISTIO_SERVICE_CIDR=
+ISTIO_SERVICE_EXCLUDE_CIDR=
+ISTIO_META_DNS_CAPTURE=
+INVALID_DROP=
+
+2026-06-12T08:02:42.392466Z	info	Istio config:
+PROXY_PORT=15001
+PROXY_INBOUND_CAPTURE_PORT=15006
+PROXY_TUNNEL_PORT=15008
+PROXY_UID=1337
+PROXY_GID=1337
+INBOUND_INTERCEPTION_MODE=REDIRECT
+INBOUND_TPROXY_MARK=1337
+INBOUND_TPROXY_ROUTE_TABLE=133
+INBOUND_PORTS_INCLUDE=*
+INBOUND_PORTS_EXCLUDE=15090,15021,15020
+OUTBOUND_OWNER_GROUPS_INCLUDE=*
+OUTBOUND_OWNER_GROUPS_EXCLUDE=
+OUTBOUND_IP_RANGES_INCLUDE=*
+OUTBOUND_IP_RANGES_EXCLUDE=
+OUTBOUND_PORTS_INCLUDE=
+OUTBOUND_PORTS_EXCLUDE=5432,6379,9092,27017,4317,4318
+KUBE_VIRT_INTERFACES=
+ENABLE_INBOUND_IPV6=false
+DUAL_STACK=false
+DNS_CAPTURE=false
+DROP_INVALID=false
+CAPTURE_ALL_DNS=false
+DNS_SERVERS=[],[]
+NETWORK_NAMESPACE=
+CNI_MODE=false
+EXCLUDE_INTERFACES=
+RECONCILE=false
+CLEANUP_ONLY=false
+FORCE_APPLY=false
+NATIVE_NFTABLES=false
+FORCE_IPTABLES_BINARY=
+
+2026-06-12T08:02:42.397478Z	info	Clean-state detected, new iptables are needed
+2026-06-12T08:02:42.397507Z	info	Applying iptables chains and rules
+2026-06-12T08:02:42.397684Z	info	Running iptables restore with: iptables-nft-restore and the following input:
+* nat
+-N ISTIO_INBOUND
+-N ISTIO_REDIRECT
+-N ISTIO_IN_REDIRECT
+-N ISTIO_OUTPUT
+-A ISTIO_INBOUND -p tcp --dport 15008 -j RETURN
+-A ISTIO_REDIRECT -p tcp -j REDIRECT --to-ports 15001
+-A ISTIO_IN_REDIRECT -p tcp -j REDIRECT --to-ports 15006
+-A PREROUTING -p tcp -j ISTIO_INBOUND
+-A ISTIO_INBOUND -p tcp --dport 15090 -j RETURN
+-A ISTIO_INBOUND -p tcp --dport 15021 -j RETURN
+-A ISTIO_INBOUND -p tcp --dport 15020 -j RETURN
+-A ISTIO_INBOUND -p tcp -j ISTIO_IN_REDIRECT
+-A OUTPUT -j ISTIO_OUTPUT
+-A ISTIO_OUTPUT -p tcp --dport 5432 -j RETURN
+-A ISTIO_OUTPUT -p udp --dport 5432 -j RETURN
+-A ISTIO_OUTPUT -p tcp --dport 6379 -j RETURN
+-A ISTIO_OUTPUT -p udp --dport 6379 -j RETURN
+-A ISTIO_OUTPUT -p tcp --dport 9092 -j RETURN
+-A ISTIO_OUTPUT -p udp --dport 9092 -j RETURN
+-A ISTIO_OUTPUT -p tcp --dport 27017 -j RETURN
+-A ISTIO_OUTPUT -p udp --dport 27017 -j RETURN
+-A ISTIO_OUTPUT -p tcp --dport 4317 -j RETURN
+-A ISTIO_OUTPUT -p udp --dport 4317 -j RETURN
+-A ISTIO_OUTPUT -p tcp --dport 4318 -j RETURN
+-A ISTIO_OUTPUT -p udp --dport 4318 -j RETURN
+-A ISTIO_OUTPUT -o lo -s 127.0.0.6/32 -j RETURN
+-A ISTIO_OUTPUT -o lo ! -d 127.0.0.1/32 -p tcp ! --dport 15008 -m owner --uid-owner 1337 -j ISTIO_IN_REDIRECT
+-A ISTIO_OUTPUT -o lo -m owner ! --uid-owner 1337 -j RETURN
+-A ISTIO_OUTPUT -m owner --uid-owner 1337 -j RETURN
+-A ISTIO_OUTPUT -o lo ! -d 127.0.0.1/32 -p tcp ! --dport 15008 -m owner --gid-owner 1337 -j ISTIO_IN_REDIRECT
+-A ISTIO_OUTPUT -o lo -m owner ! --gid-owner 1337 -j RETURN
+-A ISTIO_OUTPUT -m owner --gid-owner 1337 -j RETURN
+-A ISTIO_OUTPUT -d 127.0.0.1/32 -j RETURN
+-A ISTIO_OUTPUT -j ISTIO_REDIRECT
+COMMIT
+2026-06-12T08:02:42.422973Z	info	Final iptables state (IPv4):
+# Generated by iptables-nft-save v1.8.10 (nf_tables) on Fri Jun 12 08:02:42 2026
+*nat
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+:ISTIO_INBOUND - [0:0]
+:ISTIO_IN_REDIRECT - [0:0]
+:ISTIO_OUTPUT - [0:0]
+:ISTIO_REDIRECT - [0:0]
+-A PREROUTING -p tcp -j ISTIO_INBOUND
+-A OUTPUT -j ISTIO_OUTPUT
+-A ISTIO_INBOUND -p tcp -m tcp --dport 15008 -j RETURN
+-A ISTIO_INBOUND -p tcp -m tcp --dport 15090 -j RETURN
+-A ISTIO_INBOUND -p tcp -m tcp --dport 15021 -j RETURN
+-A ISTIO_INBOUND -p tcp -m tcp --dport 15020 -j RETURN
+-A ISTIO_INBOUND -p tcp -j ISTIO_IN_REDIRECT
+-A ISTIO_IN_REDIRECT -p tcp -j REDIRECT --to-ports 15006
+-A ISTIO_OUTPUT -p tcp -m tcp --dport 5432 -j RETURN
+-A ISTIO_OUTPUT -p udp -m udp --dport 5432 -j RETURN
+-A ISTIO_OUTPUT -p tcp -m tcp --dport 6379 -j RETURN
+-A ISTIO_OUTPUT -p udp -m udp --dport 6379 -j RETURN
+-A ISTIO_OUTPUT -p tcp -m tcp --dport 9092 -j RETURN
+-A ISTIO_OUTPUT -p udp -m udp --dport 9092 -j RETURN
+-A ISTIO_OUTPUT -p tcp -m tcp --dport 27017 -j RETURN
+-A ISTIO_OUTPUT -p udp -m udp --dport 27017 -j RETURN
+-A ISTIO_OUTPUT -p tcp -m tcp --dport 4317 -j RETURN
+-A ISTIO_OUTPUT -p udp -m udp --dport 4317 -j RETURN
+-A ISTIO_OUTPUT -p tcp -m tcp --dport 4318 -j RETURN
+-A ISTIO_OUTPUT -p udp -m udp --dport 4318 -j RETURN
+-A ISTIO_OUTPUT -s 127.0.0.6/32 -o lo -j RETURN
+-A ISTIO_OUTPUT ! -d 127.0.0.1/32 -o lo -p tcp -m tcp ! --dport 15008 -m owner --uid-owner 1337 -j ISTIO_IN_REDIRECT
+-A ISTIO_OUTPUT -o lo -m owner ! --uid-owner 1337 -j RETURN
+-A ISTIO_OUTPUT -m owner --uid-owner 1337 -j RETURN
+-A ISTIO_OUTPUT ! -d 127.0.0.1/32 -o lo -p tcp -m tcp ! --dport 15008 -m owner --gid-owner 1337 -j ISTIO_IN_REDIRECT
+-A ISTIO_OUTPUT -o lo -m owner ! --gid-owner 1337 -j RETURN
+-A ISTIO_OUTPUT -m owner --gid-owner 1337 -j RETURN
+-A ISTIO_OUTPUT -d 127.0.0.1/32 -j RETURN
+-A ISTIO_OUTPUT -j ISTIO_REDIRECT
+-A ISTIO_REDIRECT -p tcp -j REDIRECT --to-ports 15001
+COMMIT
+# Completed on Fri Jun 12 08:02:42 2026
+
+2026/06/12 08:02:43 INFO GOMEMLIMIT is already set, skipping package=github.com/KimMachineGun/automemlimit/memlimit GOMEMLIMIT=1073741824
+2026-06-12T08:02:43.204400Z	info	FLAG: --concurrency="0"
+2026-06-12T08:02:43.204465Z	info	FLAG: --domain="default.svc.cluster.local"
+2026-06-12T08:02:43.204474Z	info	FLAG: --help="false"
+2026-06-12T08:02:43.204479Z	info	FLAG: --log_as_json="false"
+2026-06-12T08:02:43.204484Z	info	FLAG: --log_caller=""
+2026-06-12T08:02:43.204488Z	info	FLAG: --log_output_level="default:info"
+2026-06-12T08:02:43.204493Z	info	FLAG: --log_stacktrace_level="default:none"
+2026-06-12T08:02:43.204520Z	info	FLAG: --log_target="[stdout]"
+2026-06-12T08:02:43.204525Z	info	FLAG: --meshConfig="./etc/istio/config/mesh"
+2026-06-12T08:02:43.204530Z	info	FLAG: --outlierLogPath=""
+2026-06-12T08:02:43.204534Z	info	FLAG: --profiling="true"
+2026-06-12T08:02:43.204539Z	info	FLAG: --proxyComponentLogLevel="misc:error"
+2026-06-12T08:02:43.204543Z	info	FLAG: --proxyLogLevel="warning"
+2026-06-12T08:02:43.204550Z	info	FLAG: --serviceCluster="istio-proxy"
+2026-06-12T08:02:43.204554Z	info	FLAG: --stsPort="0"
+2026-06-12T08:02:43.204558Z	info	FLAG: --templateFile=""
+2026-06-12T08:02:43.204563Z	info	FLAG: --token=<REDACTED>
+2026-06-12T08:02:43.204578Z	info	FLAG: --vklog="0"
+2026-06-12T08:02:43.204587Z	info	Version 1.30.0-badd809ed7d57954d4c16e12e75e15a7722a7b96-Clean
+2026-06-12T08:02:43.204993Z	info	Proxy role	ips=[10.42.1.250] type=sidecar id=order-service-7b75c47594-xm2zc.default domain=default.svc.cluster.local
+2026-06-12T08:02:43.205127Z	info	Apply proxy config from env {"holdApplicationUntilProxyStarts":true}
+
+2026-06-12T08:02:43.208057Z	info	Apply proxy config from annotation { "holdApplicationUntilProxyStarts": true }
+2026-06-12T08:02:43.208174Z	info	cpu limit detected as 2, setting concurrency
+2026-06-12T08:02:43.208483Z	info	Effective config: binaryPath: /usr/local/bin/envoy
+concurrency: 2
+configPath: ./etc/istio/proxy
+controlPlaneAuthPolicy: MUTUAL_TLS
+discoveryAddress: istiod.istio-system.svc:15012
+drainDuration: 45s
+holdApplicationUntilProxyStarts: true
+proxyAdminPort: 15000
+serviceCluster: istio-proxy
+statNameLength: 189
+statusPort: 15020
+terminationDrainDuration: 5s
+
+2026-06-12T08:02:43.208558Z	info	JWT policy is third-party-jwt
+2026-06-12T08:02:43.208565Z	info	using credential fetcher of JWT type in cluster.local trust domain
+2026-06-12T08:02:43.438565Z	info	Starting default Istio SDS Server
+2026-06-12T08:02:43.438610Z	info	CA Endpoint istiod.istio-system.svc:15012, provider Citadel
+2026-06-12T08:02:43.438643Z	info	Using CA istiod.istio-system.svc:15012 cert with certs: var/run/secret=<REDACTED>
+2026-06-12T08:02:43.438984Z	info	Opening status port 15020
+2026-06-12T08:02:43.443171Z	info	xdsproxy	Initializing with upstream address "istiod.istio-system.svc:15012" and cluster "Kubernetes"
+2026-06-12T08:02:43.445657Z	info	Pilot SAN: [istiod.istio-system.svc]
+2026-06-12T08:02:43.447321Z	info	Starting proxy agent
+2026-06-12T08:02:43.447388Z	info	Envoy command: [-c etc/istio/proxy/envoy-rev.json --drain-time-s 45 --drain-strategy immediate --local-address-ip-version v4 --file-flush-interval-msec 1000 --disable-hot-restart --allow-unknown-static-fields -l warning --component-log-level misc:error --skip-deprecated-logs --concurrency 2]
+2026-06-12T08:02:43.454635Z	info	sds	Starting SDS grpc server
+2026-06-12T08:02:43.454681Z	info	sds	Starting SDS server for workload certificates, will listen on "var/run/secret=<REDACTED>
+2026-06-12T08:02:43.515515Z	info	cache	generated new workload certificate	resourceName=default latency=65.628027ms ttl=23h59m59.484495575s
+2026-06-12T08:02:43.515622Z	info	cache	Root cert has changed, start rotating root cert
+2026-06-12T08:02:43.515682Z	info	cache	returned workload trust anchor from cache	ttl=23h59m59.484319286s
+2026-06-12T08:02:43.603574Z	info	xdsproxy	connected to delta upstream XDS server: istiod.istio-system.svc:15012	id=1
+2026-06-12T08:02:43.695776Z	info	ads	ADS: new connection for node:1
+2026-06-12T08:02:43.695928Z	info	cache	returned workload certificate from cache	ttl=23h59m59.304075569s
+2026-06-12T08:02:43.698883Z	info	ads	ADS: new connection for node:2
+2026-06-12T08:02:43.699016Z	info	cache	returned workload trust anchor from cache	ttl=23h59m59.300988136s
+2026-06-12T08:02:44.694882Z	info	Readiness succeeded in 1.500379257s
+2026-06-12T08:02:44.695560Z	info	Envoy proxy is ready
+2026/06/12 08:02:45 postgres connected successfully
+2026/06/12 08:02:45 redis connected successfully
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+2026/06/12 08:02:45 order-service starting on port 8081
+[GIN-debug] GET    /api/v1/health            --> github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/interfaces/http.SetupRouter.func1 (4 handlers)
+[GIN-debug] POST   /api/v1/orders            --> github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/interfaces/http.(*OrderHandler).CreateOrder-fm (4 handlers)
+[GIN-debug] GET    /api/v1/orders            --> github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/interfaces/http.(*OrderHandler).ListOrders-fm (4 handlers)
+[GIN-debug] GET    /api/v1/orders/:id        --> github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/interfaces/http.(*OrderHandler).GetOrderByID-fm (4 handlers)
+[GIN-debug] PATCH  /api/v1/orders/:id/cancel --> github.com/hoangdonguit/my-ecommerce-platform/order-service/internal/interfaces/http.(*OrderHandler).CancelOrder-fm (4 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://github.com/gin-gonic/gin/blob/master/docs/doc.md#dont-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8081
+2026/06/12 08:02:45 Order saga monitor started: listening inventory.failed, payment.failed, payment.completed
+2026/06/12 08:02:45 order outbox worker started batch_size=200 interval=200ms stale_processing_after=60s requeue_published=true requeue_after=120s
+[GIN] 2026/06/12 - 08:02:47 | 200 | 259.14µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:02:59 | 200 | 268.544µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:03:09 | 200 | 129.242µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:03:19 | 200 | 153.118µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:03:21 | 200 | 121.872µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:03:29 | 200 | 180.773µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:03:39 | 200 |  306.5µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:03:41 | 200 | 196.079µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:03:49 | 200 | 182.419µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:03:59 | 200 | 168.818µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:04:01 | 200 | 531.626µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:04:09 | 200 | 299.829µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:04:19 | 200 | 267.265µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:04:19 | 201 |  22.73ms |       127.0.0.6 | POST     "/api/v1/orders"
+2026/06/12 08:04:19 [OrderOutboxWorker] batch published count=1 first_order_id=110b0b08-0364-48d0-ac31-63be2d60f4fa last_order_id=110b0b08-0364-48d0-ac31-63be2d60f4fa
+[GIN] 2026/06/12 - 08:04:21 | 200 | 126.14µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:04:29 | 200 | 164.737µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:04:39 | 200 | 193.175µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:04:41 | 200 | 352.989µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:04:49 | 200 | 177.552µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:04:59 | 200 | 168.631µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:05:01 | 200 | 180.485µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:05:09 | 200 | 141.603µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:05:19 | 200 | 226.979µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:05:21 | 200 | 182.383µs |       127.0.0.6 | GET      "/api/v1/health"
+[GIN] 2026/06/12 - 08:05:29 | 200 | 220.525µs |       127.0.0.6 | GET      "/api/v1/health"

@@ -1,0 +1,13 @@
+cdc_dynamic.order_db.public.orders
+cdc.order_db.public.orders
+__consumer_offsets
+debezium_connect_configs
+debezium_connect_offsets
+debezium_connect_statuses
+__debezium-heartbeat.cdc.order_db
+inventory.failed
+inventory.reserved
+order.cancelled
+order.created
+payment.completed
+payment.failed

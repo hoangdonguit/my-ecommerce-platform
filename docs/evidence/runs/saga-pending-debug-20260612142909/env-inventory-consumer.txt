@@ -1,0 +1,16 @@
+CONTAINER=inventory-consumer
+APP_NAME=inventory-service
+APP_PORT=8082
+APP_ENV=development
+DB_URL=
+KAFKA_BROKER=
+KAFKA_GROUP_ID=inventory-service-group
+KAFKA_TOPIC_ORDER_CREATED=order.created
+KAFKA_TOPIC_INVENTORY_RESERVED=inventory.reserved
+KAFKA_TOPIC_INVENTORY_FAILED=inventory.failed
+OUTBOX_BATCH_SIZE=25
+OUTBOX_IDLE_SLEEP_MS=500
+OTEL_ENABLED=true
+OTEL_SERVICE_NAME=inventory-service
+OTEL_ENVIRONMENT=development
+OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector.observability.svc.cluster.local:4317

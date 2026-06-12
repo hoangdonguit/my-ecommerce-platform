@@ -1,0 +1,16 @@
+CONTAINER=payment-consumer
+APP_NAME=payment-service
+APP_PORT=8083
+APP_ENV=development
+DB_URL=
+KAFKA_BROKER=
+KAFKA_GROUP_ID=payment-service-group
+KAFKA_TOPIC_INVENTORY_RESERVED=inventory.reserved
+KAFKA_TOPIC_PAYMENT_COMPLETED=payment.completed
+KAFKA_TOPIC_PAYMENT_FAILED=payment.failed
+PAYMENT_OUTBOX_BATCH_SIZE=200
+PAYMENT_OUTBOX_IDLE_SLEEP_MS=200
+OTEL_ENABLED=true
+OTEL_SERVICE_NAME=payment-service
+OTEL_ENVIRONMENT=development
+OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector.observability.svc.cluster.local:4317

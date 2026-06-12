@@ -1,0 +1,6 @@
+inventory-rollback-group-v2
+inventory-service-group
+notification-service-group
+order-service-saga-monitor
+payment-service-group
+read-model-service-group

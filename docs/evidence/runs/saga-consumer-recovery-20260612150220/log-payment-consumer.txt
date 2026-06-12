@@ -1,0 +1,9 @@
+2026/06/12 08:02:42 postgres connected successfully
+2026/06/12 08:02:42 payment consumer listening topic=inventory.reserved group=payment-service-group dlq=inventory.reserved.dlq
+2026/06/12 08:02:42 payment outbox publisher started batch_size=200 idle_sleep=200ms mode=batch
+2026/06/12 08:03:14 received inventory.reserved order_id=0088007c-cffa-4f44-94f0-b344fe332f15 amount=24000000.00 method=COD
+2026/06/12 08:03:14 processed inventory.reserved successfully order_id=0088007c-cffa-4f44-94f0-b344fe332f15 attempt=1
+2026/06/12 08:03:14 payment outbox batch published count=1 first_aggregate_id=5c11d72f-5855-4b68-9cc3-b3bc8d03bbeb last_aggregate_id=5c11d72f-5855-4b68-9cc3-b3bc8d03bbeb
+2026/06/12 08:04:20 received inventory.reserved order_id=110b0b08-0364-48d0-ac31-63be2d60f4fa amount=24000000.00 method=COD
+2026/06/12 08:04:20 processed inventory.reserved successfully order_id=110b0b08-0364-48d0-ac31-63be2d60f4fa attempt=1
+2026/06/12 08:04:21 payment outbox batch published count=1 first_aggregate_id=34a64216-8ea0-40a0-bc00-884cf9a3ab8a last_aggregate_id=34a64216-8ea0-40a0-bc00-884cf9a3ab8a

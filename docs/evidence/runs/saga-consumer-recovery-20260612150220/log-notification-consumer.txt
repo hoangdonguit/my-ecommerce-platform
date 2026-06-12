@@ -1,0 +1,8 @@
+2026/06/12 08:02:42 postgres connected successfully
+2026/06/12 08:02:42 notification consumer listening topics=payment.completed,payment.failed group=notification-service-group dlq=payment.completed.dlq,payment.failed.dlq
+2026/06/12 08:03:14 received payment.completed order_id=0088007c-cffa-4f44-94f0-b344fe332f15 user_id=smoke-user-002
+[NOTIFICATION SENT] user=smoke-user-002 order=0088007c-cffa-4f44-94f0-b344fe332f15 event=payment.completed title=Thanh toán thành công message=Đơn hàng 0088007c-cffa-4f44-94f0-b344fe332f15 đã thanh toán thành công 24000000 VND bằng COD.
+2026/06/12 08:03:14 processed payment.completed successfully order_id=0088007c-cffa-4f44-94f0-b344fe332f15 attempt=1
+2026/06/12 08:04:21 received payment.completed order_id=110b0b08-0364-48d0-ac31-63be2d60f4fa user_id=smoke-user-002
+2026/06/12 08:04:21 processed payment.completed successfully order_id=110b0b08-0364-48d0-ac31-63be2d60f4fa attempt=1
+[NOTIFICATION SENT] user=smoke-user-002 order=110b0b08-0364-48d0-ac31-63be2d60f4fa event=payment.completed title=Thanh toán thành công message=Đơn hàng 110b0b08-0364-48d0-ac31-63be2d60f4fa đã thanh toán thành công 24000000 VND bằng COD.

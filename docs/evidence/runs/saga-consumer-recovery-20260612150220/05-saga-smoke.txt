@@ -1,0 +1,111 @@
+===== SAGA SUCCESS SMOKE TEST =====
+GATEWAY_URL=http://100.65.255.2:30517
+PRODUCT_ID=prod-123
+USER_ID=smoke-user-002
+IDEM_KEY=smoke-price-20260612150419
+
+===== CHECK INVENTORY =====
+{
+  "available_quantity": 999999,
+  "on_hand_quantity": 1000000,
+  "product_id": "prod-123",
+  "reserved_quantity": 1,
+  "sku": "SKU-123",
+  "updated_at": "2026-06-12T08:03:12.996192Z"
+}
+
+===== CREATE ORDER =====
+HTTP_CODE=201
+{
+  "success": true,
+  "message": "Order created successfully",
+  "data": {
+    "idempotency_key": "smoke-price-20260612150419",
+    "order": {
+      "id": "110b0b08-0364-48d0-ac31-63be2d60f4fa",
+      "user_id": "smoke-user-002",
+      "status": "PENDING",
+      "currency": "VND",
+      "payment_method": "COD",
+      "shipping_address": "UIT Thu Duc",
+      "note": "saga success smoke test",
+      "items": [
+        {
+          "product_id": "prod-123",
+          "quantity": 1,
+          "unit_price": 24000000
+        }
+      ],
+      "total_amount": 24000000,
+      "created_at": "2026-06-12T08:04:19.593396Z",
+      "updated_at": "2026-06-12T08:04:19.593396Z"
+    },
+    "saga_url": "/api/orders/110b0b08-0364-48d0-ac31-63be2d60f4fa/saga"
+  }
+}
+ORDER_ID=110b0b08-0364-48d0-ac31-63be2d60f4fa
+
+===== WAIT SAGA =====
+order.status=PENDING elapsed=0s
+order.status=COMPLETED elapsed=6s
+
+===== CHECK DATABASE RESULT =====
+--- order ---
+-[ RECORD 1 ]---+-------------------------------------
+id              | 110b0b08-0364-48d0-ac31-63be2d60f4fa
+user_id         | smoke-user-002
+status          | COMPLETED
+total_amount    | 24000000.00
+payment_method  | COD
+idempotency_key | smoke-price-20260612150419
+created_at      | 2026-06-12 08:04:19.593396
+updated_at      | 2026-06-12 08:04:21.117279
+
+--- outbox ---
+-[ RECORD 1 ]+-------------------------------------
+event_type   | order.created
+aggregate_id | 110b0b08-0364-48d0-ac31-63be2d60f4fa
+status       | PUBLISHED
+created_at   | 2026-06-12 08:04:19.595348
+
+--- inventory reservation ---
+-[ RECORD 1 ]------------------------------------
+id         | e5ee08ef-c803-4ce3-bc73-5b2c991a43bc
+order_id   | 110b0b08-0364-48d0-ac31-63be2d60f4fa
+status     | RESERVED
+reason     | 
+created_at | 2026-06-12 08:04:19.698538
+updated_at | 2026-06-12 08:04:19.698538
+
+--- payment ---
+-[ RECORD 1 ]--+-----------------------------------------
+id             | 34a64216-8ea0-40a0-bc00-884cf9a3ab8a
+order_id       | 110b0b08-0364-48d0-ac31-63be2d60f4fa
+amount         | 24000000.00
+currency       | VND
+payment_method | COD
+status         | COMPLETED
+transaction_id | cod_d4102e01-1725-40d6-bb17-6caa1f8825d6
+created_at     | 2026-06-12 08:04:20.890523
+updated_at     | 2026-06-12 08:04:20.899823
+
+--- notification ---
+-[ RECORD 1 ]------------------------------------
+id         | 39adc797-3644-40b6-9b74-0a709f343b26
+user_id    | smoke-user-002
+order_id   | 110b0b08-0364-48d0-ac31-63be2d60f4fa
+event_type | payment.completed
+channel    | IN_APP
+title      | Thanh toán thành công
+status     | SENT
+sent_at    | 2026-06-12 08:04:21
+created_at | 2026-06-12 08:04:21.116854
+
+
+===== ASSERT EXPECTED RESULT =====
+orders.status=COMPLETED
+outbox.status=PUBLISHED
+inventory_reservations.status=RESERVED
+payments.status=COMPLETED
+notifications.status=SENT
+===== SMOKE TEST PASSED =====
