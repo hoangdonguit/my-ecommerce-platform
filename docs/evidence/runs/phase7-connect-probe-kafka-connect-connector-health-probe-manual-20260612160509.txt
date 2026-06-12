@@ -1,0 +1,4 @@
+connectors=["order-db-orders-dynamic-filter-connector", "order-db-orders-connector"]
+order-db-orders-connector: connector=RUNNING tasks=['RUNNING']
+order-db-orders-dynamic-filter-connector: connector=RUNNING tasks=['RUNNING']
+OK all required Kafka Connect connectors are RUNNING

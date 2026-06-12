@@ -1,0 +1,89 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: phase7-incident-driven-alert-rules
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+    app.kubernetes.io/name: phase7-incident-driven-alerts
+    app.kubernetes.io/part-of: my-ecommerce-platform
+spec:
+  groups:
+    - name: ecommerce-platform.phase7.incident-driven
+      rules:
+        - alert: KafkaConnectDeploymentUnavailable
+          expr: kube_deployment_status_replicas_unavailable{namespace="cdc", deployment="kafka-connect-debezium"} > 0
+          for: 5m
+          labels:
+            severity: critical
+            area: cdc
+          annotations:
+            summary: "Kafka Connect deployment is unavailable"
+            description: "Kafka Connect has unavailable replicas. CDC connector runtime may be unavailable."
+            runbook: "Check namespace cdc, deployment kafka-connect-debezium, pod logs, and Kafka Connect REST /connectors."
+
+        - alert: KafkaConnectConnectorHealthProbeFailed
+          expr: sum(kube_job_status_failed{namespace="cdc", job_name=~"kafka-connect-connector-health-probe.*"}) > 0
+          for: 1m
+          labels:
+            severity: critical
+            area: cdc
+          annotations:
+            summary: "Kafka Connect connector health probe failed"
+            description: "The connector health probe failed. One or more required connectors may be missing or not RUNNING."
+            runbook: "Check CronJob kafka-connect-connector-health-probe logs and Kafka Connect connector status."
+
+        - alert: KafkaConnectBootstrapJobFailed
+          expr: sum(kube_job_status_failed{namespace="cdc", job_name=~"kafka-connect-connector-bootstrap.*"}) > 0
+          for: 1m
+          labels:
+            severity: warning
+            area: cdc
+          annotations:
+            summary: "Kafka Connect connector bootstrap job failed"
+            description: "The GitOps-managed connector bootstrap job failed. Lost connector registration may not be auto-recovered."
+            runbook: "Check CronJob kafka-connect-connector-bootstrap logs in namespace cdc."
+
+        - alert: KafkaConnectCronJobSuspended
+          expr: kube_cronjob_spec_suspend{namespace="cdc", cronjob=~"kafka-connect-connector-bootstrap|kafka-connect-connector-health-probe"} == 1
+          for: 5m
+          labels:
+            severity: warning
+            area: cdc
+          annotations:
+            summary: "Kafka Connect recovery/health CronJob is suspended"
+            description: "A Kafka Connect recovery or health CronJob is suspended."
+            runbook: "Unsuspend the CronJob unless this is an intentional maintenance window."
+
+        - alert: SagaPendingOrderProbeFailed
+          expr: sum(kube_job_status_failed{namespace="db", job_name=~"saga-pending-order-health-probe.*"}) > 0
+          for: 1m
+          labels:
+            severity: critical
+            area: saga
+          annotations:
+            summary: "Saga pending order health probe failed"
+            description: "The pending order probe found orders stuck in PENDING longer than the allowed threshold, or the probe could not query the database."
+            runbook: "Check saga-pending-order-health-probe logs, then inspect order-service, inventory-consumer, payment-consumer, notification-consumer, and Kafka consumer groups."
+
+        - alert: SagaRuntimeDeploymentUnavailable
+          expr: kube_deployment_status_replicas_unavailable{namespace="default", deployment=~"inventory-consumer|payment-consumer|notification-consumer|order-service|read-model-service"} > 0
+          for: 5m
+          labels:
+            severity: critical
+            area: saga
+          annotations:
+            summary: "Saga runtime deployment is unavailable"
+            description: "At least one Saga runtime deployment has unavailable replicas."
+            runbook: "Check deployment rollout, pod status, and logs for the affected Saga runtime component."
+
+        - alert: SagaRuntimePodRestarting
+          expr: increase(kube_pod_container_status_restarts_total{namespace="default", pod=~"(inventory-consumer|payment-consumer|notification-consumer|order-service|read-model-service).*", container!~"POD|istio-proxy"}[10m]) > 0
+          for: 1m
+          labels:
+            severity: warning
+            area: saga
+          annotations:
+            summary: "Saga runtime pod restarted"
+            description: "A Saga runtime application container restarted in the last 10 minutes."
+            runbook: "Check recent pod logs and events for the affected Saga component."

@@ -1,0 +1,82 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: kafka-connect-connector-health-probe
+  namespace: cdc
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app: kafka-connect-connector-health-probe
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: connector-health-probe
+              image: python:3.12-alpine
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: CONNECT_URL
+                  value: "http://kafka-connect-debezium.cdc.svc.cluster.local:8083"
+                - name: REQUIRED_CONNECTORS
+                  value: "order-db-orders-connector,order-db-orders-dynamic-filter-connector"
+              command:
+                - python
+                - -c
+                - |
+                  import json
+                  import os
+                  import sys
+                  import urllib.request
+
+                  connect_url = os.environ["CONNECT_URL"].rstrip("/")
+                  required = [x.strip() for x in os.environ["REQUIRED_CONNECTORS"].split(",") if x.strip()]
+
+                  def get_json(path):
+                      with urllib.request.urlopen(connect_url + path, timeout=15) as resp:
+                          return json.loads(resp.read().decode("utf-8"))
+
+                  errors = []
+
+                  try:
+                      connectors = get_json("/connectors")
+                      print("connectors=" + json.dumps(connectors, sort_keys=True))
+                  except Exception as exc:
+                      print(f"ERROR failed to query connector list: {exc}")
+                      sys.exit(1)
+
+                  for name in required:
+                      if name not in connectors:
+                          errors.append(f"missing connector: {name}")
+                          continue
+
+                      try:
+                          status = get_json(f"/connectors/{name}/status")
+                          connector_state = status.get("connector", {}).get("state")
+                          task_states = [task.get("state") for task in status.get("tasks", [])]
+                          print(f"{name}: connector={connector_state} tasks={task_states}")
+
+                          if connector_state != "RUNNING":
+                              errors.append(f"{name} connector state is {connector_state}")
+
+                          if not task_states:
+                              errors.append(f"{name} has no tasks")
+
+                          for idx, state in enumerate(task_states):
+                              if state != "RUNNING":
+                                  errors.append(f"{name} task {idx} state is {state}")
+                      except Exception as exc:
+                          errors.append(f"{name} status query failed: {exc}")
+
+                  if errors:
+                      for err in errors:
+                          print("ERROR " + err)
+                      sys.exit(1)
+
+                  print("OK all required Kafka Connect connectors are RUNNING")

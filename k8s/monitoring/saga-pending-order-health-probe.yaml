@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: saga-pending-order-health-probe
+  namespace: db
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app: saga-pending-order-health-probe
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: pending-order-probe
+              image: postgres:16-alpine
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: PGHOST
+                  value: "postgresql.db.svc.cluster.local"
+                - name: PGPORT
+                  value: "5432"
+                - name: PGUSER
+                  value: "postgres"
+                - name: PGDATABASE
+                  value: "order_db"
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgresql
+                      key: postgres-password
+              command:
+                - sh
+                - -c
+                - |
+                  COUNT="$(psql -Atc "select count(*) from orders where status = 'PENDING' and created_at < now() - interval '10 minutes';")"
+                  echo "stale_pending_orders=${COUNT}"
+                  test "${COUNT}" = "0"
