@@ -1,0 +1,259 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kafka-connect-connector-bootstrap
+  namespace: cdc
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kafka-connect-read-postgres-secret
+  namespace: db
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["postgresql"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kafka-connect-read-postgres-secret
+  namespace: db
+subjects:
+  - kind: ServiceAccount
+    name: kafka-connect-connector-bootstrap
+    namespace: cdc
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kafka-connect-read-postgres-secret
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-connect-connector-bootstrap-config
+  namespace: cdc
+data:
+  order-db-orders-connector.json: |
+    {
+      "name": "order-db-orders-connector",
+      "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "tasks.max": "1",
+        "database.hostname": "postgresql.db.svc.cluster.local",
+        "database.port": "5432",
+        "database.user": "postgres",
+        "database.password": "<INJECTED_FROM_SECRET>",
+        "database.dbname": "order_db",
+        "topic.prefix": "cdc.order_db",
+        "schema.include.list": "public",
+        "table.include.list": "public.orders",
+        "plugin.name": "pgoutput",
+        "slot.name": "dbz_order_slot",
+        "publication.name": "dbz_order_publication",
+        "publication.autocreate.mode": "disabled",
+        "snapshot.mode": "initial",
+        "tombstones.on.delete": "false",
+        "decimal.handling.mode": "string",
+        "time.precision.mode": "adaptive_time_microseconds",
+        "heartbeat.interval.ms": "10000"
+      }
+    }
+  order-db-orders-dynamic-filter-connector.json: |
+    {
+      "name": "order-db-orders-dynamic-filter-connector",
+      "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "tasks.max": "1",
+        "database.hostname": "postgresql.db.svc.cluster.local",
+        "database.port": "5432",
+        "database.user": "postgres",
+        "database.password": "<INJECTED_FROM_SECRET>",
+        "database.dbname": "order_db",
+        "topic.prefix": "cdc_dynamic.order_db",
+        "schema.include.list": "public",
+        "table.include.list": "public.orders",
+        "plugin.name": "pgoutput",
+        "slot.name": "dbz_order_dynamic_filter_slot",
+        "publication.name": "dbz_order_publication",
+        "publication.autocreate.mode": "disabled",
+        "snapshot.mode": "initial",
+        "tombstones.on.delete": "false",
+        "decimal.handling.mode": "string",
+        "time.precision.mode": "adaptive_time_microseconds",
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": "false",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": "false",
+        "transforms": "dynamicFilter,unwrap",
+        "transforms.dynamicFilter.type": "io.kafkaconnect.dynamicfilter.redis.RedisDynamicFilter",
+        "transforms.dynamicFilter.filter.id": "order-status-filter",
+        "transforms.dynamicFilter.field.name": "status",
+        "transforms.dynamicFilter.empty.list.behavior": "block_all",
+        "transforms.dynamicFilter.redis.uri": "redis://redis.default.svc.cluster.local:6379",
+        "transforms.dynamicFilter.redis.key": "filter:order-status",
+        "transforms.dynamicFilter.redis.poll.interval.ms": "10000",
+        "transforms.dynamicFilter.metrics.enabled": "true",
+        "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+        "transforms.unwrap.drop.tombstones": "true",
+        "transforms.unwrap.delete.handling.mode": "rewrite",
+        "transforms.unwrap.add.fields": "op,source.ts_ms,source.lsn,source.txId,table,db"
+      }
+    }
+  bootstrap.py: |
+    import base64
+    import json
+    import os
+    import ssl
+    import time
+    import urllib.error
+    import urllib.request
+    from pathlib import Path
+
+    CONNECT_URL = os.environ.get(
+        "CONNECT_URL",
+        "http://kafka-connect-debezium.cdc.svc.cluster.local:8083",
+    ).rstrip("/")
+
+    K8S_HOST = "https://kubernetes.default.svc"
+    TOKEN_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+    CA_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+
+    SECRET_NAMESPACE = os.environ.get("POSTGRES_SECRET_NAMESPACE", "db")
+    SECRET_NAME = os.environ.get("POSTGRES_SECRET_NAME", "postgresql")
+    SECRET_KEY = os.environ.get("POSTGRES_SECRET_KEY", "postgres-password")
+
+    CONFIG_DIR = Path("/etc/kafka-connect-bootstrap")
+
+    def http_json(method, url, payload=None, headers=None, timeout=20):
+        data = None
+        if payload is not None:
+            data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(
+            url,
+            data=data,
+            method=method,
+            headers=headers or {"Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            body = resp.read().decode("utf-8")
+            if not body:
+                return None
+            return json.loads(body)
+
+    def wait_for_connect():
+        for attempt in range(1, 31):
+            try:
+                http_json("GET", CONNECT_URL + "/connectors")
+                print(f"Kafka Connect ready after attempt={attempt}")
+                return True
+            except Exception as exc:
+                print(f"Kafka Connect not ready attempt={attempt}: {exc}")
+                time.sleep(5)
+        return False
+
+    def get_postgres_password():
+        token = Path(TOKEN_PATH).read_text().strip()
+        ctx = ssl.create_default_context(cafile=CA_PATH)
+        url = f"{K8S_HOST}/api/v1/namespaces/{SECRET_NAMESPACE}/secrets/{SECRET_NAME}"
+        req = urllib.request.Request(
+            url,
+            method="GET",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        with urllib.request.urlopen(req, context=ctx, timeout=20) as resp:
+            secret = json.loads(resp.read().decode("utf-8"))
+
+        encoded = secret.get("data", {}).get(SECRET_KEY)
+        if not encoded:
+            raise RuntimeError(f"Missing key {SECRET_KEY} in secret {SECRET_NAMESPACE}/{SECRET_NAME}")
+
+        return base64.b64decode(encoded).decode("utf-8")
+
+    def apply_connector(path, password):
+        doc = json.loads(path.read_text())
+        name = doc["name"]
+        config = doc["config"]
+        config["database.password"] = password
+        config.pop("name", None)
+
+        url = f"{CONNECT_URL}/connectors/{name}/config"
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(config).encode("utf-8"),
+            method="PUT",
+            headers={"Content-Type": "application/json"},
+        )
+
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                status = resp.status
+                _ = resp.read()
+            print(f"APPLIED connector={name} status={status}")
+        except urllib.error.HTTPError as exc:
+            body = exc.read().decode("utf-8")
+            body = body.replace(password, "<REDACTED>")
+            print(f"FAILED connector={name} status={exc.code} body={body}")
+            raise
+
+    def main():
+        if not wait_for_connect():
+            raise RuntimeError("Kafka Connect REST API is not ready")
+
+        password = get_postgres_password()
+
+        for filename in [
+            "order-db-orders-connector.json",
+            "order-db-orders-dynamic-filter-connector.json",
+        ]:
+            apply_connector(CONFIG_DIR / filename, password)
+
+        connectors = http_json("GET", CONNECT_URL + "/connectors")
+        print("CONNECTORS=" + json.dumps(connectors, sort_keys=True))
+
+    if __name__ == "__main__":
+        main()
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: kafka-connect-connector-bootstrap
+  namespace: cdc
+spec:
+  schedule: "*/10 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            app: kafka-connect-connector-bootstrap
+        spec:
+          serviceAccountName: kafka-connect-connector-bootstrap
+          restartPolicy: Never
+          containers:
+            - name: bootstrap
+              image: python:3.12-alpine
+              imagePullPolicy: IfNotPresent
+              command: ["python", "/etc/kafka-connect-bootstrap/bootstrap.py"]
+              env:
+                - name: CONNECT_URL
+                  value: "http://kafka-connect-debezium.cdc.svc.cluster.local:8083"
+                - name: POSTGRES_SECRET_NAMESPACE
+                  value: "db"
+                - name: POSTGRES_SECRET_NAME
+                  value: "postgresql"
+                - name: POSTGRES_SECRET_KEY
+                  value: "postgres-password"
+              volumeMounts:
+                - name: bootstrap-config
+                  mountPath: /etc/kafka-connect-bootstrap
+                  readOnly: true
+          volumes:
+            - name: bootstrap-config
+              configMap:
+                name: kafka-connect-connector-bootstrap-config
