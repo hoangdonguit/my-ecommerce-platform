@@ -59,6 +59,10 @@ spec:
             configMapKeyRef:
               name: ecommerce-runtime-config
               key: REDIS_ADDR
+        - name: ENABLE_FLASH_SALE_GATE
+          value: "true"
+        - name: FLASH_SALE_PRODUCTS
+          value: "prod-123"
         - name: KAFKA_BROKER
           valueFrom:
             configMapKeyRef:
