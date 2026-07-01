@@ -8,6 +8,16 @@ This is not a simple CRUD API demo. The system is designed as a production-orien
 
 ---
 
+## Quick Recruiter Summary
+
+- Built a Kubernetes/K3s-based cloud-native microservices platform for e-commerce order processing.
+- Implemented Kafka-based Saga Choreography, Transactional Outbox, idempotency, Redis atomic stock gate, CQRS read model, CDC, and analytics side path.
+- Managed deployment with ArgoCD GitOps, KEDA/HPA autoscaling, Istio mTLS/AuthorizationPolicy, Kubernetes Secrets, and NetworkPolicy-based hardening.
+- Added observability with Prometheus/Grafana, Loki/Alloy, OpenTelemetry/Tempo, alert rules, runbooks, and evidence documentation.
+- Evaluated the system with k6 smoke, baseline, idempotency, flash-sale, stress, soak tests, and Chaos Mesh fault injection.
+
+---
+
 ## 1. Project Information
 
 | Item             | Description                                                                                                                              |
@@ -112,7 +122,7 @@ Apache Kafka
 inventory-consumer   payment-consumer    notification-consumer
         |                   |                   |
         v                   v                   v
-inventory_db       payment_db        notification_db
+   inventory_db        payment_db        notification_db
 ```
 
 Side paths:
@@ -720,14 +730,15 @@ SagaRuntimePodRestarting
 
 ### 15.2. Capacity Interpretation
 
-In the current lab environment, the system has confirmed stable baseline capacity up to **80 RPS** for the order processing flow.
+In the final fixed-resource lab environment, the system confirmed stable baseline capacity up to **180 RPS** for the order-processing flow.
 
 Interpretation:
 
-* 80 RPS is the last confirmed stable baseline rating for the current fixed-resource cluster.
-* It is not a claim that the architecture can never go beyond 80 RPS.
-* Heavier spike/stress scenarios showed increased latency, asynchronous backlog, and database connection pressure.
-* Therefore, 80 RPS is used as the conservative fixed-resource rating.
+* **180 RPS** is the highest confirmed stable baseline rating for the current K3s lab cluster.
+* At 180 RPS, the final report recorded average p95 latency around **472.51 ms**, **0% HTTP error**, and Kafka lag draining back to 0 after the test.
+* **200 RPS** is treated as a near-threshold/degradation boundary because repeated runs showed less consistent SLO behavior.
+* Earlier phases used **70/80 RPS** as conservative checkpoints before later tuning and final benchmark runs.
+* Heavier stress scenarios above the stable range showed increased latency, asynchronous backlog, and longer Kafka drain time, but the system did not crash and data remained consistent.
 
 ### 15.3. Observed Bottlenecks
 
@@ -861,18 +872,17 @@ Use only when a clean benchmark environment is required.
 CONFIRM_RESET=YES ./tests/k6/reset.sh
 ```
 
-### 17.5. Run a Baseline k6 Test
+### 17.5. Baseline Capacity Evidence
+
+The final report uses **180 RPS** as the confirmed stable fixed-resource baseline. Earlier 70/80 RPS runs are historical checkpoints from previous phases.
 
 ```bash
-export GATEWAY_URL="http://<GATEWAY_HOST>:<NODE_PORT>"
-
-RUN_ID="baseline-80rps-$(date +%Y%m%d%H%M%S)"
-
-API_KEY="$API_KEY" \
-GATEWAY_URL="$GATEWAY_URL" \
-RUN_ID="$RUN_ID" \
-k6 run tests/k6/baseline-e2e-80rps.js
+find tests/k6 docs/benchmark -maxdepth 3 -type f \
+  | grep -Ei 'baseline|180|capacity|final' \
+  | sort
 ```
+
+Use the final benchmark artifacts under `docs/benchmark/` as the source of truth when comparing README, CV, and report numbers.
 
 ### 17.6. Check Kafka Consumer Lag
 
