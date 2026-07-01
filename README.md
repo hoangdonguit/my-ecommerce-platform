@@ -774,18 +774,22 @@ Purpose:
 ```text
 .
 ├── docs/
-│   ├── benchmark/
-│   ├── cdc/
-│   ├── chaos/
-│   ├── checklists/
-│   ├── clickhouse/
-│   ├── dynamic-filter/
-│   ├── evidence/
-│   ├── observability/
-│   ├── opentelemetry/
-│   ├── report/
-│   ├── runbook/
-│   └── security/
+│   ├── benchmark/        # k6/load/stress/soak results and benchmark notes
+│   ├── cdc/              # CDC, Debezium, Kafka Connect and logical replication notes
+│   ├── chaos/            # Chaos Mesh scenarios and fault-injection evidence
+│   ├── checkpoints/      # point-in-time system state snapshots
+│   ├── clickhouse/       # ClickHouse analytics/read-side documents
+│   ├── dynamic-filter/   # kafka-connect-dynamic-filter research and runtime proof
+│   ├── evidence/         # runtime proof for specific technical claims
+│   ├── gitops/           # ArgoCD/GitOps management notes
+│   ├── observability/    # Prometheus, Grafana, Loki, alerting and monitoring docs
+│   ├── opentelemetry/    # OpenTelemetry Collector, Tempo and tracing docs
+│   ├── operations/       # operational procedures and maintenance notes
+│   ├── portfolio/        # recruiter-friendly architecture, benchmark and ops summaries
+│   ├── report/           # report-facing summaries for the school project
+│   ├── runbook/          # troubleshooting and recovery guides
+│   ├── security/         # security hardening, policies and secret hygiene docs
+│   └── README.md         # documentation convention
 ├── docker/
 │   └── kafka-connect-dynamic-filter/
 ├── k8s/
@@ -801,9 +805,6 @@ Purpose:
 │   ├── redis/
 │   ├── security/
 │   └── services/
-├── scripts/
-│   ├── backup/
-│   └── flash-sale/
 ├── services/
 │   ├── ecommerce-dashboard/
 │   ├── inventory-service/
@@ -812,13 +813,18 @@ Purpose:
 │   ├── payment-service/
 │   ├── read-model-service/
 │   └── web-gateway/
-└── tests/
-    ├── chaos/
-    ├── k6/
-    └── smoke/
+├── tests/
+│   ├── chaos/
+│   ├── k6/
+│   └── smoke/
+├── scripts/
+│   ├── backup/
+│   └── flash-sale/
+├── chaos/
+├── .github/
+│   └── workflows/
+└── README.md
 ```
-
----
 
 ## 17. Common Operations
 

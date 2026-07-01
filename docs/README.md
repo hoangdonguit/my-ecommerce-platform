@@ -8,7 +8,7 @@ Do not commit raw secrets, API keys, passwords, private keys, `.env`, or local-o
 
 ### benchmark
 
-Use for load test, stress test, spike test, k6 results, RPS/latency/error-rate summaries, and performance bottleneck analysis.
+Use for load test, stress test, spike test, soak test, k6 results, RPS/latency/error-rate summaries, and performance bottleneck analysis.
 
 Raw benchmark artifacts should be stored under:
 
@@ -18,61 +18,21 @@ Benchmark summary files should be stored directly under:
 
     docs/benchmark/
 
-### evidence
+### cdc
 
-Use for runtime proof or validation of a specific technical claim.
+Use for CDC / Debezium / Kafka Connect / PostgreSQL logical replication documents.
 
-Examples:
+Raw CDC proof artifacts should be stored under:
 
-- payment outbox runtime proof
-- DLQ/retry validation
-- final validation after upgrades
+    docs/cdc/runs/<run-id>/
 
-Raw proof artifacts that belong to a specific subsystem may stay under that subsystem's `runs/` folder.
+### chaos
 
-### security
+Use for Chaos Mesh scenarios, pod failure tests, fault-injection results, recovery timing, and post-chaos validation.
 
-Use for security and hardening documents:
+Raw chaos proof artifacts should be stored under:
 
-- secret handling
-- admin NodePort allowlist
-- Istio mTLS/AuthZ
-- NetworkPolicy
-- securityContext/probes
-- repository hardcode scan
-
-Raw security proof artifacts should be stored under:
-
-    docs/security/runs/<run-id>/
-
-### opentelemetry
-
-Use for observability documents:
-
-- Grafana
-- Prometheus
-- OpenTelemetry Collector
-- Tempo
-- traces
-- dashboards
-- metric/tracing incidents
-
-### runbook
-
-Use for operational recovery guides and troubleshooting procedures.
-
-Examples:
-
-- Kafka lag runbook
-- DLQ/retry runbook
-- PostgreSQL backup/restore runbook
-- Grafana No Data runbook
-
-### report
-
-Use for report-facing summaries written for the school project report.
-
-These files should be easier to read than raw evidence files.
+    docs/chaos/runs/<run-id>/
 
 ### checkpoints
 
@@ -89,18 +49,6 @@ A checkpoint should record:
 - known risks
 - next steps
 
-### gitops
-
-Use for ArgoCD/GitOps management notes.
-
-### cdc
-
-Use for CDC / Debezium / Kafka Connect / PostgreSQL logical replication documents.
-
-Raw CDC proof artifacts should be stored under:
-
-    docs/cdc/runs/<run-id>/
-
 ### clickhouse
 
 Use for ClickHouse analytics/read-side documents.
@@ -116,6 +64,102 @@ Use for kafka-connect-dynamic-filter plugin research, build, audit, and runtime 
 Raw dynamic-filter proof artifacts should be stored under:
 
     docs/dynamic-filter/runs/<run-id>/
+
+### evidence
+
+Use for runtime proof or validation of a specific technical claim.
+
+Examples:
+
+- payment outbox runtime proof
+- DLQ/retry validation
+- final validation after upgrades
+
+Raw proof artifacts that belong to a specific subsystem may stay under that subsystem's `runs/` folder.
+
+### gitops
+
+Use for ArgoCD/GitOps management notes.
+
+### observability
+
+Use for monitoring and operational visibility documents:
+
+- Prometheus
+- Grafana
+- Loki / Alloy
+- metrics
+- dashboards
+- alert rules
+- alert evidence
+
+### opentelemetry
+
+Use for tracing-specific documents:
+
+- OpenTelemetry Collector
+- Tempo
+- spans/traces
+- trace propagation
+- tracing incidents
+
+### operations
+
+Use for operational notes that are not tied to one specific incident or runbook.
+
+Examples:
+
+- maintenance procedures
+- recurring checks
+- cluster operating notes
+- benchmark preparation checklist
+- release/rollback operating notes
+
+### portfolio
+
+Use for recruiter-friendly and reviewer-friendly summaries.
+
+These files should be short, readable, and safe to share publicly.
+
+Recommended files:
+
+- `01-architecture-overview.md`
+- `02-order-flow.md`
+- `03-benchmark-summary.md`
+- `04-observability-and-ops.md`
+- `05-security-and-limitations.md`
+
+### report
+
+Use for report-facing summaries written for the school project report.
+
+These files should be easier to read than raw evidence files.
+
+### runbook
+
+Use for operational recovery guides and troubleshooting procedures.
+
+Examples:
+
+- Kafka lag runbook
+- DLQ/retry runbook
+- PostgreSQL backup/restore runbook
+- Grafana No Data runbook
+
+### security
+
+Use for security and hardening documents:
+
+- secret handling
+- admin NodePort allowlist
+- Istio mTLS/AuthZ
+- NetworkPolicy
+- securityContext/probes
+- repository hardcode scan
+
+Raw security proof artifacts should be stored under:
+
+    docs/security/runs/<run-id>/
 
 ## Benchmark and Evidence Rule
 
